@@ -10,6 +10,14 @@ import Solutions from "./pages/Solutions";
 import Contact from "./pages/Contact";
 import Articles from "./pages/Articles";
 import Resources from "./pages/Resources";
+import CircularEconomy from "./pages/CircularEconomy";
+import ESGDataAnalytics from "./pages/ESGDataAnalytics"; 
+import ReportingCompliance from "./pages/ReportingCompliance"; 
+import ConsultingTraining from "./pages/ConsultingTraining";
+import WasteManagement from "./pages/WasteManagement";
+import WasteAuditing from "./pages/WasteAuditing";
+import ArticleDetail from "./pages/ArticleDetail";
+import CarbonCalculator from "./pages/CarbonCalculator";
 
 function Router() {
   return (
@@ -21,6 +29,14 @@ function Router() {
       <Route path={"/articles"} component={Articles} />
       <Route path={"/resources"} component={Resources} />
       <Route path={"/404"} component={NotFound} />
+      <Route path="/solutions/circular-economy" component={CircularEconomy} />
+      <Route path="/solutions/esg-data-analytics" component={ESGDataAnalytics} />
+      <Route path="/solutions/reporting" component={ReportingCompliance} />
+      <Route path="/solutions/consulting" component={ConsultingTraining} />
+      <Route path="/solutions/waste-management" component={WasteManagement} />
+      <Route path="/solutions/waste-auditing" component={WasteAuditing} />
+      <Route path="/articles/:id" component={ArticleDetail} />
+      <Route path="/carbon-calculator" component={CarbonCalculator} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
