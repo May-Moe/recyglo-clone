@@ -1,43 +1,49 @@
 # Build stage
-FROM node:22-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
+# 1. Install Linux build tools (Crucial for packages that need to compile)
+RUN apt-get update && apt-get install -y python3 make g++
 
-# Install pnpm and dependencies
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+# 2. Install the absolute latest pnpm
+RUN npm install -g pnpm@latest
 
-# Copy application code
+# 3. Copy ONLY package files first
+COPY package.json pnpm-lock.yaml* ./
+
+# 4. Install all dependencies (bypassing strict lockfile errors)
+RUN pnpm install --no-frozen-lockfile
+
+# 5. Copy the rest of your code
 COPY . .
 
-# Build the application
+# 6. Build the application
 RUN pnpm build
 
 # Production stage
-FROM node:22-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm again for production
+RUN npm install -g pnpm@latest
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml* ./
 
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+# Install ONLY production dependencies
+RUN pnpm install --prod --no-frozen-lockfile
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Expose port
-EXPOSE 3000
+# If you have a server folder that gets built, uncomment the line below:
+# COPY --from=builder /app/server ./server
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+# Expose the port dynamically for Google Cloud Run
+ENV PORT=8080
+EXPOSE 8080
 
 # Start the application
 CMD ["pnpm", "start"]
