@@ -1,16 +1,16 @@
 import { Link } from 'wouter';
-import { Mail, Phone, MessageCircle, Facebook, Linkedin, Instagram } from 'lucide-react';
+import { Mail, Phone, Facebook, Linkedin, Instagram } from 'lucide-react';
 import logo from '@/assets/images/logo.png'; // Assuming you have the logo here
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1B5E20] text-white py-16">
+    <footer className="bg-[#1B5E20] text-white py-16 print:hidden">
       <div className="container px-4 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-16">
           
           {/* 1. Logo */}
           <div className="flex flex-col items-start">
-            <Link href="/" className="flex items-center gap-3 mb-6 cursor-pointer">
+            <Link href="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-3 mb-6 cursor-pointer">
               {/* Note: The 'brightness-0 invert' classes turn a black/colored logo pure white */}
               <img src={logo} alt="RecyGlo Logo" className="h-10 w-auto object-contain brightness-0 invert" />
             </Link>
@@ -21,69 +21,69 @@ export default function Footer() {
             <h4 className="font-bold text-xl text-[#76FF03] mb-6">Information</h4>
             <ul className="space-y-3 text-[15px] text-white/90">
               <li>
-                <Link href="/about" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/about" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/solutions" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/solutions" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Our Solutions
                 </Link>
               </li>
               <li>
-                <Link href="/resources" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/resources" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Resources
                 </Link>
               </li>
               <li>
-                <Link href="/articles" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/articles" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Articles
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/contact" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Contact Us
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* 3. Services */}
+          {/* 3. Services (UPDATED LINKS TO DEDICATED PAGES) */}
           <div>
             <h4 className="font-bold text-xl text-[#76FF03] mb-6">Services</h4>
             <ul className="space-y-3 text-[15px] text-white/90">
               <li>
-                <Link href="/solutions" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/solutions" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   All Services
                 </Link>
               </li>
               <li>
-                <Link href="/solutions#circular-economy" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/solutions/circular-economy" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Circular Economy
                 </Link>
               </li>
               <li>
-                <Link href="/solutions#esg-data-analytics" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/solutions/esg-data-analytics" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   ESG Data Analytics
                 </Link>
               </li>
               <li>
-                <Link href="/solutions#reporting" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/solutions/reporting" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Reporting and Compliance
                 </Link>
               </li>
               <li>
-                <Link href="/solutions#consulting" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/solutions/consulting" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Consulting and Training
                 </Link>
               </li>
               <li>
-                <Link href="/solutions#waste-management" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/solutions/waste-management" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Waste Management Solutions
                 </Link>
               </li>
               <li>
-                <Link href="/solutions#waste-auditing" className="hover:text-[#76FF03] transition-colors cursor-pointer">
+                <Link href="/solutions/waste-auditing" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#76FF03] transition-colors cursor-pointer">
                   Waste Auditing
                 </Link>
               </li>
@@ -155,10 +155,10 @@ export default function Footer() {
         <div className="border-t border-white/20 pt-8 flex flex-col items-center justify-center text-[14px] text-white/80">
           <p className="mb-4">© Copyright 2026 by RecyGlo Company Pte. Ltd. All rights reserved.</p>
           <div className="flex gap-6 font-medium">
-            <Link href="/terms" className="hover:text-white transition-colors underline underline-offset-4 cursor-pointer">
+            <Link href="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors underline underline-offset-4 cursor-pointer">
               Terms & Conditions
             </Link>
-            <Link href="/privacy-policy" className="hover:text-white transition-colors underline underline-offset-4 cursor-pointer">
+            <Link href="/privacy-policy" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors underline underline-offset-4 cursor-pointer">
               Privacy Policy
             </Link>
           </div>
