@@ -7,18 +7,19 @@ import { useLocation } from 'wouter';
 
 // --- FIREBASE IMPORTS ---
 import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase"; // Adjust path if needed
+import { db } from "@/lib/firebase"; 
 
 export default function About() {
   const [, setLocation] = useLocation();
 
-  // --- LIVE DATABASE STATE (Starts empty, waits for Firebase) ---
+  // --- LIVE DATABASE STATE ---
   const [pageData, setPageData] = useState({
     heroData: { subtitle: "", title: "", description: "", imagePreview: "" },
     introData: { title: "", description: "", address: "", email: "", phone: "", lineId: "", imagePreview: "" },
     storyData: { title: "", paragraph1: "", paragraph2: "", paragraph3: "", ceoName: "", ceoTitle: "", ceoImagePreview: "" },
     teamMembers: [] as any[],
-    awards: [] as any[]
+    awards: [] as any[],
+    partners: [] as any[] // NEW
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +36,8 @@ export default function About() {
           introData: data.introData || { title: "", description: "", address: "", email: "", phone: "", lineId: "", imagePreview: "" },
           storyData: data.storyData || { title: "", paragraph1: "", paragraph2: "", paragraph3: "", ceoName: "", ceoTitle: "", ceoImagePreview: "" },
           teamMembers: data.teamMembers || [],
-          awards: data.awards || []
+          awards: data.awards || [],
+          partners: data.partners || [] // NEW
         });
       }
       setIsLoading(false);
@@ -63,7 +65,7 @@ export default function About() {
       {/* 1. HERO SECTION */}
       <section className="relative py-12 md:py-20 overflow-hidden bg-[#1B5E20]">
         <div 
-          className="absolute inset-0 z-0 opacity-80 bg-black/30" // Fallback background
+          className="absolute inset-0 z-0 opacity-80 bg-black/30" 
           style={pageData.heroData.imagePreview ? {
             backgroundImage: `url(${pageData.heroData.imagePreview})`, 
             backgroundSize: 'cover',
@@ -204,7 +206,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* 4. MISSION / VISION / GOAL CARDS (Static as requested) */}
+      {/* 4. MISSION / VISION / GOAL CARDS */}
       <section className="bg-[#F8F9F7] pb-24">
          <div className="container px-4 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-20">
@@ -288,7 +290,7 @@ export default function About() {
         <section id="awards" className="py-24 bg-white border-t border-gray-100 scroll-mt-24">
           <div className="container px-4 sm:px-8 lg:px-12">
              <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-12 text-center md:text-left">
-               Award-Winning Excellence & Global Recognition
+                Award-Winning Excellence & Global Recognition
              </h2>
              
              <div className="relative">
@@ -335,21 +337,31 @@ export default function About() {
         </section>
       )}
 
-      {/* 8. STRATEGIC PARTNERSHIPS */}
-      <section id="partnerships" className="py-24 bg-[#F8F9F7] border-t border-gray-100 scroll-mt-24">
-        <div className="container px-4 sm:px-8 lg:px-12 text-center">
-           <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-12">
-             Strategic Partnerships & Industry Memberships
-           </h2>
-           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60">
-              <div className="h-16 w-40 bg-gray-300 rounded-md"></div>
-              <div className="h-16 w-32 bg-gray-300 rounded-md"></div>
-              <div className="h-16 w-48 bg-gray-300 rounded-md"></div>
-              <div className="h-16 w-36 bg-gray-300 rounded-md"></div>
-              <div className="h-16 w-40 bg-gray-300 rounded-md"></div>
-           </div>
-        </div>
-      </section>
+      {/* 8. STRATEGIC PARTNERSHIPS (DYNAMIC) */}
+      {pageData.partners.length > 0 && (
+        <section id="partnerships" className="py-24 bg-[#F8F9F7] border-t border-gray-100 scroll-mt-24">
+          <div className="container px-4 sm:px-8 lg:px-12 text-center">
+             <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-12">
+               Strategic Partnerships & Industry Memberships
+             </h2>
+             <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+                {pageData.partners.map((partner: any, idx: number) => (
+                  <div key={partner.id || idx} className="h-20 w-40 flex items-center justify-center">
+                    {partner.imagePreview ? (
+                      <img 
+                        src={partner.imagePreview} 
+                        alt="Partner Logo" 
+                        className="max-w-full max-h-full object-contain mix-blend-multiply opacity-80 hover:opacity-100 transition-opacity" 
+                      />
+                    ) : (
+                      <div className="h-16 w-32 bg-gray-300 rounded-md opacity-60"></div>
+                    )}
+                  </div>
+                ))}
+             </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>

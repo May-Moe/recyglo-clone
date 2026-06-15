@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Users, BookOpen, Trophy, Plus, Trash2, UploadCloud, GripVertical, Loader2, Target } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Users, BookOpen, Trophy, Plus, Trash2, UploadCloud, GripVertical, Loader2, Target, Briefcase } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase"; // Adjust path if needed
+import { db, storage } from "@/lib/firebase";
 
 // --- EXISTING WEBSITE ASSET IMPORTS ---
 import aboutHero from '@/assets/images/about-hero.jpg';
@@ -21,8 +21,6 @@ export default function AdminAbout() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- DEFAULT STATE: PRE-LOADED WITH YOUR EXISTING WEBSITE DATA ---
-  
   const [heroData, setHeroData] = useState({
     subtitle: "Empowering businesses in Myanmar, Vietnam, Thailand, Malaysia, Singapore, and Korea with circular economy strategies and ISO-compliant reporting.",
     title: "Welcome to RecyGlo",
@@ -66,7 +64,8 @@ export default function AdminAbout() {
     { id: 'award-4', title: "Circular Economy Leader", year: "2022", imagePreview: "" },
   ]);
 
-  // --- 1. FETCH INITIAL DATA FROM FIREBASE ON LOAD ---
+  const [partners, setPartners] = useState<any[]>([]); // NEW: Partners state
+
   useEffect(() => {
     const fetchAboutData = async () => {
       try {
@@ -80,6 +79,7 @@ export default function AdminAbout() {
           if (data.storyData) setStoryData(data.storyData);
           if (data.teamMembers && data.teamMembers.length > 0) setTeamMembers(data.teamMembers);
           if (data.awards && data.awards.length > 0) setAwards(data.awards);
+          if (data.partners && data.partners.length > 0) setPartners(data.partners); // Load partners
         }
       } catch (error) {
         console.error("Error fetching about page data:", error);
@@ -91,7 +91,6 @@ export default function AdminAbout() {
     fetchAboutData();
   }, []);
 
-  // --- 2. SAVE EVERYTHING TO FIREBASE ---
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -102,6 +101,7 @@ export default function AdminAbout() {
         storyData,
         teamMembers,
         awards,
+        partners, // Save partners
         lastUpdated: new Date()
       }, { merge: true });
 
@@ -114,7 +114,6 @@ export default function AdminAbout() {
     }
   };
 
-  // --- HANDLERS FOR LISTS ---
   const addTeamMember = () => setTeamMembers([...teamMembers, { id: `team-${Date.now()}`, name: "", title: "", imagePreview: "" }]);
   const removeTeamMember = (id: string) => setTeamMembers(teamMembers.filter(m => m.id !== id));
   const updateTeamMember = (id: string, field: string, value: string) => setTeamMembers(teamMembers.map(m => m.id === id ? { ...m, [field]: value } : m));
@@ -123,6 +122,10 @@ export default function AdminAbout() {
   const removeAward = (id: string) => setAwards(awards.filter(a => a.id !== id));
   const updateAward = (id: string, field: string, value: string) => setAwards(awards.map(a => a.id === id ? { ...a, [field]: value } : a));
 
+  const addPartner = () => setPartners([...partners, { id: `partner-${Date.now()}`, imagePreview: "" }]);
+  const removePartner = (id: string) => setPartners(partners.filter(p => p.id !== id));
+  const updatePartner = (id: string, value: string) => setPartners(partners.map(p => p.id === id ? { ...p, imagePreview: value } : p));
+
   if (isLoading) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
   }
@@ -130,7 +133,6 @@ export default function AdminAbout() {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-500 pb-12">
       
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Edit About Us Page</h1>
@@ -151,12 +153,12 @@ export default function AdminAbout() {
           <TabButton id="story" label="Our Story" icon={<BookOpen size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="team" label="Our Team" icon={<Users size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="awards" label="Awards" icon={<Trophy size={18} />} activeTab={activeTab} onClick={setActiveTab} />
+          <TabButton id="partners" label="Partnerships" icon={<Briefcase size={18} />} activeTab={activeTab} onClick={setActiveTab} />
         </div>
 
         {/* RIGHT SIDE: Editor Area */}
         <div className="flex-1 bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-8 min-h-[500px]">
           
-          {/* TAB 1: HERO BANNER */}
           {activeTab === 'hero' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="mb-6 border-b pb-4">
@@ -186,7 +188,6 @@ export default function AdminAbout() {
             </div>
           )}
 
-          {/* TAB 2: WHO WE ARE (Intro & Contact) */}
           {activeTab === 'intro' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="mb-6 border-b pb-4">
@@ -232,7 +233,6 @@ export default function AdminAbout() {
             </div>
           )}
 
-          {/* TAB 3: OUR STORY (CEO) */}
           {activeTab === 'story' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="mb-6 border-b pb-4">
@@ -276,7 +276,6 @@ export default function AdminAbout() {
             </div>
           )}
 
-          {/* TAB 4: OUR TEAM */}
           {activeTab === 'team' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -316,7 +315,6 @@ export default function AdminAbout() {
             </div>
           )}
 
-          {/* TAB 5: AWARDS */}
           {activeTab === 'awards' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -344,6 +342,46 @@ export default function AdminAbout() {
                     <input type="text" value={award.year} onChange={(e) => updateAward(award.id, 'year', e.target.value)} className="w-full px-2 py-1 text-center border border-gray-200 rounded focus:outline-none text-xs bg-white" placeholder="Year (e.g. 2024)" />
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: PARTNERSHIPS */}
+          {activeTab === 'partners' && (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Strategic Partnerships</h2>
+                  <p className="text-sm text-gray-500 mt-1">Upload logos of your industry partners and memberships.</p>
+                </div>
+                <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
+                  <Plus size={16} className="mr-2" /> Add Logo
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {partners.map((partner) => (
+                  <div key={partner.id} className="aspect-video relative group bg-gray-50 rounded-xl border border-gray-200 p-2">
+                    <ImageUploader 
+                      preview={partner.imagePreview} 
+                      onUploadSuccess={(url: string) => updatePartner(partner.id, url)}
+                    />
+                    <button 
+                      onClick={() => removePartner(partner.id)}
+                      className="absolute top-1 right-1 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+                
+                <div 
+                  onClick={addPartner}
+                  className="aspect-video border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"
+                >
+                  <Plus size={24} className="mb-2" />
+                  <span className="text-xs font-medium">Add Logo</span>
+                </div>
               </div>
             </div>
           )}
@@ -395,7 +433,7 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
         </div>
       ) : preview ? (
         <>
-          <img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
+          <img src={preview} className="w-full h-full object-contain opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
           <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity">
             <UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} />
           </div>

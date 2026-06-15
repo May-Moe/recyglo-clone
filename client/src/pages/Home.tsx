@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, ChevronLeft, ChevronRight, Play, Quote, X } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter'; 
-import { useTranslation } from 'react-i18next'; // <-- NEW IMPORT
+import { useTranslation } from 'react-i18next';
 
 // --- FIREBASE IMPORTS ---
 import { doc, onSnapshot } from "firebase/firestore";
@@ -35,7 +35,8 @@ export default function Home() {
     visionData: { mission: "", vision: "", goal: "" },
     values: [],
     testimonials: [],
-    galleryImages: []
+    galleryImages: [],
+    partners: [] 
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +53,8 @@ export default function Home() {
           visionData: data.visionData || { mission: "", vision: "", goal: "" },
           values: data.values || [],
           testimonials: data.testimonials || [],
-          galleryImages: data.galleryImages ? data.galleryImages.map((img: any) => img.preview) : []
+          galleryImages: data.galleryImages ? data.galleryImages.map((img: any) => img.preview) : [],
+          partners: data.partners || [] 
         });
       }
       setIsLoading(false);
@@ -74,9 +76,10 @@ export default function Home() {
     setCurrentSlide((prev) => (prev - 1 + pageData.heroSlides.length) % pageData.heroSlides.length);
   };
 
-  const partners = Array.from({ length: 30 }, (_, i) => i + 1);
+  // --- DYNAMIC PARTNERS LOGIC ---
+  const partners = pageData.partners || [];
   const partnersPerPage = 15; 
-  const totalPages = Math.ceil(partners.length / partnersPerPage);
+  const totalPages = Math.max(1, Math.ceil(partners.length / partnersPerPage));
   const [partnerPageIndex, setPartnerPageIndex] = useState(0);
   
   const nextPartnerPage = () => setPartnerPageIndex((prev) => (prev + 1) % totalPages);
@@ -118,7 +121,6 @@ export default function Home() {
     return pageData.galleryImages[index % pageData.galleryImages.length];
   };
 
-  // Static Blog Posts (Translated directly using t() where possible, or waiting for CMS)
   const blogPosts = [
     { id: 1, title: "RecyGlo Publishes Report on Thailand's Battle With Climate Change", image: blog1, tags: ["Sustainability"], excerpt: "In July 2024, RecyGlo published a report on Thailand’s battle with climate change...", date: "11 October 2024" },
     { id: 2, title: "Thailand's Sustainable Future: The Significance of Renewable Energy", image: blog2, tags: ["Circular Economy", "News", "Sustainability"], excerpt: "Thailand’s road to sustainability requires a robust strategy to reach its goal by 2030...", date: "11 October 2024" },
@@ -187,42 +189,51 @@ export default function Home() {
         </section>
       )}
 
-      {/* Trusted By Section */}
-      <section className="py-16 bg-white border-b border-gray-100 relative">
-        <div className="container px-4 sm:px-8 lg:px-12">
-          <h3 className="text-2xl font-bold text-[#1B5E20] mb-10 text-center lg:text-left">
-            {t('home.trustedBrands', 'Trusted by Global Brands & International Organizations')}
-          </h3>
-          <div className="flex items-center justify-between gap-2 md:gap-6 relative">
-             <button onClick={prevPartnerPage} className="p-3 text-gray-400 hover:text-[#1B5E20] z-10 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0"><ChevronLeft size={24} /></button>
-             <div className="overflow-hidden w-full px-2">
-                <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${partnerPageIndex * 100}%)` }}>
-                   {Array.from({ length: totalPages }).map((_, pageIndex) => (
-                      <div key={pageIndex} className="w-full flex-shrink-0">
-                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            {partners.slice(pageIndex * partnersPerPage, (pageIndex + 1) * partnersPerPage).map((partnerNum) => (
-                                <div key={partnerNum} className="h-24 bg-white border border-gray-100 rounded-xl flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow p-4">
-                                  <span className="text-gray-400 text-sm font-bold">Partner {partnerNum}</span>
-                                </div>
-                            ))}
-                         </div>
-                      </div>
-                   ))}
-                </div>
-             </div>
-             <button onClick={nextPartnerPage} className="p-3 text-gray-400 hover:text-[#1B5E20] z-10 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0"><ChevronRight size={24} /></button>
+      {/* Trusted By Section (DYNAMIC) */}
+      {partners.length > 0 && (
+        <section className="py-16 bg-white border-b border-gray-100 relative">
+          <div className="container px-4 sm:px-8 lg:px-12">
+            <h3 className="text-2xl font-bold text-[#1B5E20] mb-10 text-center lg:text-left">
+              {t('home.trustedBrands', 'Trusted by Global Brands & International Organizations')}
+            </h3>
+            <div className="flex items-center justify-between gap-2 md:gap-6 relative">
+               <button onClick={prevPartnerPage} className="p-3 text-gray-400 hover:text-[#1B5E20] z-10 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0"><ChevronLeft size={24} /></button>
+               <div className="overflow-hidden w-full px-2">
+                  <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${partnerPageIndex * 100}%)` }}>
+                     {Array.from({ length: totalPages }).map((_, pageIndex) => (
+                        <div key={pageIndex} className="w-full flex-shrink-0">
+                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                              {partners.slice(pageIndex * partnersPerPage, (pageIndex + 1) * partnersPerPage).map((partner: any, idx: number) => (
+                                  <div key={partner.id || idx} className="h-24 bg-white border border-gray-100 rounded-xl flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow p-4 overflow-hidden">
+                                    {partner.imagePreview ? (
+                                      <img src={partner.imagePreview} alt="Partner Logo" className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                                    ) : (
+                                      <span className="text-gray-400 text-sm font-bold">Logo Placeholder</span>
+                                    )}
+                                  </div>
+                              ))}
+                           </div>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+               <button onClick={nextPartnerPage} className="p-3 text-gray-400 hover:text-[#1B5E20] z-10 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0"><ChevronRight size={24} /></button>
+            </div>
+            
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-8 relative">
+                 <div className="w-8"></div> 
+                 <div className="flex gap-2 justify-center absolute left-1/2 -translate-x-1/2">
+                    {Array.from({ length: totalPages }).map((_, idx) => (
+                      <button key={idx} onClick={() => setPartnerPageIndex(idx)} className={`h-2 rounded-full transition-all ${partnerPageIndex === idx ? 'w-8 bg-[#1B5E20]' : 'w-2 bg-gray-300'}`} />
+                    ))}
+                 </div>
+                 <div className="text-sm font-medium text-gray-500">{partnerPageIndex + 1} / {totalPages}</div>
+              </div>
+            )}
           </div>
-          <div className="flex items-center justify-between mt-8 relative">
-             <div className="w-8"></div> 
-             <div className="flex gap-2 justify-center absolute left-1/2 -translate-x-1/2">
-                {Array.from({ length: totalPages }).map((_, idx) => (
-                  <button key={idx} onClick={() => setPartnerPageIndex(idx)} className={`h-2 rounded-full transition-all ${partnerPageIndex === idx ? 'w-8 bg-[#1B5E20]' : 'w-2 bg-gray-300'}`} />
-                ))}
-             </div>
-             <div className="text-sm font-medium text-gray-500">{partnerPageIndex + 1} / {totalPages}</div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Testimonials Section */}
       {pageData.testimonials.length > 0 && (
@@ -358,17 +369,85 @@ export default function Home() {
         </div>
       </section>
 
+      {/* NEW: IMPACT AT A GLANCE SECTION (Professional & Corporate) */}
+      <section className="py-24 bg-white border-y border-gray-200">
+        <div className="container px-4 sm:px-8 lg:px-12">
+          <div className="flex flex-col lg:flex-row gap-16 items-center">
+            
+            {/* Left Side: Text Content */}
+            <div className="lg:w-1/3">
+              <div className="w-12 h-1 bg-[#E2552B] mb-6"></div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-6 leading-tight">
+                {t('home.impactGlanceTitle', 'Impact at a Glance')}
+              </h2>
+              <p className="text-gray-600 mb-8 leading-relaxed">
+                {t('home.impactGlanceDesc', 'We are building circular economies from the bottom up—leaving no one behind across 8 countries, 400+ partners in Southeast Asia.')} {/*[cite: 1] */}
+              </p>
+              <Button 
+                onClick={() => { setLocation('/impact'); window.scrollTo(0, 0); }}
+                variant="outline"
+                className="border-2 border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white font-bold px-6 py-6 rounded-md transition-all flex items-center gap-2 group w-fit"
+              >
+                {t('home.readImpact', 'Read Full Impact Report')}
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
+
+            {/* Right Side: Clean Data Grid */}
+            <div className="lg:w-2/3 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12">
+                
+                {/* Stat 1 */}
+                <div className="border-l-2 border-gray-200 pl-6 py-2">
+                  <h3 className="text-4xl md:text-5xl font-bold text-[#1B5E20] mb-3">1M+</h3> {/*[cite: 1] */}
+                  <p className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
+                    {t('home.stat1', 'Lives Impacted')} {/*[cite: 1] */}
+                  </p>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    Empowering informal workers and coastal communities.
+                  </p>
+                </div>
+
+                {/* Stat 2 */}
+                <div className="border-l-2 border-gray-200 pl-6 py-2">
+                  <h3 className="text-4xl md:text-5xl font-bold text-[#1B5E20] mb-3">100K+</h3> {/*[cite: 1] */}
+                  <p className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
+                    {t('home.stat2', 'Tonnes Recycled')} {/*[cite: 1] */}
+                  </p>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    Verified material diverted from landfills and oceans.
+                  </p>
+                </div>
+
+                {/* Stat 3 */}
+                <div className="border-l-2 border-gray-200 pl-6 py-2">
+                  <h3 className="text-4xl md:text-5xl font-bold text-[#E2552B] mb-3">$2M+</h3> {/*[cite: 1] */}
+                  <p className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
+                    {t('home.stat3', 'Community Investment')} {/*[cite: 1] */}
+                  </p>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    Deployed for social programming and sustainable uplift.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </section>
+
       {/* Impact in Action Masonry-like Grid */}
       {pageData.galleryImages.length > 4 && (
-        <section className="py-24 bg-white">
+        <section className="py-24 bg-[#F8F9F7]">
           <div className="container px-4 sm:px-8 lg:px-12">
-            <h2 className="text-3xl font-bold text-[#1B5E20] mb-12">{t('home.impactTitle', 'Impact in Action')}</h2>
+            <h2 className="text-3xl font-bold text-[#1B5E20] mb-12">{t('home.impactGalleryTitle', 'Impact in Action')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-auto md:h-[600px]">
                <div className="flex flex-col gap-6 h-full">
                   <div className="rounded-xl overflow-hidden bg-gray-200 h-1/2 relative group cursor-pointer" onClick={() => { setGalleryIndex(0); setIsGalleryOpen(true); }}>
                      <img src={getGalleryImg(0)} className="w-full h-full object-cover" alt="Impact" />
                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                       <span className="text-white font-bold tracking-wider">RecyGlo Team Thailand</span>
+                       <span className="text-white font-bold tracking-wider">RecyGlo Team</span>
                      </div>
                   </div>
                   <div className="rounded-xl overflow-hidden bg-gray-200 h-1/2 relative group cursor-pointer" onClick={() => { setGalleryIndex(1); setIsGalleryOpen(true); }}>
@@ -424,7 +503,7 @@ export default function Home() {
       )}
 
       {/* Blog Section */}
-      <section className="py-24 bg-[#F8F9F7]">
+      <section className="py-24 bg-white">
          <div className="container px-4 sm:px-8 lg:px-12">
             <div className="flex justify-between items-end mb-12">
                <h2 className="text-3xl font-bold text-[#1B5E20]">{t('home.blogTitle', 'Blog')}</h2>

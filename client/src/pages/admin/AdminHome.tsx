@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2 } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -21,6 +21,7 @@ export default function AdminHome() {
   const [values, setValues] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [partners, setPartners] = useState<any[]>([]); // NEW: Partners state
 
   // --- 1. FETCH INITIAL DATA FROM FIREBASE ON LOAD ---
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function AdminHome() {
           if (data.values && data.values.length > 0) setValues(data.values);
           if (data.testimonials && data.testimonials.length > 0) setTestimonials(data.testimonials);
           if (data.galleryImages && data.galleryImages.length > 0) setGalleryImages(data.galleryImages);
+          if (data.partners && data.partners.length > 0) setPartners(data.partners); // Load partners
         }
       } catch (error) {
         console.error("Error fetching home page data:", error);
@@ -58,6 +60,7 @@ export default function AdminHome() {
         values,
         testimonials,
         galleryImages,
+        partners, // Save partners
         lastUpdated: new Date()
       }, { merge: true });
 
@@ -86,6 +89,11 @@ export default function AdminHome() {
   const addGalleryImage = () => setGalleryImages([...galleryImages, { id: `img-${Date.now()}`, preview: "" }]);
   const removeGalleryImage = (id: string) => setGalleryImages(galleryImages.filter(img => img.id !== id));
   const updateGalleryImage = (id: string, value: string) => setGalleryImages(galleryImages.map(img => img.id === id ? { ...img, preview: value } : img));
+
+  // Handlers for Partners
+  const addPartner = () => setPartners([...partners, { id: `partner-${Date.now()}`, imagePreview: "" }]);
+  const removePartner = (id: string) => setPartners(partners.filter(p => p.id !== id));
+  const updatePartner = (id: string, value: string) => setPartners(partners.map(p => p.id === id ? { ...p, imagePreview: value } : p));
 
 
   if (isLoading) {
@@ -116,6 +124,7 @@ export default function AdminHome() {
         {/* LEFT SIDE: Tab Navigation */}
         <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
           <TabButton id="hero" label="Hero Slideshow" icon={<Layout size={18} />} activeTab={activeTab} onClick={setActiveTab} />
+          <TabButton id="partners" label="Trusted Partners" icon={<Users size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="vision" label="Strategic Vision" icon={<Target size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="values" label="Our Values" icon={<Heart size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="testimonials" label="Testimonials" icon={<MessageSquareQuote size={18} />} activeTab={activeTab} onClick={setActiveTab} />
@@ -181,7 +190,47 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 2: STRATEGIC VISION */}
+          {/* TAB 2: PARTNERS */}
+          {activeTab === 'partners' && (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Trusted Partners & Brands</h2>
+                  <p className="text-sm text-gray-500 mt-1">Upload logos of the brands and organizations you work with.</p>
+                </div>
+                <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
+                  <Plus size={16} className="mr-2" /> Add Logo
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {partners.map((partner) => (
+                  <div key={partner.id} className="aspect-video relative group bg-gray-50 rounded-xl border border-gray-200 p-2">
+                    <ImageUploader 
+                      preview={partner.imagePreview} 
+                      onUploadSuccess={(url: string) => updatePartner(partner.id, url)}
+                    />
+                    <button 
+                      onClick={() => removePartner(partner.id)}
+                      className="absolute top-1 right-1 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+                
+                <div 
+                  onClick={addPartner}
+                  className="aspect-video border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"
+                >
+                  <Plus size={24} className="mb-2" />
+                  <span className="text-xs font-medium">Add Logo</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: STRATEGIC VISION */}
           {activeTab === 'vision' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="mb-6 border-b pb-4">
@@ -203,7 +252,7 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 3: OUR VALUES */}
+          {/* TAB 4: OUR VALUES */}
           {activeTab === 'values' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -248,7 +297,7 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 4: TESTIMONIALS */}
+          {/* TAB 5: TESTIMONIALS */}
           {activeTab === 'testimonials' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -300,7 +349,7 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 5: IMPACT GALLERY */}
+          {/* TAB 6: IMPACT GALLERY */}
           {activeTab === 'gallery' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -404,7 +453,7 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
         </div>
       ) : preview ? (
         <>
-          <img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
+          <img src={preview} className="w-full h-full object-contain opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
           <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity">
             <UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} />
             {!small && <span className="text-xs font-bold text-[#1B5E20]">Change</span>}

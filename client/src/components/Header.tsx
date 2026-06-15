@@ -35,7 +35,6 @@ export default function Header() {
   const [, setLocation] = useLocation(); 
 
   // --- RAW DATABASE STATE ---
-  // We store the raw Firebase data so we can re-map it when the language changes
   const [rawServices, setRawServices] = useState<any[]>([]);
 
   // --- FETCH SERVICES FROM FIREBASE ---
@@ -47,7 +46,6 @@ export default function Header() {
   }, []);
 
   // --- DYNAMIC SERVICES GENERATION ---
-  // This recalculates automatically instantly whenever rawServices OR currentLang changes!
   const dynamicServices = [
     { 
       title: t('nav.allServices', 'All Services'), 
@@ -55,7 +53,6 @@ export default function Header() {
       desc: t('nav.allServicesDesc', 'View all our comprehensive sustainability solutions.') 
     },
     ...rawServices.map(data => ({
-      // Prioritize the current language field (e.g. title_th), fallback to English, fallback to base title
       title: data[`title_${currentLang}`] || data.title_en || data.title || '',
       href: `/solutions/${data.slug}`,
       desc: data[`desc_${currentLang}`] || data.desc_en || data.desc || t('nav.learnMore', 'Learn more about this service.')
@@ -71,11 +68,12 @@ export default function Header() {
       items: [
         { title: t('nav.aboutRecyglo', 'About RecyGlo'), href: '/about#introducing', desc: t('nav.aboutDesc', 'Learn about our mission, history, and team.') },
         { title: t('nav.ourTeam', 'Our Team'), href: '/about#team', desc: t('nav.teamDesc', 'Meet the people driving sustainability at RecyGlo.') },
-        { title: t('nav.impact', 'See Our Impact'), href: '/about#impact', desc: t('nav.impactDesc', 'Pioneering Sustainability in Action.') },
         { title: t('nav.awards', 'Awards & Recognition'), href: '/about#awards', desc: t('nav.awardsDesc', 'Award-Winning Excellence & Global Recognition.') },
         { title: t('nav.partnerships', 'Strategic Partnerships'), href: '/about#partnerships', desc: t('nav.partnershipsDesc', 'Strategic Partnerships & Industry Memberships.') },
       ],
     },
+    // NEW: MOVED IMPACT HERE AS A MAIN TOP-LEVEL TAB
+    { label: t('nav.impact', 'Our Impact'), href: '/impact' },
     { 
       label: t('nav.solutions', 'Our Solutions'), 
       href: '/solutions',

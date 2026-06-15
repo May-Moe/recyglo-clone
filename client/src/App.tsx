@@ -16,6 +16,7 @@ import Resources from "./pages/Resources";
 import ArticleDetail from "./pages/ArticleDetail";
 import CarbonCalculator from "./pages/CarbonCalculator";
 import ServiceDetail from "./pages/ServiceDetail"; // THE NEW DYNAMIC TEMPLATE
+import Impact from "./pages/Impact";
 
 // --- ADMIN PAGES ---
 import Login from "./pages/Login";
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/404" component={NotFound} />
       <Route path="/articles/:slug" component={ArticleDetail} />
       <Route path="/carbon-calculator" component={CarbonCalculator} />
+      <Route path="/impact" component={Impact} />
       
       {/* THE ONLY SOLUTIONS ROUTE YOU NEED NOW */}
       <Route path="/solutions/:slug" component={ServiceDetail} />
@@ -109,6 +111,7 @@ function Router() {
             <AdminSubscribers />
           </AdminLayout>
         </Route>
+
       
       {/* Final fallback route */}
       <Route component={NotFound} />
