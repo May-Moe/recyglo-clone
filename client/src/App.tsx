@@ -4,57 +4,122 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import '@/lib/i18n'
+
+// --- PUBLIC PAGES ---
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Solutions from "./pages/Solutions";
 import Contact from "./pages/Contact";
 import Articles from "./pages/Articles";
 import Resources from "./pages/Resources";
-import CircularEconomy from "./pages/CircularEconomy";
-import ESGDataAnalytics from "./pages/ESGDataAnalytics"; 
-import ReportingCompliance from "./pages/ReportingCompliance"; 
-import ConsultingTraining from "./pages/ConsultingTraining";
-import WasteManagement from "./pages/WasteManagement";
-import WasteAuditing from "./pages/WasteAuditing";
 import ArticleDetail from "./pages/ArticleDetail";
 import CarbonCalculator from "./pages/CarbonCalculator";
+import ServiceDetail from "./pages/ServiceDetail"; // THE NEW DYNAMIC TEMPLATE
+
+// --- ADMIN PAGES ---
+import Login from "./pages/Login";
+import AdminLayout from "./layouts/AdminLayout"; 
+import DashboardHome from "./pages/admin/DashboardHome";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminHome from "./pages/admin/AdminHome";
+import AdminAbout from "./pages/admin/AdminAbout";
+import AdminContact from "./pages/admin/AdminContact";
+import AdminResources from "./pages/admin/AdminResources";
+import AdminSolutions from "./pages/admin/AdminSolutions";
+import AdminArticles from "./pages/admin/AdminArticles";
+import AdminMedia from "./pages/admin/AdminMedia";
+import AdminInquiries from "./pages/admin/AdminInquiries";
+import AdminSubscribers from '@/pages/admin/AdminSubscribers';
 
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/about"} component={About} />
-      <Route path={"/solutions"} component={Solutions} />
-      <Route path={"/contact"} component={Contact} />
-      <Route path={"/articles"} component={Articles} />
-      <Route path={"/resources"} component={Resources} />
-      <Route path={"/404"} component={NotFound} />
-      <Route path="/solutions/circular-economy" component={CircularEconomy} />
-      <Route path="/solutions/esg-data-analytics" component={ESGDataAnalytics} />
-      <Route path="/solutions/reporting" component={ReportingCompliance} />
-      <Route path="/solutions/consulting" component={ConsultingTraining} />
-      <Route path="/solutions/waste-management" component={WasteManagement} />
-      <Route path="/solutions/waste-auditing" component={WasteAuditing} />
-      <Route path="/articles/:id" component={ArticleDetail} />
+      {/* PUBLIC ROUTES */}
+      <Route path="/" component={Home} />
+      <Route path="/about" component={About} />
+      <Route path="/solutions" component={Solutions} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/articles" component={Articles} />
+      <Route path="/resources" component={Resources} />
+      <Route path="/404" component={NotFound} />
+      <Route path="/articles/:slug" component={ArticleDetail} />
       <Route path="/carbon-calculator" component={CarbonCalculator} />
+      
+      {/* THE ONLY SOLUTIONS ROUTE YOU NEED NOW */}
+      <Route path="/solutions/:slug" component={ServiceDetail} />
+      
+      {/* ADMIN ROUTES */}
+      <Route path="/login" component={Login} />
+
+      <Route path="/admin/dashboard">
+        <AdminLayout>
+          <DashboardHome />
+        </AdminLayout>
+      </Route>
+
+      <Route path="/admin/users">
+        <AdminLayout>
+          <AdminUsers />
+        </AdminLayout>
+      </Route>
+
+      <Route path="/admin/pages/home">
+        <AdminLayout>
+          <AdminHome />
+        </AdminLayout>
+      </Route>
+
+      <Route path="/admin/pages/about">
+        <AdminLayout>
+          <AdminAbout />
+        </AdminLayout>
+      </Route>
+
+      <Route path="/admin/pages/contact">
+        <AdminLayout>
+          <AdminContact />
+        </AdminLayout>
+      </Route>
+
+      <Route path="/admin/pages/resources">
+        <AdminLayout>
+          <AdminResources />
+        </AdminLayout>
+      </Route>
+
+      <Route path="/admin/solutions">
+        <AdminLayout>
+          <AdminSolutions />
+        </AdminLayout>
+      </Route>
+
+      <Route path="/admin/articles"><AdminLayout><AdminArticles /></AdminLayout></Route>
+
+      <Route path="/admin/media">
+        <AdminLayout>
+          <AdminMedia />
+        </AdminLayout>
+      </Route>
+
+      <Route path="/admin/inquiries"><AdminLayout><AdminInquiries /></AdminLayout></Route>
+
+      <Route path="/admin/subscribers">
+          <AdminLayout>
+            <AdminSubscribers />
+          </AdminLayout>
+        </Route>
+      
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />

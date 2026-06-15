@@ -1,0 +1,188 @@
+import { useState, useEffect } from 'react';
+import { useRoute, Link, useLocation } from 'wouter';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { ChevronRight, Play } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+// --- FIREBASE IMPORTS ---
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+export default function ServiceDetail() {
+  const [, setLocation] = useLocation();
+  const [match, params] = useRoute('/solutions/:slug');
+  const slug = params?.slug;
+
+  const [service, setService] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchService = async () => {
+      if (!slug) return;
+      try {
+        const q = query(collection(db, "services"), where("slug", "==", slug));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          setService({ id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() });
+        } else {
+          setService(null); 
+        }
+      } catch (error) {
+        console.error("Error fetching service detail:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchService();
+  }, [slug]);
+
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-white">Loading service...</div>;
+
+  if (!service) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+      <Header />
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Service Not Found</h1>
+        <p className="text-gray-500 mb-8">We couldn't find the solution you were looking for.</p>
+        <Link href="/solutions" className="px-6 py-3 bg-[#1B5E20] text-white rounded-md font-bold">Back to Solutions</Link>
+      </div>
+      <Footer />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
+
+      {/* 1. HERO SECTION */}
+      <section className="relative py-12 md:py-24 overflow-hidden bg-[#1B5E20]">
+        <div 
+          className="absolute inset-0 z-0 opacity-60 bg-black/40"
+          style={(service.heroImage || service.imagePreview) ? { 
+            backgroundImage: `url(${service.heroImage || service.imagePreview})`, 
+            backgroundSize: 'cover', 
+            backgroundPosition: 'center' 
+          } : {}}
+        />
+        <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
+          <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
+             <h2 className="text-sm md:text-base font-bold mb-2 text-gray-800 uppercase tracking-wide">
+                {service.heroSubtitle || "Our Solution"}
+             </h2>
+             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-[#1B5E20] leading-[1.1]">
+                {service.heroTitle || service.title}
+             </h1>
+             <p className="text-base text-gray-600 leading-relaxed mb-8">
+                {service.heroDescription || service.desc}
+             </p>
+
+             {/* BUTTONS ADDED HERE */}
+             <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  onClick={() => {
+                    setLocation('/carbon-calculator');
+                    window.scrollTo(0, 0);
+                  }}
+                  className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-6 py-6 rounded-md shadow-sm flex items-center gap-2 transition-all"
+                >
+                  <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
+                  Calculate Carbon Footprint
+                </Button>
+                <Button 
+                  className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-8 py-6 rounded-md shadow-md"
+                  onClick={() => setLocation('/solutions')}
+                >
+                  Our Solutions
+                </Button>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. DYNAMIC CONTENT BLOCKS SECTION */}
+      <section className="py-12 md:py-20">
+        <div className="container px-4 sm:px-8 lg:px-12 max-w-4xl">
+          
+          {/* Breadcrumb */}
+          <div className="mb-10 text-sm font-medium text-gray-500 flex items-center gap-2">
+            <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">Home</Link>
+            <ChevronRight size={14} className="text-gray-300" />
+            <Link href="/solutions" className="hover:text-gray-900 cursor-pointer transition-colors">Our Solutions</Link>
+            <ChevronRight size={14} className="text-gray-300" />
+            <span className="text-gray-900 font-bold">{service.title}</span>
+          </div>
+
+          <div className="space-y-16">
+            {(!service.contentBlocks || service.contentBlocks.length === 0) && (
+              <p className="text-gray-500 text-lg">Detailed information for this service is being updated.</p>
+            )}
+
+            {/* DYNAMICALLY RENDER THE BLOCKS YOU BUILT IN THE CMS */}
+            {service.contentBlocks?.map((block: any, index: number) => (
+               <div key={block.id || index} className="flex flex-col">
+                  
+                  {/* TEXT BLOCK */}
+                  {block.type === 'text' && (
+                    <div>
+                      {block.title && <h3 className="text-2xl font-bold text-gray-900 mb-4">{block.title}</h3>}
+                      {block.text && <p className="text-gray-600 leading-relaxed text-[15px] md:text-base whitespace-pre-line">{block.text}</p>}
+                    </div>
+                  )}
+
+                  {/* IMAGE BLOCK */}
+                  {block.type === 'image' && (
+                    <div>
+                      {block.title && <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{block.title}</h3>}
+                      {block.imagePreview && (
+                        <div className="w-full h-auto md:h-[400px] overflow-hidden rounded-2xl mb-6 shadow-sm border border-gray-100 bg-gray-100">
+                          <img src={block.imagePreview} alt={block.title || "Service Image"} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                        </div>
+                      )}
+                      {block.text && <p className="text-gray-600 leading-relaxed text-[15px] md:text-base whitespace-pre-line">{block.text}</p>}
+                    </div>
+                  )}
+
+                  {/* VIDEO BLOCK */}
+                  {block.type === 'video' && (
+                    <div>
+                      {block.title && <h3 className="text-2xl font-bold text-gray-900 mb-6">{block.title}</h3>}
+                      {block.videoUrl && (
+                        <div className="w-full rounded-3xl aspect-video shadow-xl relative overflow-hidden bg-black border-2 border-gray-100 mb-6">
+                          <iframe className="w-full h-full" src={block.videoUrl} frameBorder="0" allowFullScreen></iframe>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* LIST BLOCK */}
+                  {block.type === 'list' && (
+                    <div className="bg-[#F8F9F7] p-8 rounded-2xl border border-gray-100">
+                      {block.title && <h3 className="text-xl font-bold text-[#1B5E20] mb-4">{block.title}</h3>}
+                      {block.text && (
+                        <ul className="space-y-3 text-gray-700 list-disc pl-5">
+                          {block.text.split('\n').filter((line: string) => line.trim() !== '').map((line: string, i: number) => (
+                            <li key={i} className="leading-relaxed">{line.replace(/^[-•]\s*/, '')}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Separator line between blocks */}
+                  {index !== service.contentBlocks.length - 1 && (
+                    <hr className="mt-16 border-gray-200" />
+                  )}
+               </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+}

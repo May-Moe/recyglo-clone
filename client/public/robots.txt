@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Block search engines from crawling the Admin dashboard
+Disallow: /admin/
+Disallow: /login
+
+Sitemap: https://recyglo-website.web.app/sitemap.xml

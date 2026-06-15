@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <!-- Home Page -->
+  <url>
+    <loc>https://recyglo-website.web.app/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- About Page -->
+  <url>
+    <loc>https://recyglo-website.web.app/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Solutions Page -->
+  <url>
+    <loc>https://recyglo-website.web.app/solutions</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- solution subpages -->
+  <url>
+    <loc>https://recyglo-website.web.app/solutions/circular-economy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- solution subpages -->
+  <url>
+    <loc>https://recyglo-website.web.app/solutions/consulting-and-training</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- solution subpages -->
+  <url>
+    <loc>https://recyglo-website.web.app/solutions/esg-data-analytics</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- solution subpages -->
+  <url>
+    <loc>https://recyglo-website.web.app/solutions/waste-auditing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- solution subpages -->
+  <url>
+    <loc>https://recyglo-website.web.app/solutions/reporting</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- solution subpages -->
+  <url>
+    <loc>https://recyglo-website.web.app/solutions/waste-management</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Articles/Blog Page -->
+  <url>
+    <loc>https://recyglo-website.web.app/articles</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Resources Page -->
+  <url>
+    <loc>https://recyglo-website.web.app/resources</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Contact Page -->
+  <url>
+    <loc>https://recyglo-website.web.app/contact</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Carbon Calculator Page -->
+  <url>
+    <loc>https://recyglo-website.web.app/carbon-calculator</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>

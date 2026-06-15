@@ -1,9 +1,17 @@
-import { useState } from 'react';
-import { Link } from 'wouter';
-import { Menu, X, Globe, ChevronDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'wouter'; 
+import { Menu, X, Globe, ChevronDown, Lock } from 'lucide-react'; 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import logo from '@/assets/images/logo.png';
+
+// --- i18n TRANSLATION IMPORT ---
+import { useTranslation } from 'react-i18next';
+
+// --- FIREBASE IMPORTS ---
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -20,52 +28,71 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function Header() {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en'; // Track active language
+  
   const [isOpen, setIsOpen] = useState(false);
+  const [, setLocation] = useLocation(); 
 
+  // --- RAW DATABASE STATE ---
+  // We store the raw Firebase data so we can re-map it when the language changes
+  const [rawServices, setRawServices] = useState<any[]>([]);
+
+  // --- FETCH SERVICES FROM FIREBASE ---
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "services"), (snapshot) => {
+      setRawServices(snapshot.docs.map(doc => doc.data()));
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // --- DYNAMIC SERVICES GENERATION ---
+  // This recalculates automatically instantly whenever rawServices OR currentLang changes!
+  const dynamicServices = [
+    { 
+      title: t('nav.allServices', 'All Services'), 
+      href: '/solutions', 
+      desc: t('nav.allServicesDesc', 'View all our comprehensive sustainability solutions.') 
+    },
+    ...rawServices.map(data => ({
+      // Prioritize the current language field (e.g. title_th), fallback to English, fallback to base title
+      title: data[`title_${currentLang}`] || data.title_en || data.title || '',
+      href: `/solutions/${data.slug}`,
+      desc: data[`desc_${currentLang}`] || data.desc_en || data.desc || t('nav.learnMore', 'Learn more about this service.')
+    }))
+  ];
+
+  // --- NAVIGATION ITEMS WITH TRANSLATION KEYS ---
   const navItems = [
-    { label: 'Home', href: '/' },
+    { label: t('nav.home', 'Home'), href: '/' },
     {
-      label: 'About Us',
+      label: t('nav.about', 'About Us'),
       href: '/about',
       items: [
-        { title: 'About RecyGlo', href: '/about#introducing', desc: 'Learn about our mission, history, and team.' },
-        { title: 'Our Team', href: '/about#team', desc: 'Meet the people driving sustainability at RecyGlo.' },
-        { title: 'See Our Impact', href: '/about#impact', desc: 'Pioneering Sustainability in Action.' },
-        { title: 'Awards & Recognition', href: '/about#awards', desc: 'Award-Winning Excellence & Global Recognition.' },
-        { title: 'Strategic Partnerships', href: '/about#partnerships', desc: 'Strategic Partnerships & Industry Memberships.' },
+        { title: t('nav.aboutRecyglo', 'About RecyGlo'), href: '/about#introducing', desc: t('nav.aboutDesc', 'Learn about our mission, history, and team.') },
+        { title: t('nav.ourTeam', 'Our Team'), href: '/about#team', desc: t('nav.teamDesc', 'Meet the people driving sustainability at RecyGlo.') },
+        { title: t('nav.impact', 'See Our Impact'), href: '/about#impact', desc: t('nav.impactDesc', 'Pioneering Sustainability in Action.') },
+        { title: t('nav.awards', 'Awards & Recognition'), href: '/about#awards', desc: t('nav.awardsDesc', 'Award-Winning Excellence & Global Recognition.') },
+        { title: t('nav.partnerships', 'Strategic Partnerships'), href: '/about#partnerships', desc: t('nav.partnershipsDesc', 'Strategic Partnerships & Industry Memberships.') },
       ],
     },
     { 
-      label: 'Our Solutions', 
+      label: t('nav.solutions', 'Our Solutions'), 
       href: '/solutions',
-      items: [
-        { title: 'All Services', href: '/solutions', desc: 'View all our comprehensive sustainability solutions.' },
-        
-        // =========================================================
-        // CHANGED: This now links to the new dedicated Circular Economy page!
-        // =========================================================
-        { title: 'Circular Economy', href: '/solutions/circular-economy', desc: 'Impactful projects to implement closed-loop systems.' },
-        
-        { title: 'ESG Data Analytics', href: '/solutions/esg-data-analytics', desc: 'Advanced analytics to track and analyze emissions.' },
-        { title: 'Reporting and Compliance', href: '/solutions/reporting', desc: 'Navigate environmental regulations with ease.' },
-        { title: 'Consulting and Training', href: '/solutions/consulting', desc: 'Expert sustainability consulting and training services.' },
-        { title: 'Waste Management', href: '/solutions/waste-management', desc: 'Comprehensive B2B collection and disposal solutions.' },
-        { title: 'Waste Auditing', href: '/solutions/waste-auditing', desc: 'In-depth waste auditing to optimize practices.' },
-      ]
+      items: dynamicServices 
     },
-    { label: 'Resources', href: '/resources' },
-    { label: 'Articles', href: '/articles' },
+    { label: t('nav.resources', 'Resources'), href: '/resources' },
+    { label: t('nav.articles', 'Articles'), href: '/articles' },
     {
-      label: 'Platforms',
+      label: t('nav.platforms', 'Platforms'),
       href: '#',
       items: [
-        { title: 'Carbon Accounting', href: 'https://sanaterra.co', desc: 'Enterprise carbon footprint tracking and accounting platform.', external: true },
-        { title: 'Waste Management', href: 'https://app.recyglo.net', desc: 'Manage your waste operations and compliance workflows.', external: true },
+        { title: t('nav.carbonAccounting', 'Carbon Accounting'), href: 'https://sanaterra.co', desc: t('nav.carbonDesc', 'Enterprise carbon footprint tracking and accounting platform.'), external: true },
+        { title: t('nav.wasteManagement', 'Waste Management'), href: 'https://app.recyglo.net', desc: t('nav.wasteDesc', 'Manage your waste operations and compliance workflows.'), external: true },
       ],
     },
   ];
 
-  // This function forces the page to scroll smoothly if you are already on the correct page
   const handleHashScroll = (href: string) => {
     if (href.includes('#')) {
       const [path, hash] = href.split('#');
@@ -76,6 +103,10 @@ export default function Header() {
         }, 50);
       }
     }
+  };
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
   };
 
   return (
@@ -152,25 +183,38 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors outline-none px-2 py-1.5 rounded-md hover:bg-accent/30">
                   <Globe size={16} />
-                  <span>ENG</span>
+                  <span className="uppercase">{currentLang}</span>
                   <ChevronDown size={14} className="opacity-50" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white min-w-[150px] shadow-md border-border">
-                <DropdownMenuItem className="cursor-pointer font-bold text-primary focus:bg-primary/5 focus:text-primary">English</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer focus:bg-primary/5">Thai (ภาษาไทย)</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer focus:bg-primary/5">Myanmar (မြန်မာ)</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer focus:bg-primary/5">Vietnamese (Tiếng Việt)</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer focus:bg-primary/5">Korean (한국어)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('en')} className={`cursor-pointer ${currentLang === 'en' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>English</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('th')} className={`cursor-pointer ${currentLang === 'th' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Thai (ภาษาไทย)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('my')} className={`cursor-pointer ${currentLang === 'my' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Myanmar (မြန်မာ)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('vi')} className={`cursor-pointer ${currentLang === 'vi' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Vietnamese (Tiếng Việt)</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
+          {/* Admin Login Button */}
+          <Button
+            variant="outline"
+            className="hidden sm:inline-flex border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20]/10 font-semibold gap-2"
+            onClick={() => {
+              setLocation('/login');
+              window.scrollTo(0, 0);
+            }}
+          >
+            <Lock size={16} />
+            {t('nav.adminLogin', 'Admin')}
+          </Button>
+
+          {/* Contact Us Button */}
           <Button
             className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-white font-semibold"
             onClick={() => window.location.href = '/contact'}
           >
-            Contact Us
+            {t('nav.contact', 'Contact Us')}
           </Button>
 
           <button
@@ -236,25 +280,41 @@ export default function Header() {
               </div>
             ))}
             
+            {/* MOBILE LANGUAGE SWITCHER */}
             <div className="py-3 border-b border-border/50">
-               <span className="font-bold text-foreground px-2 mb-2 block">Language</span>
+               <span className="font-bold text-foreground px-2 mb-2 block">{t('nav.language', 'Language')}</span>
                <div className="flex gap-2 px-2 flex-wrap">
-                  <Badge variant="default">ENG</Badge>
-                  <Badge variant="outline">TH</Badge>
-                  <Badge variant="outline">MY</Badge>
-                  <Badge variant="outline">VN</Badge>
+                  <Badge className="cursor-pointer" variant={currentLang === 'en' ? 'default' : 'outline'} onClick={() => changeLanguage('en')}>ENG</Badge>
+                  <Badge className="cursor-pointer" variant={currentLang === 'th' ? 'default' : 'outline'} onClick={() => changeLanguage('th')}>TH</Badge>
+                  <Badge className="cursor-pointer" variant={currentLang === 'my' ? 'default' : 'outline'} onClick={() => changeLanguage('my')}>MY</Badge>
+                  <Badge className="cursor-pointer" variant={currentLang === 'vi' ? 'default' : 'outline'} onClick={() => changeLanguage('vi')}>VN</Badge>
                </div>
             </div>
 
-            <Button
-              className="w-full bg-primary hover:bg-primary/90 text-white font-semibold mt-6 h-12"
-              onClick={() => {
-                window.location.href = '/contact';
-                setIsOpen(false);
-              }}
-            >
-              Contact Us
-            </Button>
+            <div className="flex flex-col gap-3 mt-6">
+              <Button
+                variant="outline"
+                className="w-full border-[#1B5E20] text-[#1B5E20] font-semibold h-12 flex items-center justify-center gap-2"
+                onClick={() => {
+                  setLocation('/login');
+                  setIsOpen(false);
+                  window.scrollTo(0, 0);
+                }}
+              >
+                <Lock size={16} />
+                {t('nav.adminLogin', 'Admin Login')}
+              </Button>
+
+              <Button
+                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-12"
+                onClick={() => {
+                  window.location.href = '/contact';
+                  setIsOpen(false);
+                }}
+              >
+                {t('nav.contact', 'Contact Us')}
+              </Button>
+            </div>
           </div>
         </div>
       )}
