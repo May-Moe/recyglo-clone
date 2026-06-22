@@ -1,5 +1,5 @@
 import { Link } from 'wouter';
-import { Mail, Phone, Facebook, Linkedin, Instagram } from 'lucide-react';
+import { Mail, Phone, Facebook, Linkedin, Instagram, Youtube } from 'lucide-react';
 import logo from '@/assets/images/logo.png'; // Assuming you have the logo here
 
 export default function Footer() {
@@ -119,33 +119,49 @@ export default function Footer() {
                   Contact@recyglo.com
                 </a>
               </li>
-              <li className="flex items-center gap-3">
-                <Phone size={18} />
-                <a href="tel:+66814126842" className="hover:text-[#76FF03] transition-colors">
-                  (+66)81 412 6842
-                </a>
+              
+              {/* UPDATED MULTI-COUNTRY PHONE NUMBERS */}
+              <li className="flex items-start gap-3">
+                <Phone size={18} className="mt-1 shrink-0" />
+                <div className="flex flex-col gap-2">
+                  <a href="tel:+66814126842" className="hover:text-[#76FF03] transition-colors flex gap-2">
+                    <span className="font-bold text-[#76FF03]">TH:</span> (+66) 81 412 6842
+                  </a>
+                  {/* TODO: Replace with actual SG number */}
+                  <a href="tel:+6500000000" className="hover:text-[#76FF03] transition-colors flex gap-2">
+                    <span className="font-bold text-[#76FF03]">SG:</span> (+65) 310 713 77
+                  </a>
+                  {/* TODO: Replace with actual VN number */}
+                  <a href="tel:+84000000000" className="hover:text-[#76FF03] transition-colors flex gap-2">
+                    <span className="font-bold text-[#76FF03]">US:</span> (+1) 720 659 4381
+                  </a>
+                </div>
               </li>
+
               <li className="flex items-center gap-3">
                 {/* Using a chat bubble as a placeholder for the LINE app icon */}
-                <div className="w-[18px] h-[18px] bg-[#00B900] text-white rounded-full flex items-center justify-center font-bold text-[9px]">
+                <div className="w-[18px] h-[18px] bg-[#00B900] text-white rounded-full flex items-center justify-center font-bold text-[9px] shrink-0">
                   LINE
                 </div>
-                <a href="https://line.me" target="_blank" rel="noopener noreferrer" className="hover:text-[#76FF03] transition-colors">
+                <a href="https://line.me/R/ti/p/@recyglo.th?from=page&searchId=recyglo.th" target="_blank" rel="noopener noreferrer" className="hover:text-[#76FF03] transition-colors">
                   @RecyGlo
                 </a>
               </li>
             </ul>
 
             {/* Social Media Icons */}
-            <div className="flex gap-4 mt-8">
-              <a href="#" className="w-10 h-10 rounded-full bg-white text-[#1B5E20] flex items-center justify-center hover:bg-[#76FF03] transition-colors shadow-sm">
+            <div className="flex gap-4 mt-8 flex-wrap">
+              <a href="https://web.facebook.com/recyglo.th?_rdc=1&_rdr" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white text-[#1B5E20] flex items-center justify-center hover:bg-[#76FF03] transition-colors shadow-sm">
                 <Facebook size={20} fill="currentColor" className="stroke-none" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white text-[#1B5E20] flex items-center justify-center hover:bg-[#76FF03] transition-colors shadow-sm">
+              <a href="https://www.linkedin.com/authwall?trk=bf&trkInfo=AQEmchdZCe1BRgAAAZ7VInYQOl8gvu8YSG9OPkNIfKpStv686hpPAmTtos24W-UtoHczw1U5FlQ19LiJfB1OKJg05wWs3uTmXlcq2MCVFc3-rCTo2nrpUXH29INy0rQuTzxnbRM=&original_referer=&sessionRedirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Frecyglo-thailand%2F" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white text-[#1B5E20] flex items-center justify-center hover:bg-[#76FF03] transition-colors shadow-sm">
                 <Linkedin size={20} fill="currentColor" className="stroke-none" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white text-[#1B5E20] flex items-center justify-center hover:bg-[#76FF03] transition-colors shadow-sm">
+              <a href="https://www.instagram.com/recyglo_thailand/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white text-[#1B5E20] flex items-center justify-center hover:bg-[#76FF03] transition-colors shadow-sm">
                 <Instagram size={20} />
+              </a>
+              <a href="https://www.youtube.com/@RecyGloThailand" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white text-[#1B5E20] flex items-center justify-center hover:bg-[#76FF03] transition-colors shadow-sm">
+                <Youtube size={20} />
               </a>
             </div>
           </div>

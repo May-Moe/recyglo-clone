@@ -40,7 +40,19 @@ export default function Header() {
   // --- FETCH SERVICES FROM FIREBASE ---
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "services"), (snapshot) => {
-      setRawServices(snapshot.docs.map(doc => doc.data()));
+      const fetchedServices = snapshot.docs.map(doc => doc.data());
+      
+      // ✅ FIX: Sort by the custom `orderIndex` set in the Admin CMS!
+      fetchedServices.sort((a, b) => {
+        // If they have an orderIndex, use that
+        if (a.orderIndex !== undefined && b.orderIndex !== undefined) {
+           return a.orderIndex - b.orderIndex;
+        }
+        // Fallback to alphabetical if orderIndex is missing
+        return (a.title_en || a.title || '').localeCompare(b.title_en || b.title || '');
+      });
+
+      setRawServices(fetchedServices);
     });
     return () => unsubscribe();
   }, []);
@@ -62,6 +74,53 @@ export default function Header() {
   // --- NAVIGATION ITEMS WITH TRANSLATION KEYS ---
   const navItems = [
     { label: t('nav.home', 'Home'), href: '/' },
+    { 
+      label: t('nav.services', 'Services'), 
+      href: '/solutions',
+      items: dynamicServices 
+    },
+    {
+      label: t('nav.softwarePlatforms', 'Software Platforms'),
+      href: '#',
+      items: [
+        { 
+          title: t('nav.wastePlatform', 'Waste Management Software'), 
+          href: 'https://app.recyglo.net', 
+          desc: t('nav.wasteDesc', 'Track waste streams and manage collection operations.'), 
+          external: true 
+        },
+        { 
+          title: t('nav.eprPlatform', 'EPR & Waste Management Platform'), 
+          href: 'https://waste-reporting-platform.web.app', 
+          desc: t('nav.eprDesc', 'Advanced EPR tracking and waste management solutions.'), 
+          external: true 
+        },
+        { 
+          title: t('nav.carbonAccounting', 'Carbon Accounting Software'), 
+          href: 'https://sanaterra.co', 
+          desc: t('nav.carbonDesc', 'Measure and manage your enterprise carbon footprint.'), 
+          external: true 
+        },
+        { 
+          title: t('nav.esgReporting', 'ESG Reporting Software'), 
+          href: 'https://recyglo-esg-platform.web.app/', 
+          desc: t('nav.esgDesc', 'Centralize ESG data and automate sustainability reporting.'), 
+          external: true 
+        },
+      ],
+    },
+    {
+      label: t('nav.ourImpactTop', 'Our Impact'),
+      href: '/impact',
+      items: [
+        { title: t('nav.ourImpact', 'Our Impact'), href: '/impact', desc: t('nav.impactDesc', 'Read our verified impact report and sustainability milestones.') },
+        // ✅ CHANGED to link directly to the new /events page
+        { title: t('nav.events', 'Events & Webinars'), href: '/events', desc: t('nav.eventsDesc', 'Join our upcoming sustainability events and educational webinars.') },
+        { title: t('nav.blog', 'Blogs'), href: '/articles', desc: t('nav.blogDesc', 'Latest news, insights, and industry updates.') },
+        { title: t('nav.research', 'Resources'), href: '/resources', desc: t('nav.researchDesc', 'Explore our case studies and in-depth academic research.') },
+        // { title: t('nav.faqs', 'FAQs'), href: '/impact#faqs', desc: t('nav.faqsDesc', 'Frequently asked questions about our solutions and operations.') },
+      ]
+    },
     {
       label: t('nav.about', 'About Us'),
       href: '/about',
@@ -70,23 +129,6 @@ export default function Header() {
         { title: t('nav.ourTeam', 'Our Team'), href: '/about#team', desc: t('nav.teamDesc', 'Meet the people driving sustainability at RecyGlo.') },
         { title: t('nav.awards', 'Awards & Recognition'), href: '/about#awards', desc: t('nav.awardsDesc', 'Award-Winning Excellence & Global Recognition.') },
         { title: t('nav.partnerships', 'Strategic Partnerships'), href: '/about#partnerships', desc: t('nav.partnershipsDesc', 'Strategic Partnerships & Industry Memberships.') },
-      ],
-    },
-    // NEW: MOVED IMPACT HERE AS A MAIN TOP-LEVEL TAB
-    { label: t('nav.impact', 'Our Impact'), href: '/impact' },
-    { 
-      label: t('nav.solutions', 'Our Solutions'), 
-      href: '/solutions',
-      items: dynamicServices 
-    },
-    { label: t('nav.resources', 'Resources'), href: '/resources' },
-    { label: t('nav.articles', 'Articles'), href: '/articles' },
-    {
-      label: t('nav.platforms', 'Platforms'),
-      href: '#',
-      items: [
-        { title: t('nav.carbonAccounting', 'Carbon Accounting'), href: 'https://sanaterra.co', desc: t('nav.carbonDesc', 'Enterprise carbon footprint tracking and accounting platform.'), external: true },
-        { title: t('nav.wasteManagement', 'Waste Management'), href: 'https://app.recyglo.net', desc: t('nav.wasteDesc', 'Manage your waste operations and compliance workflows.'), external: true },
       ],
     },
   ];
@@ -197,22 +239,22 @@ export default function Header() {
           {/* Admin Login Button */}
           <Button
             variant="outline"
-            className="hidden sm:inline-flex border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20]/10 font-semibold gap-2"
+            className="hidden lg:inline-flex border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20]/10 font-semibold gap-2"
             onClick={() => {
               setLocation('/login');
               window.scrollTo(0, 0);
             }}
           >
             <Lock size={16} />
-            {t('nav.adminLogin', 'Admin')}
+            {t('nav.adminLogin', 'Login')}
           </Button>
 
-          {/* Contact Us Button */}
+          {/* Book a Consultation Button */}
           <Button
             className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-white font-semibold"
             onClick={() => window.location.href = '/contact'}
           >
-            {t('nav.contact', 'Contact Us')}
+            {t('nav.bookConsultation', 'Book a Consultation')}
           </Button>
 
           <button
@@ -300,7 +342,7 @@ export default function Header() {
                 }}
               >
                 <Lock size={16} />
-                {t('nav.adminLogin', 'Admin Login')}
+                {t('nav.adminLogin', 'Login')}
               </Button>
 
               <Button
@@ -310,7 +352,7 @@ export default function Header() {
                   setIsOpen(false);
                 }}
               >
-                {t('nav.contact', 'Contact Us')}
+                {t('nav.bookConsultation', 'Book a Consultation')}
               </Button>
             </div>
           </div>

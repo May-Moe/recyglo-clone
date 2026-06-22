@@ -36,7 +36,17 @@ export default function Home() {
     values: [],
     testimonials: [],
     galleryImages: [],
-    partners: [] 
+    partners: [],
+    servicesHeader: { title: "", subtitle: "" }, 
+    featuredServices: [],
+    platformsHeader: { title: "", subtitle: "" },
+    digitalPlatforms: [],
+    // NEW DYNAMIC HEADERS FOR ALL SECTIONS
+    partnersHeader: { title: "", description: "" },
+    testimonialsHeader: { title: "", description: "" },
+    valuesHeader: { title: "", description: "" },
+    visionHeader: { title: "", description: "" },
+    galleryHeader: { title: "", description: "" },
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -54,7 +64,17 @@ export default function Home() {
           values: data.values || [],
           testimonials: data.testimonials || [],
           galleryImages: data.galleryImages ? data.galleryImages.map((img: any) => img.preview) : [],
-          partners: data.partners || [] 
+          partners: data.partners || [],
+          servicesHeader: data.servicesHeader || { title: "", subtitle: "" },
+          featuredServices: data.featuredServices || [],
+          platformsHeader: data.platformsHeader || { title: "", subtitle: "" },
+          digitalPlatforms: data.digitalPlatforms || [],
+          // Map the new headers
+          partnersHeader: data.partnersHeader || { title: "", description: "" },
+          testimonialsHeader: data.testimonialsHeader || { title: "", description: "" },
+          valuesHeader: data.valuesHeader || { title: "", description: "" },
+          visionHeader: data.visionHeader || { title: "", description: "" },
+          galleryHeader: data.galleryHeader || { title: "", description: "" },
         });
       }
       setIsLoading(false);
@@ -127,6 +147,26 @@ export default function Home() {
     { id: 3, title: "Understanding the importance of circular economy in Thailand", image: blog3, tags: ["Circular Economy"], excerpt: "The “Take-Make-Waste” system normally endorsed by Thailand’s linear economy has been reprimanded...", date: "11 October 2024" }
   ];
 
+  // --- FEATURED SERVICES FALLBACK ---
+  const displayServices = pageData.featuredServices.length > 0 
+    ? pageData.featuredServices 
+    : [
+        { title: t('nav.wasteManagement', 'Waste Management Solutions'), imagePreview: service1, desc: t('home.service1Desc', 'RecyGlo offers comprehensive B2B waste management solutions...'), link: '/solutions/waste-management' },
+        { title: t('home.service2', 'Waste Auditing'), imagePreview: service2, desc: t('home.service2Desc', 'RecyGlo provides comprehensive waste auditing services...'), link: '/solutions/waste-auditing' },
+        { title: t('home.service3', 'Reporting and Compliance'), imagePreview: service3, desc: t('home.service3Desc', 'RecyGlo provides comprehensive reporting and compliance services...'), link: '/solutions/reporting' },
+        { title: t('home.service4', 'Consulting and Training'), imagePreview: service4, desc: t('home.service4Desc', 'RecyGlo provides expert sustainability consulting and training...'), link: '/solutions/consulting' },
+        { title: t('home.service5', 'ESG Data Analytics'), imagePreview: service5, desc: t('home.service5Desc', 'RecyGlo provides advanced ESG data analytics services...'), link: '/solutions/esg-data-analytics' },
+        { title: t('home.service6', 'Circular Economy'), imagePreview: service6, desc: t('home.service6Desc', 'RecyGlo leads impactful Circular Economy projects to help businesses...'), link: '/solutions/circular-economy' }
+      ];
+
+ // --- DIGITAL PLATFORMS FALLBACK ---
+  const displayPlatforms = pageData.digitalPlatforms.length > 0
+    ? pageData.digitalPlatforms
+    : [
+        { title: t('nav.carbonAccounting', 'Carbon Accounting'), desc: t('nav.carbonDesc', 'Enterprise carbon footprint tracking and accounting platform.'), link: 'https://sanaterra.co', imagePreview: 'https://placehold.co/800x450/e2e8f0/64748b?text=SanaTerra+Platform' },
+        { title: t('nav.wasteManagement', 'Waste Management'), desc: t('nav.wasteDesc', 'Manage your waste operations and compliance workflows.'), link: 'https://app.recyglo.net', imagePreview: 'https://placehold.co/800x450/e2e8f0/64748b?text=RecyGlo+App' },
+      ];
+
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]">Loading content...</div>;
   }
@@ -189,14 +229,17 @@ export default function Home() {
         </section>
       )}
 
-      {/* Trusted By Section (DYNAMIC) */}
+      {/* Trusted By Section */}
       {partners.length > 0 && (
         <section className="py-16 bg-white border-b border-gray-100 relative">
           <div className="container px-4 sm:px-8 lg:px-12">
-            <h3 className="text-2xl font-bold text-[#1B5E20] mb-10 text-center lg:text-left">
-              {t('home.trustedBrands', 'Trusted by Global Brands & International Organizations')}
+            <h3 className="text-2xl font-bold text-[#1B5E20] mb-2 text-center lg:text-left">
+              {pageData.partnersHeader?.title || t('home.trustedBrands', 'Trusted by Global Brands & International Organizations')}
             </h3>
-            <div className="flex items-center justify-between gap-2 md:gap-6 relative">
+            {pageData.partnersHeader?.description && (
+              <p className="text-gray-600 mb-10 text-center lg:text-left">{pageData.partnersHeader.description}</p>
+            )}
+            <div className="flex items-center justify-between gap-2 md:gap-6 relative mt-6">
                <button onClick={prevPartnerPage} className="p-3 text-gray-400 hover:text-[#1B5E20] z-10 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0"><ChevronLeft size={24} /></button>
                <div className="overflow-hidden w-full px-2">
                   <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${partnerPageIndex * 100}%)` }}>
@@ -243,10 +286,10 @@ export default function Home() {
              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 <div className="lg:col-span-5 pr-8">
                    <h2 className="text-4xl font-bold text-[#1B5E20] mb-6 leading-tight">
-                     {t('home.testimonialsTitle', 'What Our Clients Say Behind, We Deliver Professional')}
+                     {pageData.testimonialsHeader?.title || t('home.testimonialsTitle', 'What Our Clients Say Behind, We Deliver Professional')}
                    </h2>
                    <p className="text-gray-600 mb-8 text-lg">
-                     {t('home.testimonialsDesc', 'Hear directly from industry leaders about how our solutions help them achieve sustainability goals.')}
+                     {pageData.testimonialsHeader?.description || t('home.testimonialsDesc', 'Hear directly from industry leaders about how our solutions help them achieve sustainability goals.')}
                    </p>
                    <div className="inline-block p-4 border border-gray-200 rounded-2xl relative">
                       <Quote className="text-gray-300 w-12 h-12" />
@@ -295,47 +338,131 @@ export default function Home() {
       )}
 
       {/* Services Grid */}
-      <section className="py-24 bg-[#1B5E20]">
+      <section className="py-24 bg-[#F8F9F7]">
         <div className="container px-4 sm:px-8 lg:px-12">
-          <h2 className="text-3xl font-bold text-[#76FF03] mb-12">
-            {t('home.servicesTitle', 'Comprehensive Waste & ESG Services')}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { title: t('nav.wasteManagement', 'Waste Management Solutions'), img: service1, desc: t('home.service1Desc', 'RecyGlo offers comprehensive B2B waste management solutions...'), link: '/solutions/waste-management' },
-              { title: t('home.service2', 'Waste Auditing'), img: service2, desc: t('home.service2Desc', 'RecyGlo provides comprehensive waste auditing services...'), link: '/solutions/waste-auditing' },
-              { title: t('home.service3', 'Reporting and Compliance'), img: service3, desc: t('home.service3Desc', 'RecyGlo provides comprehensive reporting and compliance services...'), link: '/solutions/reporting' },
-              { title: t('home.service4', 'Consulting and Training'), img: service4, desc: t('home.service4Desc', 'RecyGlo provides expert sustainability consulting and training...'), link: '/solutions/consulting' },
-              { title: t('home.service5', 'ESG Data Analytics'), img: service5, desc: t('home.service5Desc', 'RecyGlo provides advanced ESG data analytics services...'), link: '/solutions/esg-data-analytics' },
-              { title: t('home.service6', 'Circular Economy'), img: service6, desc: t('home.service6Desc', 'RecyGlo leads impactful Circular Economy projects to help businesses...'), link: '/solutions/circular-economy' }
-            ].map((service, idx) => (
-               <Card key={idx} onClick={() => { setLocation(service.link); window.scrollTo(0, 0); }} className="overflow-hidden border-none rounded-xl group cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all">
-                  <div className="h-48 overflow-hidden relative">
-                     <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+          <div className="max-w-3xl mb-16">
+            <span className="text-[#E2552B] font-bold tracking-wider uppercase text-sm mb-3 block">
+              {pageData.servicesHeader?.subtitle || 'Services'}
+            </span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1B5E20] leading-tight">
+              {pageData.servicesHeader?.title || 'Integrated Sustainability Services for Business'}
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {displayServices.map((service: any, idx: number) => {
+               const serviceTitle = service[`title_${currentLang}`] || service.title_en || service.title;
+               const serviceDesc = service[`desc_${currentLang}`] || service.desc_en || service.desc;
+               
+               return (
+                 <Card 
+                   key={idx} 
+                   onClick={() => { setLocation(service.link || '/solutions'); window.scrollTo(0, 0); }} 
+                   className="overflow-hidden border border-gray-300 rounded-xl group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 bg-white flex flex-row h-full items-stretch"
+                 >
+                    <div className="w-2/5 sm:w-1/3 relative shrink-0 aspect-square sm:aspect-auto">
+                       <img 
+                         src={service.imagePreview || service.img} 
+                         alt={serviceTitle} 
+                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                       />
+                       <div className="absolute inset-0 bg-[#1B5E20]/0 group-hover:bg-[#1B5E20]/10 transition-colors duration-300" />
+                    </div>
+                    <CardContent className="p-6 flex flex-col flex-grow justify-between w-3/5 sm:w-2/3">
+                       <div>
+                         <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#1B5E20] transition-colors leading-tight">
+                           {serviceTitle}
+                         </h3>
+                         <p className="text-sm text-gray-600 line-clamp-3 mb-4 leading-relaxed">
+                           {serviceDesc}
+                         </p>
+                       </div>
+                       <div className="flex items-center justify-end text-gray-900 font-medium text-sm mt-4 group-hover:text-[#E2552B] transition-colors">
+                          Explore {serviceTitle}
+                          <ArrowRight size={16} className="ml-2 group-hover:translate-x-2 transition-transform" />
+                       </div>
+                    </CardContent>
+                 </Card>
+               );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* DIGITAL PLATFORMS SECTION */}
+      <section className="py-24 bg-white border-t border-gray-200">
+        <div className="container px-4 sm:px-8 lg:px-12">
+          <div className="max-w-3xl mb-16">
+            <span className="text-[#E2552B] font-bold tracking-wider uppercase text-sm mb-3 block">
+              {pageData.platformsHeader?.subtitle || t('home.platformsSubtitle', 'Technology')}
+            </span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1B5E20] leading-tight">
+              {pageData.platformsHeader?.title || t('home.platformsTitle', 'Digital Platforms')}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {displayPlatforms.map((plat: any, idx: number) => {
+              const platTitle = plat[`title_${currentLang}`] || plat.title_en || plat.title;
+              const platDesc = plat[`desc_${currentLang}`] || plat.desc_en || plat.desc;
+
+              return (
+                <Card 
+                  key={idx}
+                  onClick={() => window.open(plat.link || '#', '_blank', 'noopener,noreferrer')} 
+                  className="overflow-hidden border border-gray-300 rounded-xl group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 bg-[#F8F9F7] flex flex-col h-full"
+                >
+                  <div className="w-full relative shrink-0 aspect-[16/9] bg-gray-200 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={plat.imagePreview} 
+                      alt={platTitle} 
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                    />
+                    <div className="absolute inset-0 bg-[#1B5E20]/0 group-hover:bg-[#1B5E20]/10 transition-colors duration-300" />
                   </div>
-                  <CardContent className="p-6 bg-white flex flex-col h-40">
-                     <h3 className="text-xl font-bold text-[#1B5E20] mb-2">{service.title}</h3>
-                     <p className="text-sm text-gray-500 line-clamp-2 flex-grow">{service.desc}</p>
-                     <div className="flex justify-end mt-auto">
-                        <ArrowRight className="text-[#E2552B] group-hover:translate-x-2 transition-transform" />
-                     </div>
+                  
+                  <CardContent className="p-8 flex flex-col flex-grow bg-white">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-[#1B5E20] transition-colors leading-tight">
+                      {platTitle}
+                    </h3>
+                    <p className="text-base text-gray-600 mb-8 leading-relaxed flex-grow">
+                      {platDesc}
+                    </p>
+                    
+                    <div className="mt-auto flex justify-end">
+                      <Button 
+                        variant="outline"
+                        className="border-2 border-[#1B5E20] text-[#1B5E20] bg-transparent hover:bg-[#1B5E20] hover:text-white transition-all font-bold px-5 py-5 rounded-md flex items-center gap-2 group-hover:bg-[#1B5E20] group-hover:text-white"
+                      >
+                        {t('home.explorePlatform', 'Explore Platform')}
+                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </div>
                   </CardContent>
-               </Card>
-            ))}
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Our Values */}
       {pageData.values.length > 0 && (
-        <section className="py-24 bg-[#F8F9F7]">
+        <section className="py-24 bg-white border-y border-gray-100">
           <div className="container px-4 sm:px-8 lg:px-12">
-            <h2 className="text-3xl font-bold text-[#1B5E20] mb-12">{t('home.valuesTitle', 'Our Values')}</h2>
+            <div className="mb-12">
+              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
+                {pageData.valuesHeader?.title || t('home.valuesTitle', 'Our Values')}
+              </h2>
+              {pageData.valuesHeader?.description && (
+                <p className="text-gray-600 max-w-3xl">{pageData.valuesHeader.description}</p>
+              )}
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {pageData.values.map((val: any, i: number) => (
-                <div key={i} className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm text-center flex flex-col items-center hover:shadow-md transition-shadow">
-                   <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-6 border border-gray-200 overflow-hidden p-3">
+                <div key={i} className="bg-[#F8F9F7] p-8 rounded-xl border border-gray-100 shadow-sm text-center flex flex-col items-center hover:shadow-md transition-shadow">
+                   <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-6 border border-gray-200 overflow-hidden p-3 shadow-sm">
                       {val.iconPreview && <img src={val.iconPreview} alt={val.title} className="w-full h-full object-contain" />}
                    </div>
                    <h4 className="font-bold text-[#1B5E20] mb-3">{val[`title_${currentLang}`] || val.title_en || val.title}</h4>
@@ -351,7 +478,15 @@ export default function Home() {
       <section className="relative py-32 bg-gray-900">
         <div className="absolute inset-0 z-0 opacity-60" style={{ backgroundImage: `url('https://d2xsxph8kpxj0f.cloudfront.net/310519663457630341/K6tBx7feaJeR6NiJRmj9rs/testimonial-bg-a4TBoBLbxws7biQWxPfE9Q.webp')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }} />
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
-           <h2 className="text-3xl font-bold text-[#76FF03] mb-12">{t('home.visionTitle', 'Our Strategic Vision for a Sustainable Asia-Pacific')}</h2>
+           <div className="mb-12">
+             <h2 className="text-3xl font-bold text-[#76FF03] mb-4">
+               {pageData.visionHeader?.title || t('home.visionTitle', 'Our Strategic Vision for a Sustainable Asia-Pacific')}
+             </h2>
+             {pageData.visionHeader?.description && (
+               <p className="text-white/80 max-w-2xl">{pageData.visionHeader.description}</p>
+             )}
+           </div>
+
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-[#1B5E20]/80 backdrop-blur-md p-8 rounded-2xl border border-white/10 text-white">
                  <h3 className="text-2xl font-bold mb-4">{t('home.mission', 'Our Mission')}</h3>
@@ -369,79 +504,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEW: IMPACT AT A GLANCE SECTION (Professional & Corporate) */}
-      <section className="py-24 bg-white border-y border-gray-200">
-        <div className="container px-4 sm:px-8 lg:px-12">
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            
-            {/* Left Side: Text Content */}
-            <div className="lg:w-1/3">
-              <div className="w-12 h-1 bg-[#E2552B] mb-6"></div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-6 leading-tight">
-                {t('home.impactGlanceTitle', 'Impact at a Glance')}
-              </h2>
-              <p className="text-gray-600 mb-8 leading-relaxed">
-                {t('home.impactGlanceDesc', 'We are building circular economies from the bottom up—leaving no one behind across 8 countries, 400+ partners in Southeast Asia.')} {/*[cite: 1] */}
-              </p>
-              <Button 
-                onClick={() => { setLocation('/impact'); window.scrollTo(0, 0); }}
-                variant="outline"
-                className="border-2 border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white font-bold px-6 py-6 rounded-md transition-all flex items-center gap-2 group w-fit"
-              >
-                {t('home.readImpact', 'Read Full Impact Report')}
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-
-            {/* Right Side: Clean Data Grid */}
-            <div className="lg:w-2/3 w-full">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12">
-                
-                {/* Stat 1 */}
-                <div className="border-l-2 border-gray-200 pl-6 py-2">
-                  <h3 className="text-4xl md:text-5xl font-bold text-[#1B5E20] mb-3">1M+</h3> {/*[cite: 1] */}
-                  <p className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
-                    {t('home.stat1', 'Lives Impacted')} {/*[cite: 1] */}
-                  </p>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    Empowering informal workers and coastal communities.
-                  </p>
-                </div>
-
-                {/* Stat 2 */}
-                <div className="border-l-2 border-gray-200 pl-6 py-2">
-                  <h3 className="text-4xl md:text-5xl font-bold text-[#1B5E20] mb-3">100K+</h3> {/*[cite: 1] */}
-                  <p className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
-                    {t('home.stat2', 'Tonnes Recycled')} {/*[cite: 1] */}
-                  </p>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    Verified material diverted from landfills and oceans.
-                  </p>
-                </div>
-
-                {/* Stat 3 */}
-                <div className="border-l-2 border-gray-200 pl-6 py-2">
-                  <h3 className="text-4xl md:text-5xl font-bold text-[#E2552B] mb-3">$2M+</h3> {/*[cite: 1] */}
-                  <p className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
-                    {t('home.stat3', 'Community Investment')} {/*[cite: 1] */}
-                  </p>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    Deployed for social programming and sustainable uplift.
-                  </p>
-                </div>
-
-              </div>
-            </div>
-            
-          </div>
-        </div>
-      </section>
-
       {/* Impact in Action Masonry-like Grid */}
       {pageData.galleryImages.length > 4 && (
         <section className="py-24 bg-[#F8F9F7]">
           <div className="container px-4 sm:px-8 lg:px-12">
-            <h2 className="text-3xl font-bold text-[#1B5E20] mb-12">{t('home.impactGalleryTitle', 'Impact in Action')}</h2>
+            <div className="mb-12">
+              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
+                {pageData.galleryHeader?.title || t('home.impactGalleryTitle', 'Impact in Action')}
+              </h2>
+              {pageData.galleryHeader?.description && (
+                <p className="text-gray-600 max-w-3xl">{pageData.galleryHeader.description}</p>
+              )}
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-auto md:h-[600px]">
                <div className="flex flex-col gap-6 h-full">
                   <div className="rounded-xl overflow-hidden bg-gray-200 h-1/2 relative group cursor-pointer" onClick={() => { setGalleryIndex(0); setIsGalleryOpen(true); }}>

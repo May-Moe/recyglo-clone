@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Layout, Briefcase, Video, Factory, MonitorSmartphone, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type } from "lucide-react";
+import { Save, Layout, Briefcase, Video, Factory, MonitorSmartphone, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, ArrowUp, ArrowDown } from "lucide-react";
 import { doc, getDoc, setDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase"; 
@@ -42,6 +42,7 @@ export default function AdminSolutions() {
 
   // --- 2. STATE FOR DYNAMIC SERVICE PAGES (Collection) ---
   const [services, setServices] = useState<any[]>([]);
+  const [orderedServices, setOrderedServices] = useState<any[]>([]); // New state for reordering
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null); 
 
@@ -64,7 +65,17 @@ export default function AdminSolutions() {
         const unsubscribe = onSnapshot(collection(db, "services"), (snapshot) => {
           const loadedServices: any[] = [];
           snapshot.forEach((doc) => loadedServices.push({ id: doc.id, ...doc.data() }));
+          
+          // Sort by orderIndex, fallback to alphabetical
+          loadedServices.sort((a, b) => {
+            if (a.orderIndex !== undefined && b.orderIndex !== undefined) {
+               return a.orderIndex - b.orderIndex;
+            }
+            return (a.title || "").localeCompare(b.title || "");
+          });
+          
           setServices(loadedServices);
+          setOrderedServices(loadedServices);
           setIsLoading(false);
         });
 
@@ -91,10 +102,65 @@ export default function AdminSolutions() {
     }
   };
 
+  // --- SAVE REORDERED SERVICES TO FIREBASE ---
+  const saveServiceOrder = async (newOrder: any[]) => {
+    setIsSaving(true);
+    try {
+      // Update each document in the collection with its new orderIndex
+      await Promise.all(newOrder.map((service, index) => {
+        return updateDoc(doc(db, "services", service.id), { orderIndex: index });
+      }));
+    } catch (error) {
+       console.error("Error saving service order:", error);
+       alert("Failed to save new order.");
+    } finally {
+       setIsSaving(false);
+    }
+  };
+
+  const moveService = (index: number, direction: 'up' | 'down') => {
+    const newArr = [...orderedServices];
+    if (direction === 'up' && index > 0) {
+      [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
+    } else if (direction === 'down' && index < newArr.length - 1) {
+      [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
+    }
+    setOrderedServices(newArr);
+    saveServiceOrder(newArr); // Save to DB immediately
+  };
+
   // --- MAGIC MIGRATION BUTTON WITH HERO SECTION DATA & FULL BLOCKS ---
   const migrateDefaultServices = async () => {
     setIsSaving(true);
     const defaultServices = [
+      { 
+        title: 'Waste Management Solutions', 
+        slug: 'waste-management', 
+        imagePreview: service1, 
+        desc: 'RecyGlo offers comprehensive B2B waste management solutions, specializing in general, hazardous, and e-waste disposal.', 
+        heroSubtitle: 'RELIABLE COLLECTION SERVICES',
+        heroTitle: 'Waste Management Solutions',
+        heroDescription: 'RecyGlo offers comprehensive B2B waste management solutions, specializing in general, hazardous, and e-waste disposal. Our approach guarantees environmental compliance and operational efficiency.',
+        heroImage: '',
+        orderIndex: 0,
+        contentBlocks: [
+          { id: 'b1', type: 'text', title: 'Comprehensive Waste Collection', text: 'We provide end-to-end waste collection and processing tailored to your facility’s needs.' },
+        ] 
+      },
+      { 
+        title: 'Waste Auditing', 
+        slug: 'waste-auditing', 
+        imagePreview: service2, 
+        desc: 'We provide comprehensive waste auditing services to help B2B facilities optimize waste management practices.', 
+        heroSubtitle: 'OPTIMIZE YOUR WASTE PRACTICES',
+        heroTitle: 'Waste Auditing',
+        heroDescription: 'We provide comprehensive waste auditing services to help B2B facilities optimize waste management practices, identify cost reduction opportunities, and achieve Zero-Waste-to-Landfill goals safely.',
+        heroImage: '',
+        orderIndex: 1,
+        contentBlocks: [
+          { id: 'b1', type: 'text', title: 'In-Depth Waste Audits', text: 'Our experts conduct thorough on-site audits to analyze your current waste streams.' },
+        ] 
+      },
       { 
         title: 'Reporting and Compliance', 
         slug: 'reporting', 
@@ -104,6 +170,7 @@ export default function AdminSolutions() {
         heroTitle: 'Reporting and Compliance',
         heroDescription: 'Navigate complex environmental regulations easily. We deliver audit-ready sustainability reports and streamline ESG reporting, ensuring complete data transparency across your organization.',
         heroImage: '',
+        orderIndex: 2,
         contentBlocks: [
           { id: 'b1', type: 'image', title: 'ESG REPORT', text: '', imagePreview: '' },
           { id: 'b2', type: 'text', title: 'ESG Reporting', text: "ESG reporting is the disclosure of a company's environmental, social, and corporate governance data..." },
@@ -119,6 +186,7 @@ export default function AdminSolutions() {
         heroTitle: 'Consulting and Training',
         heroDescription: 'Expert sustainability consulting and training services to help B2B organizations implement robust ESG strategies, optimize waste management, and achieve compliance with global standards.',
         heroImage: '',
+        orderIndex: 3,
         contentBlocks: [
           { id: 'b1', type: 'text', title: 'Sustainable Waste Management Training', text: 'Transform your business\'s sustainability vision with RecyGlo\'s Expert Training Programs.' },
           { id: 'b2', type: 'list', title: 'Package A', text: 'Environmental system audit and advice\nCertificate by RecyGlo\nDuration: 2 Hours\nPrice: 15,000 THB' },
@@ -133,35 +201,10 @@ export default function AdminSolutions() {
         heroTitle: 'ESG Data Analytics',
         heroDescription: 'Advanced ESG data analytics services to help businesses track and analyze Scope 1, 2, and 3 emissions. We transform raw environmental data into clear, actionable insights.',
         heroImage: '',
+        orderIndex: 4,
         contentBlocks: [
           { id: 'b1', type: 'image', title: 'ESG Data Analytical Platform', text: 'Data-Driven Decision-Making. At RecyGlo, we offer technology-driven solutions...', imagePreview: '' },
           { id: 'b2', type: 'list', title: 'Platform Features', text: 'Track Your Progress Accurately\nSet Realistic Milestones\nPromote Data Transparency' },
-        ] 
-      },
-      { 
-        title: 'Waste Auditing', 
-        slug: 'waste-auditing', 
-        imagePreview: service2, 
-        desc: 'We provide comprehensive waste auditing services to help B2B facilities optimize waste management practices.', 
-        heroSubtitle: 'OPTIMIZE YOUR WASTE PRACTICES',
-        heroTitle: 'Waste Auditing',
-        heroDescription: 'We provide comprehensive waste auditing services to help B2B facilities optimize waste management practices, identify cost reduction opportunities, and achieve Zero-Waste-to-Landfill goals safely.',
-        heroImage: '',
-        contentBlocks: [
-          { id: 'b1', type: 'text', title: 'In-Depth Waste Audits', text: 'Our experts conduct thorough on-site audits to analyze your current waste streams.' },
-        ] 
-      },
-      { 
-        title: 'Waste Management Solutions', 
-        slug: 'waste-management', 
-        imagePreview: service1, 
-        desc: 'RecyGlo offers comprehensive B2B waste management solutions, specializing in general, hazardous, and e-waste disposal.', 
-        heroSubtitle: 'RELIABLE COLLECTION SERVICES',
-        heroTitle: 'Waste Management Solutions',
-        heroDescription: 'RecyGlo offers comprehensive B2B waste management solutions, specializing in general, hazardous, and e-waste disposal. Our approach guarantees environmental compliance and operational efficiency.',
-        heroImage: '',
-        contentBlocks: [
-          { id: 'b1', type: 'text', title: 'Comprehensive Waste Collection', text: 'We provide end-to-end waste collection and processing tailored to your facility’s needs.' },
         ] 
       },
       { 
@@ -173,6 +216,7 @@ export default function AdminSolutions() {
         heroTitle: 'Circular Economy',
         heroDescription: 'RecyGlo promotes the transition from linear to circular models by helping businesses recover, recycle, and repurpose materials. We guide organizations in closing the loop, minimizing waste, and creating sustainable value chains.',
         heroImage: '',
+        orderIndex: 5,
         contentBlocks: [
           { id: 'b1', type: 'text', title: 'Waste Material Types', text: 'At RecyGlo, we specialize in handling a wide variety of waste streams...' },
         ] 
@@ -199,7 +243,7 @@ export default function AdminSolutions() {
     try {
       // ✅ FIX: Keep the old slug if it exists, only generate a new one if it's a brand new page
       const slug = editingService.slug || editingService.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-      const serviceDataToSave = { ...editingService, slug };
+      const serviceDataToSave = { ...editingService, slug, orderIndex: editingService.orderIndex ?? orderedServices.length };
 
       if (editingService.id) {
         await updateDoc(doc(db, "services", editingService.id), serviceDataToSave);
@@ -208,7 +252,6 @@ export default function AdminSolutions() {
       }
       setIsServiceModalOpen(false);
     } catch (error) {
-// ... rest of the code
       console.error("Error saving service: ", error);
       alert("Failed to save service.");
     } finally {
@@ -285,7 +328,7 @@ export default function AdminSolutions() {
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Manage Service Pages</h2>
-                  <p className="text-sm text-gray-500 mt-1">Create new services. These automatically generate new URLs.</p>
+                  <p className="text-sm text-gray-500 mt-1">Create new services and use the arrows to set their display order.</p>
                 </div>
                 <Button onClick={() => { 
                     setEditingService({ 
@@ -302,7 +345,7 @@ export default function AdminSolutions() {
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                {services.length === 0 && (
+                {orderedServices.length === 0 && (
                   <div className="text-center py-8 border-2 border-dashed rounded-xl border-gray-200 bg-gray-50">
                     <p className="text-gray-500 mb-4">No services found in the database.</p>
                     <Button onClick={migrateDefaultServices} disabled={isSaving} className="bg-[#1B5E20] text-white hover:bg-[#2A4B38]">
@@ -312,9 +355,16 @@ export default function AdminSolutions() {
                   </div>
                 )}
                 
-                {services.map((service) => (
-                  <div key={service.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow bg-gray-50">
+                {orderedServices.map((service, index) => (
+                  <div key={service.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow bg-gray-50 group">
                     <div className="flex items-center gap-4">
+                      
+                      {/* NEW: REORDER ARROWS */}
+                      <div className="flex flex-col gap-1 pr-2 border-r border-gray-200 opacity-30 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => moveService(index, 'up')} disabled={index === 0} className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"><ArrowUp size={16}/></button>
+                        <button onClick={() => moveService(index, 'down')} disabled={index === orderedServices.length - 1} className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"><ArrowDown size={16}/></button>
+                      </div>
+
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-200 shrink-0">
                         {service.imagePreview ? <img src={service.imagePreview} className="w-full h-full object-cover" /> : <Briefcase className="w-full h-full p-4 text-gray-400" />}
                       </div>

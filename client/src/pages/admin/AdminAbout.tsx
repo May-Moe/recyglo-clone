@@ -48,6 +48,11 @@ export default function AdminAbout() {
     ceoImagePreview: ceoPhoto
   });
 
+  // NEW: Section Headers for Array Data
+  const [teamHeader, setTeamHeader] = useState({ title: "Our Team", description: "" });
+  const [awardsHeader, setAwardsHeader] = useState({ title: "Award-Winning Excellence & Global Recognition", description: "" });
+  const [partnersHeader, setPartnersHeader] = useState({ title: "Strategic Partnerships & Industry Memberships", description: "" });
+
   const [teamMembers, setTeamMembers] = useState([
     { id: 'team-1', name: "Ms. Shwe Yamin Oo", title: "CEO & Co-founder", imagePreview: team1 },
     { id: 'team-2', name: "Mr. Okka Phyo Maung", title: "CMO & Co-founder", imagePreview: team2 },
@@ -64,7 +69,7 @@ export default function AdminAbout() {
     { id: 'award-4', title: "Circular Economy Leader", year: "2022", imagePreview: "" },
   ]);
 
-  const [partners, setPartners] = useState<any[]>([]); // NEW: Partners state
+  const [partners, setPartners] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchAboutData = async () => {
@@ -77,9 +82,14 @@ export default function AdminAbout() {
           if (data.heroData) setHeroData(data.heroData);
           if (data.introData) setIntroData(data.introData);
           if (data.storyData) setStoryData(data.storyData);
+          
+          if (data.teamHeader) setTeamHeader(data.teamHeader);
+          if (data.awardsHeader) setAwardsHeader(data.awardsHeader);
+          if (data.partnersHeader) setPartnersHeader(data.partnersHeader);
+
           if (data.teamMembers && data.teamMembers.length > 0) setTeamMembers(data.teamMembers);
           if (data.awards && data.awards.length > 0) setAwards(data.awards);
-          if (data.partners && data.partners.length > 0) setPartners(data.partners); // Load partners
+          if (data.partners && data.partners.length > 0) setPartners(data.partners); 
         }
       } catch (error) {
         console.error("Error fetching about page data:", error);
@@ -99,9 +109,12 @@ export default function AdminAbout() {
         heroData,
         introData,
         storyData,
+        teamHeader,
+        awardsHeader,
+        partnersHeader,
         teamMembers,
         awards,
-        partners, // Save partners
+        partners,
         lastUpdated: new Date()
       }, { merge: true });
 
@@ -122,9 +135,10 @@ export default function AdminAbout() {
   const removeAward = (id: string) => setAwards(awards.filter(a => a.id !== id));
   const updateAward = (id: string, field: string, value: string) => setAwards(awards.map(a => a.id === id ? { ...a, [field]: value } : a));
 
-  const addPartner = () => setPartners([...partners, { id: `partner-${Date.now()}`, imagePreview: "" }]);
+  // UPDATED: Partner Handlers to support field-based updates
+  const addPartner = () => setPartners([...partners, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
   const removePartner = (id: string) => setPartners(partners.filter(p => p.id !== id));
-  const updatePartner = (id: string, value: string) => setPartners(partners.map(p => p.id === id ? { ...p, imagePreview: value } : p));
+  const updatePartner = (id: string, field: string, value: string) => setPartners(partners.map(p => p.id === id ? { ...p, [field]: value } : p));
 
   if (isLoading) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
@@ -288,6 +302,21 @@ export default function AdminAbout() {
                 </Button>
               </div>
 
+              {/* NEW SECTION HEADINGS */}
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={teamHeader.title} onChange={(e) => setTeamHeader({...teamHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Our Team" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
+                    <textarea rows={2} value={teamHeader.description} onChange={(e) => setTeamHeader({...teamHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {teamMembers.length === 0 && <p className="text-gray-400 py-8 col-span-2 text-center">No team members added yet.</p>}
                 
@@ -327,6 +356,21 @@ export default function AdminAbout() {
                 </Button>
               </div>
 
+              {/* NEW SECTION HEADINGS */}
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={awardsHeader.title} onChange={(e) => setAwardsHeader({...awardsHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Award-Winning Excellence" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
+                    <textarea rows={2} value={awardsHeader.description} onChange={(e) => setAwardsHeader({...awardsHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {awards.length === 0 && <p className="text-gray-400 py-8 col-span-4 text-center">No awards added yet.</p>}
                 
@@ -352,26 +396,54 @@ export default function AdminAbout() {
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Strategic Partnerships</h2>
-                  <p className="text-sm text-gray-500 mt-1">Upload logos of your industry partners and memberships.</p>
+                  <p className="text-sm text-gray-500 mt-1">Upload logos and see the exact file name extracted from the upload below them.</p>
                 </div>
                 <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add Logo
                 </Button>
               </div>
 
+              {/* NEW SECTION HEADINGS */}
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={partnersHeader.title} onChange={(e) => setPartnersHeader({...partnersHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Strategic Partnerships" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
+                    <textarea rows={2} value={partnersHeader.description} onChange={(e) => setPartnersHeader({...partnersHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {partners.map((partner) => (
-                  <div key={partner.id} className="aspect-video relative group bg-gray-50 rounded-xl border border-gray-200 p-2">
-                    <ImageUploader 
-                      preview={partner.imagePreview} 
-                      onUploadSuccess={(url: string) => updatePartner(partner.id, url)}
+                  <div key={partner.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
+                    <div className="aspect-video relative">
+                      <ImageUploader 
+                        preview={partner.imagePreview} 
+                        onUploadSuccess={(url: string, fileName: string) => {
+                          updatePartner(partner.id, 'imagePreview', url);
+                          updatePartner(partner.id, 'fileName', fileName);
+                        }}
+                      />
+                      <button 
+                        onClick={() => removePartner(partner.id)}
+                        className="absolute top-1 right-1 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    {/* Editable Extracted File Name Field */}
+                    <input 
+                      type="text" 
+                      value={partner.fileName || ''} 
+                      onChange={(e) => updatePartner(partner.id, 'fileName', e.target.value)} 
+                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-600" 
+                      placeholder="Upload to see filename" 
                     />
-                    <button 
-                      onClick={() => removePartner(partner.id)}
-                      className="absolute top-1 right-1 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
-                    >
-                      <Trash2 size={14} />
-                    </button>
                   </div>
                 ))}
                 
@@ -403,6 +475,7 @@ function TabButton({ id, label, icon, activeTab, onClick }: any) {
   );
 }
 
+// UPDATED: Automatically extracts file.name and passes it up!
 function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -415,7 +488,8 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
       const fileRef = ref(storage, `about-page/${Date.now()}_${file.name}`);
       await uploadBytes(fileRef, file);
       const url = await getDownloadURL(fileRef);
-      onUploadSuccess(url);
+      // Passing both the URL and the original file name
+      if (onUploadSuccess) onUploadSuccess(url, file.name);
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Image upload failed! Check console.");

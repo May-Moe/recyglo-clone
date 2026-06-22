@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users, Briefcase, Monitor } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 
 export default function AdminHome() {
-  const [activeTab, setActiveTab] = useState('hero');
+  const [activeTab, setActiveTab] = useState('hero'); 
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- LIVE DATABASE STATE (Starts empty, waiting for Firebase) ---
+  // --- LIVE DATABASE STATE ---
   const [visionData, setVisionData] = useState({
     mission: "",
     vision: "",
@@ -19,9 +19,31 @@ export default function AdminHome() {
 
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [values, setValues] = useState<any[]>([]);
+  
+  // ALL SECTION HEADERS
+  const [partnersHeader, setPartnersHeader] = useState({ title: "", description: "" });
+  const [testimonialsHeader, setTestimonialsHeader] = useState({ title: "", description: "" });
+  const [valuesHeader, setValuesHeader] = useState({ title: "", description: "" });
+  const [visionHeader, setVisionHeader] = useState({ title: "", description: "" });
+  const [galleryHeader, setGalleryHeader] = useState({ title: "", description: "" });
+
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
-  const [partners, setPartners] = useState<any[]>([]); // NEW: Partners state
+  const [partners, setPartners] = useState<any[]>([]); 
+  
+  // Services Section State
+  const [servicesHeader, setServicesHeader] = useState({
+    subtitle: "What We Do",
+    title: "Comprehensive Waste & ESG Services"
+  });
+  const [featuredServices, setFeaturedServices] = useState<any[]>([]);
+
+  // Digital Platforms Section State
+  const [platformsHeader, setPlatformsHeader] = useState({
+    subtitle: "Technology",
+    title: "Digital Platforms"
+  });
+  const [digitalPlatforms, setDigitalPlatforms] = useState<any[]>([]);
 
   // --- 1. FETCH INITIAL DATA FROM FIREBASE ON LOAD ---
   useEffect(() => {
@@ -33,11 +55,22 @@ export default function AdminHome() {
         if (docSnap.exists() && Object.keys(docSnap.data()).length > 0) {
           const data = docSnap.data();
           if (data.visionData) setVisionData(data.visionData);
-          if (data.heroSlides && data.heroSlides.length > 0) setHeroSlides(data.heroSlides);
-          if (data.values && data.values.length > 0) setValues(data.values);
-          if (data.testimonials && data.testimonials.length > 0) setTestimonials(data.testimonials);
-          if (data.galleryImages && data.galleryImages.length > 0) setGalleryImages(data.galleryImages);
-          if (data.partners && data.partners.length > 0) setPartners(data.partners); // Load partners
+          if (data.heroSlides) setHeroSlides(data.heroSlides);
+          if (data.values) setValues(data.values);
+          if (data.testimonials) setTestimonials(data.testimonials);
+          if (data.galleryImages) setGalleryImages(data.galleryImages);
+          if (data.partners) setPartners(data.partners); 
+          if (data.servicesHeader) setServicesHeader(data.servicesHeader);
+          if (data.featuredServices) setFeaturedServices(data.featuredServices);
+          if (data.platformsHeader) setPlatformsHeader(data.platformsHeader);
+          if (data.digitalPlatforms) setDigitalPlatforms(data.digitalPlatforms);
+
+          // Fetch Section Headers
+          if (data.partnersHeader) setPartnersHeader(data.partnersHeader);
+          if (data.testimonialsHeader) setTestimonialsHeader(data.testimonialsHeader);
+          if (data.valuesHeader) setValuesHeader(data.valuesHeader);
+          if (data.visionHeader) setVisionHeader(data.visionHeader);
+          if (data.galleryHeader) setGalleryHeader(data.galleryHeader);
         }
       } catch (error) {
         console.error("Error fetching home page data:", error);
@@ -60,7 +93,17 @@ export default function AdminHome() {
         values,
         testimonials,
         galleryImages,
-        partners, // Save partners
+        partners, 
+        servicesHeader,
+        featuredServices,
+        platformsHeader,
+        digitalPlatforms,
+        // Save the dynamic section headers
+        partnersHeader,
+        testimonialsHeader, 
+        valuesHeader,
+        visionHeader,
+        galleryHeader,
         lastUpdated: new Date()
       }, { merge: true });
 
@@ -86,14 +129,21 @@ export default function AdminHome() {
   const removeTestimonial = (id: string) => setTestimonials(testimonials.filter(t => t.id !== id));
   const updateTestimonial = (id: string, field: string, value: string) => setTestimonials(testimonials.map(t => t.id === id ? { ...t, [field]: value } : t));
 
-  const addGalleryImage = () => setGalleryImages([...galleryImages, { id: `img-${Date.now()}`, preview: "" }]);
+  const addGalleryImage = () => setGalleryImages([...galleryImages, { id: `img-${Date.now()}`, preview: "", fileName: "" }]);
   const removeGalleryImage = (id: string) => setGalleryImages(galleryImages.filter(img => img.id !== id));
-  const updateGalleryImage = (id: string, value: string) => setGalleryImages(galleryImages.map(img => img.id === id ? { ...img, preview: value } : img));
+  const updateGalleryImage = (id: string, field: string, value: string) => setGalleryImages(galleryImages.map(img => img.id === id ? { ...img, [field]: value } : img));
 
-  // Handlers for Partners
-  const addPartner = () => setPartners([...partners, { id: `partner-${Date.now()}`, imagePreview: "" }]);
+  const addPartner = () => setPartners([...partners, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
   const removePartner = (id: string) => setPartners(partners.filter(p => p.id !== id));
-  const updatePartner = (id: string, value: string) => setPartners(partners.map(p => p.id === id ? { ...p, imagePreview: value } : p));
+  const updatePartner = (id: string, field: string, value: string) => setPartners(partners.map(p => p.id === id ? { ...p, [field]: value } : p));
+
+  const addService = () => setFeaturedServices([...featuredServices, { id: `service-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
+  const removeService = (id: string) => setFeaturedServices(featuredServices.filter(s => s.id !== id));
+  const updateService = (id: string, field: string, value: string) => setFeaturedServices(featuredServices.map(s => s.id === id ? { ...s, [field]: value } : s));
+
+  const addPlatform = () => setDigitalPlatforms([...digitalPlatforms, { id: `plat-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
+  const removePlatform = (id: string) => setDigitalPlatforms(digitalPlatforms.filter(p => p.id !== id));
+  const updatePlatform = (id: string, field: string, value: string) => setDigitalPlatforms(digitalPlatforms.map(p => p.id === id ? { ...p, [field]: value } : p));
 
 
   if (isLoading) {
@@ -124,6 +174,8 @@ export default function AdminHome() {
         {/* LEFT SIDE: Tab Navigation */}
         <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
           <TabButton id="hero" label="Hero Slideshow" icon={<Layout size={18} />} activeTab={activeTab} onClick={setActiveTab} />
+          <TabButton id="services" label="Featured Services" icon={<Briefcase size={18} />} activeTab={activeTab} onClick={setActiveTab} />
+          <TabButton id="platforms" label="Digital Platforms" icon={<Monitor size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="partners" label="Trusted Partners" icon={<Users size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="vision" label="Strategic Vision" icon={<Target size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="values" label="Our Values" icon={<Heart size={18} />} activeTab={activeTab} onClick={setActiveTab} />
@@ -190,7 +242,141 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 2: PARTNERS */}
+          {/* TAB 2: FEATURED SERVICES */}
+          {activeTab === 'services' && (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Featured Services</h2>
+                  <p className="text-sm text-gray-500 mt-1">Manage the core services displayed on the home page grid.</p>
+                </div>
+                <Button onClick={addService} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
+                  <Plus size={16} className="mr-2" /> Add Service
+                </Button>
+              </div>
+
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
+                    <input type="text" value={servicesHeader.subtitle} onChange={(e) => setServicesHeader({...servicesHeader, subtitle: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. What We Do" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={servicesHeader.title} onChange={(e) => setServicesHeader({...servicesHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Comprehensive Waste & ESG Services" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {featuredServices.length === 0 && <p className="text-gray-400 text-center py-8">No services added yet. Click "Add Service" to begin.</p>}
+                
+                {featuredServices.map((service) => (
+                  <div key={service.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group">
+                    <button onClick={() => removeService(service.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors z-10">
+                      <Trash2 size={18} />
+                    </button>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                      <div className="md:col-span-4 space-y-2">
+                        <label className="block text-sm font-bold text-gray-700">Cover Image (1:1 Ratio)</label>
+                        <div className="aspect-square w-full">
+                          <ImageUploader 
+                            preview={service.imagePreview} 
+                            onUploadSuccess={(url: string) => updateService(service.id, 'imagePreview', url)} 
+                          />
+                        </div>
+                      </div>
+                      <div className="md:col-span-8 space-y-4 pt-1">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Service Title</label>
+                          <input type="text" value={service.title} onChange={(e) => updateService(service.id, 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" placeholder="e.g. Waste Management Solutions" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                          <textarea rows={2} value={service.desc} onChange={(e) => updateService(service.id, 'desc', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Short description for the card..." />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Link (URL Path)</label>
+                          <input type="text" value={service.link} onChange={(e) => updateService(service.id, 'link', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. /solutions/waste-management" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: DIGITAL PLATFORMS */}
+          {activeTab === 'platforms' && (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Digital Platforms</h2>
+                  <p className="text-sm text-gray-500 mt-1">Manage external links and cards for your software platforms.</p>
+                </div>
+                <Button onClick={addPlatform} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
+                  <Plus size={16} className="mr-2" /> Add Platform
+                </Button>
+              </div>
+
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
+                    <input type="text" value={platformsHeader.subtitle} onChange={(e) => setPlatformsHeader({...platformsHeader, subtitle: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Technology" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={platformsHeader.title} onChange={(e) => setPlatformsHeader({...platformsHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Digital Platforms" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {digitalPlatforms.length === 0 && <p className="text-gray-400 text-center py-8">No platforms added yet. Click "Add Platform" to begin.</p>}
+                
+                {digitalPlatforms.map((plat) => (
+                  <div key={plat.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group">
+                    <button onClick={() => removePlatform(plat.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors z-10">
+                      <Trash2 size={18} />
+                    </button>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                      <div className="md:col-span-5 space-y-2">
+                        <label className="block text-sm font-bold text-gray-700">Preview Image (16:9 Ratio)</label>
+                        <div className="aspect-video w-full">
+                          <ImageUploader 
+                            preview={plat.imagePreview} 
+                            onUploadSuccess={(url: string) => updatePlatform(plat.id, 'imagePreview', url)} 
+                          />
+                        </div>
+                      </div>
+                      <div className="md:col-span-7 space-y-4 pt-1">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Platform Name</label>
+                          <input type="text" value={plat.title} onChange={(e) => updatePlatform(plat.id, 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" placeholder="e.g. SanaTerra" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                          <textarea rows={2} value={plat.desc} onChange={(e) => updatePlatform(plat.id, 'desc', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Enterprise carbon tracking..." />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">External Link (URL)</label>
+                          <input type="text" value={plat.link} onChange={(e) => updatePlatform(plat.id, 'link', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="https://sanaterra.co" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: PARTNERS */}
           {activeTab === 'partners' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -203,19 +389,46 @@ export default function AdminHome() {
                 </Button>
               </div>
 
+              {/* SECTION HEADERS FOR PARTNERS */}
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={partnersHeader.title} onChange={(e) => setPartnersHeader({...partnersHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Trusted by Global Brands" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
+                    <textarea rows={2} value={partnersHeader.description} onChange={(e) => setPartnersHeader({...partnersHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description under the title..." />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {partners.map((partner) => (
-                  <div key={partner.id} className="aspect-video relative group bg-gray-50 rounded-xl border border-gray-200 p-2">
-                    <ImageUploader 
-                      preview={partner.imagePreview} 
-                      onUploadSuccess={(url: string) => updatePartner(partner.id, url)}
+                  <div key={partner.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
+                    <div className="aspect-video relative">
+                      <ImageUploader 
+                        preview={partner.imagePreview} 
+                        onUploadSuccess={(url: string, fileName: string) => {
+                          updatePartner(partner.id, 'imagePreview', url);
+                          updatePartner(partner.id, 'fileName', fileName);
+                        }}
+                      />
+                      <button 
+                        onClick={() => removePartner(partner.id)}
+                        className="absolute top-1 right-1 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <input 
+                      type="text" 
+                      value={partner.fileName || ''} 
+                      onChange={(e) => updatePartner(partner.id, 'fileName', e.target.value)} 
+                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-600" 
+                      placeholder="Upload to see filename" 
                     />
-                    <button 
-                      onClick={() => removePartner(partner.id)}
-                      className="absolute top-1 right-1 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
-                    >
-                      <Trash2 size={14} />
-                    </button>
                   </div>
                 ))}
                 
@@ -230,39 +443,70 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 3: STRATEGIC VISION */}
+          {/* TAB 5: STRATEGIC VISION */}
           {activeTab === 'vision' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="mb-6 border-b pb-4">
                 <h2 className="text-xl font-bold text-gray-900">Strategic Vision</h2>
-                <p className="text-sm text-gray-500">Edit the three main vision blocks shown on the dark green background.</p>
+                <p className="text-sm text-gray-500">Edit the main title, description, and the three vision blocks.</p>
               </div>
+
+              {/* SECTION HEADERS FOR VISION */}
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={visionHeader.title} onChange={(e) => setVisionHeader({...visionHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Our Strategic Vision" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
+                    <textarea rows={2} value={visionHeader.description} onChange={(e) => setVisionHeader({...visionHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-4">
-                <label className="block text-sm font-bold text-gray-700">Our Mission</label>
+                <label className="block text-sm font-bold text-gray-700">Our Mission Block</label>
                 <textarea rows={4} value={visionData.mission} onChange={(e) => setVisionData({...visionData, mission: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-gray-50 focus:bg-white transition-colors" />
               </div>
               <div className="space-y-4 pt-4 border-t border-gray-100">
-                <label className="block text-sm font-bold text-gray-700">Our Vision</label>
+                <label className="block text-sm font-bold text-gray-700">Our Vision Block</label>
                 <textarea rows={4} value={visionData.vision} onChange={(e) => setVisionData({...visionData, vision: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-gray-50 focus:bg-white transition-colors" />
               </div>
               <div className="space-y-4 pt-4 border-t border-gray-100">
-                <label className="block text-sm font-bold text-gray-700">Our Goal</label>
+                <label className="block text-sm font-bold text-gray-700">Our Goal Block</label>
                 <textarea rows={6} value={visionData.goal} onChange={(e) => setVisionData({...visionData, goal: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-gray-50 focus:bg-white transition-colors" />
               </div>
             </div>
           )}
 
-          {/* TAB 4: OUR VALUES */}
+          {/* TAB 6: OUR VALUES */}
           {activeTab === 'values' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Our Values</h2>
-                  <p className="text-sm text-gray-500 mt-1">Manage the core values grid displayed on your home page.</p>
+                  <p className="text-sm text-gray-500 mt-1">Manage the section title and the core values grid displayed on your home page.</p>
                 </div>
                 <Button onClick={addValue} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add Value
                 </Button>
+              </div>
+
+              {/* SECTION HEADERS FOR VALUES */}
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={valuesHeader.title} onChange={(e) => setValuesHeader({...valuesHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Our Values" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
+                    <textarea rows={2} value={valuesHeader.description} onChange={(e) => setValuesHeader({...valuesHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -297,17 +541,44 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 5: TESTIMONIALS */}
+          {/* TAB 7: TESTIMONIALS */}
           {activeTab === 'testimonials' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Testimonials</h2>
-                  <p className="text-sm text-gray-500 mt-1">Add or edit client quotes to build trust.</p>
+                  <p className="text-sm text-gray-500 mt-1">Manage the title, description, and client quotes.</p>
                 </div>
                 <Button onClick={addTestimonial} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add Testimonial
                 </Button>
+              </div>
+
+              {/* TESTIMONIAL HEADER INPUTS */}
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input 
+                      type="text" 
+                      value={testimonialsHeader.title} 
+                      onChange={(e) => setTestimonialsHeader({...testimonialsHeader, title: e.target.value})} 
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" 
+                      placeholder="e.g. What Our Clients Say" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                    <textarea 
+                      rows={2} 
+                      value={testimonialsHeader.description} 
+                      onChange={(e) => setTestimonialsHeader({...testimonialsHeader, description: e.target.value})} 
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" 
+                      placeholder="e.g. Hear directly from industry leaders..." 
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-6">
@@ -349,32 +620,60 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 6: IMPACT GALLERY */}
+          {/* TAB 8: IMPACT GALLERY */}
           {activeTab === 'gallery' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Impact Gallery</h2>
-                  <p className="text-sm text-gray-500 mt-1">Manage the grid of images showing your team and impact in action.</p>
+                  <p className="text-sm text-gray-500 mt-1">Manage the grid of images and the section title.</p>
                 </div>
                 <Button onClick={addGalleryImage} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add Image Box
                 </Button>
               </div>
 
+              {/* SECTION HEADERS FOR GALLERY */}
+              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
+                    <input type="text" value={galleryHeader.title} onChange={(e) => setGalleryHeader({...galleryHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Impact in Action" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
+                    <textarea rows={2} value={galleryHeader.description} onChange={(e) => setGalleryHeader({...galleryHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {galleryImages.map((img) => (
-                  <div key={img.id} className="aspect-square relative group">
-                    <ImageUploader 
-                      preview={img.preview} 
-                      onUploadSuccess={(url: string) => updateGalleryImage(img.id, url)}
+                  <div key={img.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
+                    <div className="aspect-square relative">
+                      <ImageUploader 
+                        preview={img.preview} 
+                        onUploadSuccess={(url: string, fileName: string) => {
+                          updateGalleryImage(img.id, 'preview', url);
+                          updateGalleryImage(img.id, 'fileName', fileName);
+                        }}
+                      />
+                      <button 
+                        onClick={() => removeGalleryImage(img.id)}
+                        className="absolute top-2 right-2 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    {/* Editable Extracted File Name Field */}
+                    <input 
+                      type="text" 
+                      value={img.fileName || ''} 
+                      onChange={(e) => updateGalleryImage(img.id, 'fileName', e.target.value)} 
+                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-600" 
+                      placeholder="Upload to see filename" 
                     />
-                    <button 
-                      onClick={() => removeGalleryImage(img.id)}
-                      className="absolute top-2 right-2 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
                 ))}
                 
@@ -424,7 +723,7 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
       const fileRef = ref(storage, `home-page/${Date.now()}_${file.name}`);
       await uploadBytes(fileRef, file);
       const url = await getDownloadURL(fileRef);
-      onUploadSuccess(url);
+      if (onUploadSuccess) onUploadSuccess(url, file.name);
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Image upload failed! Check console.");
@@ -435,8 +734,8 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
 
   return (
     <div className={`
-      border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors
-      ${circle ? 'rounded-full aspect-square' : 'rounded-xl h-full w-full min-h-[100px]'}
+      border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors w-full h-full
+      ${circle ? 'rounded-full aspect-square' : 'rounded-xl min-h-[100px]'}
     `}>
       <input 
         type="file" 
@@ -453,7 +752,7 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
         </div>
       ) : preview ? (
         <>
-          <img src={preview} className="w-full h-full object-contain opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
+          <img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
           <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity">
             <UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} />
             {!small && <span className="text-xs font-bold text-[#1B5E20]">Change</span>}

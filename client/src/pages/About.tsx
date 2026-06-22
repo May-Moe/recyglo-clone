@@ -19,7 +19,11 @@ export default function About() {
     storyData: { title: "", paragraph1: "", paragraph2: "", paragraph3: "", ceoName: "", ceoTitle: "", ceoImagePreview: "" },
     teamMembers: [] as any[],
     awards: [] as any[],
-    partners: [] as any[] // NEW
+    partners: [] as any[],
+    // NEW: Section Headers
+    teamHeader: { title: "", description: "" },
+    awardsHeader: { title: "", description: "" },
+    partnersHeader: { title: "", description: "" }
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +41,11 @@ export default function About() {
           storyData: data.storyData || { title: "", paragraph1: "", paragraph2: "", paragraph3: "", ceoName: "", ceoTitle: "", ceoImagePreview: "" },
           teamMembers: data.teamMembers || [],
           awards: data.awards || [],
-          partners: data.partners || [] // NEW
+          partners: data.partners || [],
+          // Map the new headers
+          teamHeader: data.teamHeader || { title: "", description: "" },
+          awardsHeader: data.awardsHeader || { title: "", description: "" },
+          partnersHeader: data.partnersHeader || { title: "", description: "" }
         });
       }
       setIsLoading(false);
@@ -236,7 +244,14 @@ export default function About() {
       {pageData.teamMembers.length > 0 && (
         <section id="team" className="py-24 bg-white border-t border-gray-100 scroll-mt-24">
            <div className="container px-4 sm:px-8 lg:px-12">
-              <h2 className="text-4xl font-bold text-[#1B5E20] mb-20 text-center">Our Team</h2>
+              <div className="text-center mb-20">
+                <h2 className="text-4xl font-bold text-[#1B5E20] mb-4">
+                  {pageData.teamHeader?.title || 'Our Team'}
+                </h2>
+                {pageData.teamHeader?.description && (
+                  <p className="text-gray-600 max-w-2xl mx-auto">{pageData.teamHeader.description}</p>
+                )}
+              </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-20 gap-x-8 max-w-5xl mx-auto">
                  {pageData.teamMembers.map((member: any, idx: number) => (
@@ -289,9 +304,14 @@ export default function About() {
       {pageData.awards.length > 0 && (
         <section id="awards" className="py-24 bg-white border-t border-gray-100 scroll-mt-24">
           <div className="container px-4 sm:px-8 lg:px-12">
-             <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-12 text-center md:text-left">
-                Award-Winning Excellence & Global Recognition
-             </h2>
+             <div className="text-center md:text-left mb-12">
+               <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-4">
+                 {pageData.awardsHeader?.title || 'Award-Winning Excellence & Global Recognition'}
+               </h2>
+               {pageData.awardsHeader?.description && (
+                 <p className="text-gray-600 max-w-3xl">{pageData.awardsHeader.description}</p>
+               )}
+             </div>
              
              <div className="relative">
                 <button 
@@ -341,9 +361,15 @@ export default function About() {
       {pageData.partners.length > 0 && (
         <section id="partnerships" className="py-24 bg-[#F8F9F7] border-t border-gray-100 scroll-mt-24">
           <div className="container px-4 sm:px-8 lg:px-12 text-center">
-             <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-12">
-               Strategic Partnerships & Industry Memberships
-             </h2>
+             <div className="mb-12">
+               <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-4">
+                 {pageData.partnersHeader?.title || 'Strategic Partnerships & Industry Memberships'}
+               </h2>
+               {pageData.partnersHeader?.description && (
+                 <p className="text-gray-600 max-w-2xl mx-auto">{pageData.partnersHeader.description}</p>
+               )}
+             </div>
+             
              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
                 {pageData.partners.map((partner: any, idx: number) => (
                   <div key={partner.id || idx} className="h-20 w-40 flex items-center justify-center">

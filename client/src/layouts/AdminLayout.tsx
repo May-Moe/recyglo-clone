@@ -4,14 +4,15 @@ import { auth } from '@/lib/firebase'; // Adjust path if needed
 import { signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { 
   LayoutDashboard, Briefcase, FileText, Image as ImageIcon, Settings, 
-  LogOut, Menu, X, User, Globe, Home, Info, PhoneCall, FolderOpen, Users, Mail
+  LogOut, Menu, X, User, Globe, Home, Info, PhoneCall, FolderOpen, Users, Mail, Target,
+  Calendar
 } from 'lucide-react';
 import logo from '@/assets/images/logo.png'; 
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // NEW: Desktop Sidebar State
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); 
   
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
 
@@ -54,14 +55,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </Link>
           
-          {/* --- NEW INQUIRIES TAB --- */}
           <Link href="/admin/inquiries">
             <div onClick={() => setIsMobileOpen(false)} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${location === '/admin/inquiries' ? 'bg-[#76FF03]/10 text-[#76FF03]' : 'hover:bg-white/5 hover:text-white'}`}>
               <Mail size={18} /> Inquiries Inbox
             </div>
           </Link>
 
-          {/* --- NEW SUBSCRIBERS TAB --- */}
           <Link href="/admin/subscribers">
             <div onClick={() => setIsMobileOpen(false)} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${location === '/admin/subscribers' ? 'bg-[#76FF03]/10 text-[#76FF03]' : 'hover:bg-white/5 hover:text-white'}`}>
               <Users size={18} /> Subscribers List
@@ -88,6 +87,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Info size={18} /> About Us
             </div>
           </Link>
+          {/* NEW: IMPACT PAGE LINK */}
+          <Link href="/admin/pages/impact">
+            <div onClick={() => setIsMobileOpen(false)} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${location === '/admin/pages/impact' ? 'bg-[#76FF03]/10 text-[#76FF03]' : 'hover:bg-white/5 hover:text-white'}`}>
+              <Target size={18} /> Our Impact
+            </div>
+          </Link>
           <Link href="/admin/pages/contact">
             <div onClick={() => setIsMobileOpen(false)} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${location === '/admin/pages/contact' ? 'bg-[#76FF03]/10 text-[#76FF03]' : 'hover:bg-white/5 hover:text-white'}`}>
               <PhoneCall size={18} /> Contact Us
@@ -111,6 +116,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/articles">
             <div onClick={() => setIsMobileOpen(false)} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${location.includes('/admin/articles') ? 'bg-[#76FF03]/10 text-[#76FF03]' : 'hover:bg-white/5 hover:text-white'}`}>
               <FileText size={18} /> Articles / Blog
+            </div>
+          </Link>
+          <Link href="/admin/events">
+            <div onClick={() => setIsMobileOpen(false)} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${location === '/admin/events' ? 'bg-[#76FF03]/10 text-[#76FF03]' : 'hover:bg-white/5 hover:text-white'}`}>
+              <Calendar size={18} /> Manage Events
             </div>
           </Link>
         </div>

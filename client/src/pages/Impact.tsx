@@ -38,7 +38,7 @@ export default function Impact() {
             {t('impact.subtitle', 'Where waste ends and life begins')}
           </h2>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white leading-tight">
-            {t('impact.title', 'Impact Report')}
+            {t('impact.title', 'Our Impact')}
           </h1>
           <p className="text-lg md:text-xl text-white/90 mb-8 leading-relaxed font-light tracking-wide">
             {t('impact.desc', 'Ocean Bound Plastic • Informal Worker Uplift • Women Empowerment Training')}
@@ -85,7 +85,7 @@ export default function Impact() {
       </section>
 
       {/* 3. THE GLOBAL CRISIS */}
-      <section className="py-24 bg-gray-50 border-y border-gray-200">
+      {/* <section className="py-24 bg-gray-50 border-y border-gray-200">
         <div className="container px-4 sm:px-8 lg:px-12">
           <div className="max-w-3xl mb-16">
             <div className="w-12 h-1 bg-[#E2552B] mb-6"></div>
@@ -113,7 +113,7 @@ export default function Impact() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* 4. LEVER 2: INFORMAL WORKERS */}
       <section className="py-24 bg-white">
@@ -246,7 +246,7 @@ export default function Impact() {
               </div>
               
               <div className="lg:col-span-5 aspect-[4/3] relative">
-                <img src={impactHtet} alt="Htet Htet Hlwan Moe" className="w-full h-full object-cover border border-gray-200 shadow-sm" />
+                <img alt="Coming Soon" className="w-full h-full object-cover border border-gray-200 shadow-sm" />
               </div>
             </div>
           </div>
@@ -254,21 +254,21 @@ export default function Impact() {
           {/* 3 Women Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-gray-200 pt-16">
             <div className="text-center group">
-              <img src={impactWoman1} alt="Ma Thin Htet Htet San" className="w-32 h-32 rounded-full object-cover mx-auto mb-6 grayscale group-hover:grayscale-0 transition-all duration-500 border border-gray-200" />
+              <img alt="Coming Soon" className="w-32 h-32 rounded-full object-cover mx-auto mb-6 grayscale group-hover:grayscale-0 transition-all duration-500 border border-gray-200" />
               <h4 className="font-bold text-xl text-gray-900 mb-2">Ma Thin Htet Htet San</h4>
               <p className="text-xs font-bold text-[#E2552B] uppercase tracking-wider mb-4">Myanmar Jewelry</p>
               <p className="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto">Now training war-affected civilians in four cities—one graduate who became a trainer.</p>
             </div>
             
             <div className="text-center group border-t border-gray-200 pt-8 md:pt-0 md:border-t-0 md:border-l border-gray-200">
-              <img src={impactWoman2} alt="Ma Mi Zin Tun" className="w-32 h-32 rounded-full object-cover mx-auto mb-6 grayscale group-hover:grayscale-0 transition-all duration-500 border border-gray-200" />
+              <img alt="Coming Soon" className="w-32 h-32 rounded-full object-cover mx-auto mb-6 grayscale group-hover:grayscale-0 transition-all duration-500 border border-gray-200" />
               <h4 className="font-bold text-xl text-gray-900 mb-2">Ma Mi Zin Tun</h4>
               <p className="text-xs font-bold text-[#E2552B] uppercase tracking-wider mb-4">Mushroom Cultivation</p>
               <p className="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto">Built a micro-farm at home; supporting her family through a self-sustaining income stream.</p>
             </div>
             
             <div className="text-center group border-t border-gray-200 pt-8 md:pt-0 md:border-t-0 md:border-l border-gray-200">
-              <img src={impactWoman3} alt="Ms. Klinthoop Arunchokthaworn" className="w-32 h-32 rounded-full object-cover mx-auto mb-6 grayscale group-hover:grayscale-0 transition-all duration-500 border border-gray-200" />
+              <img alt="Coming Soon" className="w-32 h-32 rounded-full object-cover mx-auto mb-6 grayscale group-hover:grayscale-0 transition-all duration-500 border border-gray-200" />
               <h4 className="font-bold text-xl text-gray-900 mb-2">Ms. Klinthoop Arunchokthaworn</h4>
               <p className="text-xs font-bold text-[#E2552B] uppercase tracking-wider mb-4">Chiang Mai Green Roots</p>
               <p className="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto">Transforming her guesthouse into a sustainable tourism operation.</p>

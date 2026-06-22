@@ -1,7 +1,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Download, ChevronRight, Play } from 'lucide-react';
+import { Download, ChevronRight, Play, Eye, X } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
 
@@ -12,7 +12,7 @@ import { db } from "@/lib/firebase"; // Adjust path if needed
 export default function Resources() {
   const [, setLocation] = useLocation();
 
-  // --- LIVE DATABASE STATE (Starts empty, waits for Firebase) ---
+  // --- LIVE DATABASE STATE ---
   const [pageData, setPageData] = useState({
     heroData: { subtitle: "", title: "", description: "", imagePreview: "" },
     caseStudies: [] as any[],
@@ -20,6 +20,9 @@ export default function Resources() {
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  
+  // NEW: State to track which file is currently being previewed
+  const [previewFile, setPreviewFile] = useState<{ url: string, title: string } | null>(null);
 
   // --- FETCH LIVE DATA FROM FIREBASE ---
   useEffect(() => {
@@ -114,24 +117,38 @@ export default function Resources() {
                    {pageData.caseStudies.map((item: any, idx: number) => (
                       <div 
                         key={item.id || idx} 
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5 border-b border-gray-200 hover:bg-gray-50 px-4 -mx-4 transition-colors rounded-lg"
+                        className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-5 border-b border-gray-200 hover:bg-gray-50 px-4 -mx-4 transition-colors rounded-lg"
                       >
-                         <span className="text-[15px] text-gray-700 pr-4">{item.title}</span>
+                         <span className="text-[15px] font-medium text-gray-800 pr-4">{item.title}</span>
                          
-                         {/* DYNAMIC DOWNLOAD BUTTON */}
-                         {item.fileUrl ? (
-                           <a 
-                             href={item.fileUrl} 
-                             target="_blank" // Safest way to handle Firebase Storage PDF links
-                             rel="noopener noreferrer"
-                             className="flex items-center justify-center gap-2 text-sm font-bold text-gray-900 hover:text-[#E2552B] transition-colors shrink-0 bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
-                           >
-                              <Download size={16} strokeWidth={2.5} />
-                              Download
-                           </a>
-                         ) : (
-                           <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded">Missing PDF</span>
-                         )}
+                         <div className="flex flex-wrap items-center gap-3 shrink-0">
+                           {item.fileUrl ? (
+                             <>
+                               {/* NEW PREVIEW BUTTON */}
+                               <button 
+                                 onClick={() => setPreviewFile({ url: item.fileUrl, title: item.title })}
+                                 className="flex items-center justify-center gap-2 text-sm font-bold text-[#1B5E20] hover:text-[#2A4B38] transition-colors bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
+                               >
+                                  <Eye size={16} strokeWidth={2.5} />
+                                  Preview
+                               </button>
+
+                               {/* DOWNLOAD BUTTON */}
+                               <a 
+                                 href={item.fileUrl} 
+                                 target="_blank" 
+                                 rel="noopener noreferrer"
+                                 download
+                                 className="flex items-center justify-center gap-2 text-sm font-bold text-gray-900 hover:text-[#E2552B] transition-colors bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
+                               >
+                                  <Download size={16} strokeWidth={2.5} />
+                                  Download
+                               </a>
+                             </>
+                           ) : (
+                             <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded">Missing PDF</span>
+                           )}
+                         </div>
                       </div>
                    ))}
                 </div>
@@ -146,24 +163,38 @@ export default function Resources() {
                    {pageData.annualReports.map((item: any, idx: number) => (
                       <div 
                         key={item.id || idx} 
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5 border-b border-gray-200 hover:bg-gray-50 px-4 -mx-4 transition-colors rounded-lg"
+                        className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-5 border-b border-gray-200 hover:bg-gray-50 px-4 -mx-4 transition-colors rounded-lg"
                       >
-                         <span className="text-[15px] text-gray-700 pr-4">{item.title}</span>
+                         <span className="text-[15px] font-medium text-gray-800 pr-4">{item.title}</span>
                          
-                         {/* DYNAMIC DOWNLOAD BUTTON */}
-                         {item.fileUrl ? (
-                           <a 
-                             href={item.fileUrl} 
-                             target="_blank" 
-                             rel="noopener noreferrer"
-                             className="flex items-center justify-center gap-2 text-sm font-bold text-gray-900 hover:text-[#E2552B] transition-colors shrink-0 bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
-                           >
-                              <Download size={16} strokeWidth={2.5} />
-                              Download
-                           </a>
-                         ) : (
-                           <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded">Missing PDF</span>
-                         )}
+                         <div className="flex flex-wrap items-center gap-3 shrink-0">
+                           {item.fileUrl ? (
+                             <>
+                               {/* NEW PREVIEW BUTTON */}
+                               <button 
+                                 onClick={() => setPreviewFile({ url: item.fileUrl, title: item.title })}
+                                 className="flex items-center justify-center gap-2 text-sm font-bold text-[#1B5E20] hover:text-[#2A4B38] transition-colors bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
+                               >
+                                  <Eye size={16} strokeWidth={2.5} />
+                                  Preview
+                               </button>
+
+                               {/* DOWNLOAD BUTTON */}
+                               <a 
+                                 href={item.fileUrl} 
+                                 target="_blank" 
+                                 rel="noopener noreferrer"
+                                 download
+                                 className="flex items-center justify-center gap-2 text-sm font-bold text-gray-900 hover:text-[#E2552B] transition-colors bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
+                               >
+                                  <Download size={16} strokeWidth={2.5} />
+                                  Download
+                               </a>
+                             </>
+                           ) : (
+                             <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded">Missing PDF</span>
+                           )}
+                         </div>
                       </div>
                    ))}
                 </div>
@@ -172,6 +203,45 @@ export default function Resources() {
 
         </div>
       </section>
+
+      {/* 3. PDF PREVIEW MODAL */}
+      {previewFile && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative">
+            
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50 shrink-0">
+              <h3 className="font-bold text-gray-900 truncate pr-4 text-lg">{previewFile.title}</h3>
+              <div className="flex items-center gap-2">
+                <a 
+                  href={previewFile.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm font-bold text-white bg-[#1B5E20] hover:bg-[#2A4B38] px-4 py-2 rounded-lg transition-colors"
+                >
+                  <Download size={16} /> Download
+                </a>
+                <button 
+                  onClick={() => setPreviewFile(null)} 
+                  className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body - PDF iFrame */}
+            <div className="flex-1 bg-gray-200 relative">
+              <iframe 
+                src={previewFile.url} 
+                className="absolute inset-0 w-full h-full border-0" 
+                title="PDF Preview" 
+              />
+            </div>
+
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

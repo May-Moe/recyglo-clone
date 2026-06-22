@@ -17,6 +17,7 @@ import ArticleDetail from "./pages/ArticleDetail";
 import CarbonCalculator from "./pages/CarbonCalculator";
 import ServiceDetail from "./pages/ServiceDetail"; // THE NEW DYNAMIC TEMPLATE
 import Impact from "./pages/Impact";
+import Events from "./pages/Events";
 
 // --- ADMIN PAGES ---
 import Login from "./pages/Login";
@@ -32,6 +33,9 @@ import AdminArticles from "./pages/admin/AdminArticles";
 import AdminMedia from "./pages/admin/AdminMedia";
 import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminSubscribers from '@/pages/admin/AdminSubscribers';
+import AdminImpact from "./pages/admin/AdminImpact";
+import AdminEvents from "./pages/admin/AdminEvents";
+
 
 function Router() {
   return (
@@ -47,6 +51,7 @@ function Router() {
       <Route path="/articles/:slug" component={ArticleDetail} />
       <Route path="/carbon-calculator" component={CarbonCalculator} />
       <Route path="/impact" component={Impact} />
+      <Route path="/events" component={Events} />
       
       {/* THE ONLY SOLUTIONS ROUTE YOU NEED NOW */}
       <Route path="/solutions/:slug" component={ServiceDetail} />
@@ -111,7 +116,18 @@ function Router() {
             <AdminSubscribers />
           </AdminLayout>
         </Route>
+        
+      <Route path="/admin/pages/impact">
+        <AdminLayout>
+          <AdminImpact />
+        </AdminLayout>
+      </Route>
 
+      <Route path="/admin/events">
+        <AdminLayout>
+          <AdminEvents />
+        </AdminLayout>
+      </Route>
       
       {/* Final fallback route */}
       <Route component={NotFound} />
