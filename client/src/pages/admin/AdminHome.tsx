@@ -98,7 +98,6 @@ export default function AdminHome() {
         featuredServices,
         platformsHeader,
         digitalPlatforms,
-        // Save the dynamic section headers
         partnersHeader,
         testimonialsHeader, 
         valuesHeader,
@@ -116,34 +115,34 @@ export default function AdminHome() {
     }
   };
 
-  // --- HANDLERS FOR UPDATING LOCAL STATE ---
-  const addHeroSlide = () => setHeroSlides([...heroSlides, { id: `slide-${Date.now()}`, subtitle: "", title: "", description: "", imagePreview: "" }]);
-  const removeHeroSlide = (id: string) => setHeroSlides(heroSlides.filter(s => s.id !== id));
-  const updateHeroSlide = (id: string, field: string, value: string) => setHeroSlides(heroSlides.map(s => s.id === id ? { ...s, [field]: value } : s));
+  // --- HANDLERS FOR UPDATING LOCAL STATE (FIXED WITH `prev =>` TO PREVENT BATCHING BUGS) ---
+  const addHeroSlide = () => setHeroSlides(prev => [...prev, { id: `slide-${Date.now()}`, subtitle: "", title: "", description: "", imagePreview: "", button1Text: "", button1Link: "", button2Text: "", button2Link: "" }]);
+  const removeHeroSlide = (id: string) => setHeroSlides(prev => prev.filter(s => s.id !== id));
+  const updateHeroSlide = (id: string, field: string, value: string) => setHeroSlides(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
 
-  const addValue = () => setValues([...values, { id: `val-${Date.now()}`, title: "", desc: "", iconPreview: "" }]);
-  const removeValue = (id: string) => setValues(values.filter(v => v.id !== id));
-  const updateValue = (id: string, field: string, value: string) => setValues(values.map(v => v.id === id ? { ...v, [field]: value } : v));
+  const addValue = () => setValues(prev => [...prev, { id: `val-${Date.now()}`, title: "", desc: "", iconPreview: "" }]);
+  const removeValue = (id: string) => setValues(prev => prev.filter(v => v.id !== id));
+  const updateValue = (id: string, field: string, value: string) => setValues(prev => prev.map(v => v.id === id ? { ...v, [field]: value } : v));
 
-  const addTestimonial = () => setTestimonials([...testimonials, { id: `test-${Date.now()}`, author: "", organization: "", quote: "", imagePreview: "" }]);
-  const removeTestimonial = (id: string) => setTestimonials(testimonials.filter(t => t.id !== id));
-  const updateTestimonial = (id: string, field: string, value: string) => setTestimonials(testimonials.map(t => t.id === id ? { ...t, [field]: value } : t));
+  const addTestimonial = () => setTestimonials(prev => [...prev, { id: `test-${Date.now()}`, author: "", organization: "", quote: "", imagePreview: "" }]);
+  const removeTestimonial = (id: string) => setTestimonials(prev => prev.filter(t => t.id !== id));
+  const updateTestimonial = (id: string, field: string, value: string) => setTestimonials(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
 
-  const addGalleryImage = () => setGalleryImages([...galleryImages, { id: `img-${Date.now()}`, preview: "", fileName: "" }]);
-  const removeGalleryImage = (id: string) => setGalleryImages(galleryImages.filter(img => img.id !== id));
-  const updateGalleryImage = (id: string, field: string, value: string) => setGalleryImages(galleryImages.map(img => img.id === id ? { ...img, [field]: value } : img));
+  const addGalleryImage = () => setGalleryImages(prev => [...prev, { id: `img-${Date.now()}`, preview: "", fileName: "" }]);
+  const removeGalleryImage = (id: string) => setGalleryImages(prev => prev.filter(img => img.id !== id));
+  const updateGalleryImage = (id: string, field: string, value: string) => setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, [field]: value } : img));
 
-  const addPartner = () => setPartners([...partners, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
-  const removePartner = (id: string) => setPartners(partners.filter(p => p.id !== id));
-  const updatePartner = (id: string, field: string, value: string) => setPartners(partners.map(p => p.id === id ? { ...p, [field]: value } : p));
+  const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
+  const removePartner = (id: string) => setPartners(prev => prev.filter(p => p.id !== id));
+  const updatePartner = (id: string, field: string, value: string) => setPartners(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
 
-  const addService = () => setFeaturedServices([...featuredServices, { id: `service-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
-  const removeService = (id: string) => setFeaturedServices(featuredServices.filter(s => s.id !== id));
-  const updateService = (id: string, field: string, value: string) => setFeaturedServices(featuredServices.map(s => s.id === id ? { ...s, [field]: value } : s));
+  const addService = () => setFeaturedServices(prev => [...prev, { id: `service-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
+  const removeService = (id: string) => setFeaturedServices(prev => prev.filter(s => s.id !== id));
+  const updateService = (id: string, field: string, value: string) => setFeaturedServices(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
 
-  const addPlatform = () => setDigitalPlatforms([...digitalPlatforms, { id: `plat-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
-  const removePlatform = (id: string) => setDigitalPlatforms(digitalPlatforms.filter(p => p.id !== id));
-  const updatePlatform = (id: string, field: string, value: string) => setDigitalPlatforms(digitalPlatforms.map(p => p.id === id ? { ...p, [field]: value } : p));
+  const addPlatform = () => setDigitalPlatforms(prev => [...prev, { id: `plat-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
+  const removePlatform = (id: string) => setDigitalPlatforms(prev => prev.filter(p => p.id !== id));
+  const updatePlatform = (id: string, field: string, value: string) => setDigitalPlatforms(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
 
 
   if (isLoading) {
@@ -234,6 +233,26 @@ export default function AdminHome() {
                           <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
                           <textarea rows={3} value={slide.description} onChange={(e) => updateHeroSlide(slide.id, 'description', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-white" placeholder="Enter paragraph text..." />
                         </div>
+                      </div>
+                    </div>
+                    
+                    {/* DYNAMIC BUTTONS ROW */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Text (Left)</label>
+                        <input type="text" value={slide.button1Text || ''} onChange={(e) => updateHeroSlide(slide.id, 'button1Text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Calculate Carbon Footprint" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Link / Path</label>
+                        <input type="text" value={slide.button1Link || ''} onChange={(e) => updateHeroSlide(slide.id, 'button1Link', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/carbon-calculator" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Text (Right)</label>
+                        <input type="text" value={slide.button2Text || ''} onChange={(e) => updateHeroSlide(slide.id, 'button2Text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Our Solutions" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Link / Path</label>
+                        <input type="text" value={slide.button2Link || ''} onChange={(e) => updateHeroSlide(slide.id, 'button2Link', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/solutions" />
                       </div>
                     </div>
                   </div>
@@ -412,7 +431,7 @@ export default function AdminHome() {
                         preview={partner.imagePreview} 
                         onUploadSuccess={(url: string, fileName: string) => {
                           updatePartner(partner.id, 'imagePreview', url);
-                          updatePartner(partner.id, 'fileName', fileName);
+                          if(fileName) updatePartner(partner.id, 'fileName', fileName);
                         }}
                       />
                       <button 
@@ -422,6 +441,7 @@ export default function AdminHome() {
                         <Trash2 size={14} />
                       </button>
                     </div>
+                    {/* Editable Extracted File Name Field */}
                     <input 
                       type="text" 
                       value={partner.fileName || ''} 
@@ -656,7 +676,7 @@ export default function AdminHome() {
                         preview={img.preview} 
                         onUploadSuccess={(url: string, fileName: string) => {
                           updateGalleryImage(img.id, 'preview', url);
-                          updateGalleryImage(img.id, 'fileName', fileName);
+                          if(fileName) updateGalleryImage(img.id, 'fileName', fileName);
                         }}
                       />
                       <button 

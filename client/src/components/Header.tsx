@@ -237,7 +237,7 @@ export default function Header() {
           </div>
 
           {/* Admin Login Button */}
-          <Button
+          {/* <Button
             variant="outline"
             className="hidden lg:inline-flex border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20]/10 font-semibold gap-2"
             onClick={() => {
@@ -247,7 +247,7 @@ export default function Header() {
           >
             <Lock size={16} />
             {t('nav.adminLogin', 'Login')}
-          </Button>
+          </Button> */}
 
           {/* Book a Consultation Button */}
           <Button

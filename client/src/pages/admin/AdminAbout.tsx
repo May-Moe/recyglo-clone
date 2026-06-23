@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Users, BookOpen, Trophy, Plus, Trash2, UploadCloud, GripVertical, Loader2, Target, Briefcase } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Users, BookOpen, Trophy, Plus, Trash2, UploadCloud, Loader2, Target, Briefcase } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -25,7 +25,11 @@ export default function AdminAbout() {
     subtitle: "Empowering businesses in Myanmar, Vietnam, Thailand, Malaysia, Singapore, and Korea with circular economy strategies and ISO-compliant reporting.",
     title: "Welcome to RecyGlo",
     description: "At RecyGlo, our mission is to foster a more sustainable future through innovative waste, energy, and carbon management and ESG data analytics solutions. We are dedicated to assisting businesses in minimizing their environmental footprint and reaching their sustainability objectives.",
-    imagePreview: aboutHero
+    imagePreview: aboutHero,
+    button1Text: "",
+    button1Link: "",
+    button2Text: "",
+    button2Link: ""
   });
 
   const [introData, setIntroData] = useState({
@@ -127,18 +131,18 @@ export default function AdminAbout() {
     }
   };
 
-  const addTeamMember = () => setTeamMembers([...teamMembers, { id: `team-${Date.now()}`, name: "", title: "", imagePreview: "" }]);
-  const removeTeamMember = (id: string) => setTeamMembers(teamMembers.filter(m => m.id !== id));
-  const updateTeamMember = (id: string, field: string, value: string) => setTeamMembers(teamMembers.map(m => m.id === id ? { ...m, [field]: value } : m));
+  // --- FIXED UPDATE LOGIC WITH `prev =>` TO PREVENT BATCHING OVERWRITES ---
+  const addTeamMember = () => setTeamMembers(prev => [...prev, { id: `team-${Date.now()}`, name: "", title: "", imagePreview: "" }]);
+  const removeTeamMember = (id: string) => setTeamMembers(prev => prev.filter(m => m.id !== id));
+  const updateTeamMember = (id: string, field: string, value: string) => setTeamMembers(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
 
-  const addAward = () => setAwards([...awards, { id: `award-${Date.now()}`, title: "", year: "", imagePreview: "" }]);
-  const removeAward = (id: string) => setAwards(awards.filter(a => a.id !== id));
-  const updateAward = (id: string, field: string, value: string) => setAwards(awards.map(a => a.id === id ? { ...a, [field]: value } : a));
+  const addAward = () => setAwards(prev => [...prev, { id: `award-${Date.now()}`, title: "", year: "", imagePreview: "" }]);
+  const removeAward = (id: string) => setAwards(prev => prev.filter(a => a.id !== id));
+  const updateAward = (id: string, field: string, value: string) => setAwards(prev => prev.map(a => a.id === id ? { ...a, [field]: value } : a));
 
-  // UPDATED: Partner Handlers to support field-based updates
-  const addPartner = () => setPartners([...partners, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
-  const removePartner = (id: string) => setPartners(partners.filter(p => p.id !== id));
-  const updatePartner = (id: string, field: string, value: string) => setPartners(partners.map(p => p.id === id ? { ...p, [field]: value } : p));
+  const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
+  const removePartner = (id: string) => setPartners(prev => prev.filter(p => p.id !== id));
+  const updatePartner = (id: string, field: string, value: string) => setPartners(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
 
   if (isLoading) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
@@ -196,6 +200,26 @@ export default function AdminAbout() {
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
                     <textarea rows={4} value={heroData.description} onChange={(e) => setHeroData({...heroData, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
+                  </div>
+                  
+                  {/* NEW DYNAMIC BUTTONS FOR ABOUT US HERO */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Text (Left)</label>
+                      <input type="text" value={heroData.button1Text || ''} onChange={(e) => setHeroData({...heroData, button1Text: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Calculate Carbon Footprint" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Link / Path</label>
+                      <input type="text" value={heroData.button1Link || ''} onChange={(e) => setHeroData({...heroData, button1Link: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/carbon-calculator" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Text (Right)</label>
+                      <input type="text" value={heroData.button2Text || ''} onChange={(e) => setHeroData({...heroData, button2Text: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Our Solutions" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Link / Path</label>
+                      <input type="text" value={heroData.button2Link || ''} onChange={(e) => setHeroData({...heroData, button2Link: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/solutions" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -302,7 +326,7 @@ export default function AdminAbout() {
                 </Button>
               </div>
 
-              {/* NEW SECTION HEADINGS */}
+              {/* SECTION HEADINGS */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -356,7 +380,7 @@ export default function AdminAbout() {
                 </Button>
               </div>
 
-              {/* NEW SECTION HEADINGS */}
+              {/* SECTION HEADINGS */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -403,7 +427,7 @@ export default function AdminAbout() {
                 </Button>
               </div>
 
-              {/* NEW SECTION HEADINGS */}
+              {/* SECTION HEADINGS */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -426,7 +450,7 @@ export default function AdminAbout() {
                         preview={partner.imagePreview} 
                         onUploadSuccess={(url: string, fileName: string) => {
                           updatePartner(partner.id, 'imagePreview', url);
-                          updatePartner(partner.id, 'fileName', fileName);
+                          if(fileName) updatePartner(partner.id, 'fileName', fileName);
                         }}
                       />
                       <button 

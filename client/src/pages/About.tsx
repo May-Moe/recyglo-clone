@@ -14,13 +14,12 @@ export default function About() {
 
   // --- LIVE DATABASE STATE ---
   const [pageData, setPageData] = useState({
-    heroData: { subtitle: "", title: "", description: "", imagePreview: "" },
+    heroData: { subtitle: "", title: "", description: "", imagePreview: "", button1Text: "", button1Link: "", button2Text: "", button2Link: "" },
     introData: { title: "", description: "", address: "", email: "", phone: "", lineId: "", imagePreview: "" },
     storyData: { title: "", paragraph1: "", paragraph2: "", paragraph3: "", ceoName: "", ceoTitle: "", ceoImagePreview: "" },
     teamMembers: [] as any[],
     awards: [] as any[],
     partners: [] as any[],
-    // NEW: Section Headers
     teamHeader: { title: "", description: "" },
     awardsHeader: { title: "", description: "" },
     partnersHeader: { title: "", description: "" }
@@ -36,13 +35,12 @@ export default function About() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setPageData({
-          heroData: data.heroData || { subtitle: "", title: "", description: "", imagePreview: "" },
+          heroData: data.heroData || { subtitle: "", title: "", description: "", imagePreview: "", button1Text: "", button1Link: "", button2Text: "", button2Link: "" },
           introData: data.introData || { title: "", description: "", address: "", email: "", phone: "", lineId: "", imagePreview: "" },
           storyData: data.storyData || { title: "", paragraph1: "", paragraph2: "", paragraph3: "", ceoName: "", ceoTitle: "", ceoImagePreview: "" },
           teamMembers: data.teamMembers || [],
           awards: data.awards || [],
           partners: data.partners || [],
-          // Map the new headers
           teamHeader: data.teamHeader || { title: "", description: "" },
           awardsHeader: data.awardsHeader || { title: "", description: "" },
           partnersHeader: data.partnersHeader || { title: "", description: "" }
@@ -96,19 +94,25 @@ export default function About() {
              <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   onClick={() => {
-                    setLocation('/carbon-calculator');
-                    window.scrollTo(0, 0);
+                    const link = pageData.heroData.button1Link || '/carbon-calculator';
+                    if (link.startsWith('http')) window.open(link, '_blank');
+                    else { setLocation(link); window.scrollTo(0, 0); }
                   }}
                   className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-6 py-6 rounded-md shadow-sm flex items-center gap-2 transition-all"
                 >
                   <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
-                  Calculate Carbon Footprint
+                  {pageData.heroData.button1Text || 'Calculate Carbon Footprint'}
                 </Button>
+                
                 <Button 
+                  onClick={() => {
+                    const link = pageData.heroData.button2Link || '/solutions';
+                    if (link.startsWith('http')) window.open(link, '_blank');
+                    else { setLocation(link); window.scrollTo(0, 0); }
+                  }}
                   className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-8 py-6 rounded-md shadow-md"
-                  onClick={() => setLocation('/solutions')}
                 >
-                  Our Solutions
+                  {pageData.heroData.button2Text || 'Our Solutions'}
                 </Button>
              </div>
           </div>

@@ -203,13 +203,28 @@ export default function Home() {
                      <p className="text-base md:text-lg text-white/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] mb-10 leading-relaxed max-w-2xl">
                         {slide[`description_${currentLang}`] || slide.description_en || slide.description}
                      </p>
+                     
                      <div className="flex flex-col sm:flex-row gap-4">
-                        <Button onClick={() => { setLocation('/carbon-calculator'); window.scrollTo(0, 0); }} className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <Button 
+                          onClick={() => { 
+                            const link = slide.button1Link || '/carbon-calculator';
+                            if (link.startsWith('http')) window.open(link, '_blank');
+                            else { setLocation(link); window.scrollTo(0, 0); }
+                          }} 
+                          className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all"
+                        >
                           <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
-                          {t('home.calcButton', 'Calculate Carbon Footprint')}
+                          {slide.button1Text || t('home.calcButton', 'Calculate Carbon Footprint')}
                         </Button>
-                        <Button className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center" onClick={() => setLocation('/solutions')}>
-                          {t('home.solutionsButton', 'Our Solutions')}
+                        <Button 
+                          className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center" 
+                          onClick={() => { 
+                            const link = slide.button2Link || '/solutions';
+                            if (link.startsWith('http')) window.open(link, '_blank');
+                            else { setLocation(link); window.scrollTo(0, 0); }
+                          }}
+                        >
+                          {slide.button2Text || t('home.solutionsButton', 'Our Solutions')}
                         </Button>
                      </div>
                   </div>

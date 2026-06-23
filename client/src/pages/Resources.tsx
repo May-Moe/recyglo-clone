@@ -1,13 +1,13 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Download, ChevronRight, Play, Eye, X } from 'lucide-react';
+import { Download, ChevronRight, Play, X, Loader2 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
 
 // --- FIREBASE IMPORTS ---
 import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase"; // Adjust path if needed
+import { db } from "@/lib/firebase"; 
 
 export default function Resources() {
   const [, setLocation] = useLocation();
@@ -21,8 +21,11 @@ export default function Resources() {
 
   const [isLoading, setIsLoading] = useState(true);
   
-  // NEW: State to track which file is currently being previewed
+  // State to track which file is currently being previewed
   const [previewFile, setPreviewFile] = useState<{ url: string, title: string } | null>(null);
+  
+  // State to track if a download is in progress (for the loading spinner)
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // --- FETCH LIVE DATA FROM FIREBASE ---
   useEffect(() => {
@@ -42,6 +45,39 @@ export default function Resources() {
 
     return () => unsubscribe();
   }, []);
+
+  // --- FORCE DOWNLOAD LOGIC ---
+  // This physically fetches the file so the browser is forced to download it
+  // instead of just opening it in a new tab.
+  const handleForceDownload = async (url: string, title: string) => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.style.display = 'none';
+      link.href = blobUrl;
+      
+      // Clean up the title to make a nice filename
+      const safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      link.download = `${safeTitle}.pdf`;
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Download fetch failed, falling back to new tab:', error);
+      // Fallback: If fetch fails (e.g. CORS issues), open it normally
+      window.open(url, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-white">Loading resources...</div>;
@@ -117,38 +153,24 @@ export default function Resources() {
                    {pageData.caseStudies.map((item: any, idx: number) => (
                       <div 
                         key={item.id || idx} 
-                        className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-5 border-b border-gray-200 hover:bg-gray-50 px-4 -mx-4 transition-colors rounded-lg"
+                        className="border-b border-gray-200 hover:bg-gray-50 px-4 -mx-4 transition-colors rounded-lg"
                       >
-                         <span className="text-[15px] font-medium text-gray-800 pr-4">{item.title}</span>
-                         
-                         <div className="flex flex-wrap items-center gap-3 shrink-0">
-                           {item.fileUrl ? (
-                             <>
-                               {/* NEW PREVIEW BUTTON */}
-                               <button 
-                                 onClick={() => setPreviewFile({ url: item.fileUrl, title: item.title })}
-                                 className="flex items-center justify-center gap-2 text-sm font-bold text-[#1B5E20] hover:text-[#2A4B38] transition-colors bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
-                               >
-                                  <Eye size={16} strokeWidth={2.5} />
-                                  Preview
-                               </button>
-
-                               {/* DOWNLOAD BUTTON */}
-                               <a 
-                                 href={item.fileUrl} 
-                                 target="_blank" 
-                                 rel="noopener noreferrer"
-                                 download
-                                 className="flex items-center justify-center gap-2 text-sm font-bold text-gray-900 hover:text-[#E2552B] transition-colors bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
-                               >
-                                  <Download size={16} strokeWidth={2.5} />
-                                  Download
-                               </a>
-                             </>
-                           ) : (
-                             <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded">Missing PDF</span>
-                           )}
-                         </div>
+                        {item.fileUrl ? (
+                          <button 
+                            onClick={() => setPreviewFile({ url: item.fileUrl, title: item.title })}
+                            className="w-full flex items-center justify-between gap-4 py-5 text-left group"
+                          >
+                            <span className="text-[15px] font-medium text-gray-800 group-hover:text-[#E2552B] transition-colors">
+                              {item.title}
+                            </span>
+                            <ChevronRight size={18} className="text-gray-300 group-hover:text-[#E2552B] transition-colors shrink-0" />
+                          </button>
+                        ) : (
+                          <div className="w-full flex items-center justify-between gap-4 py-5">
+                            <span className="text-[15px] font-medium text-gray-500">{item.title}</span>
+                            <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded shrink-0">Missing PDF</span>
+                          </div>
+                        )}
                       </div>
                    ))}
                 </div>
@@ -163,38 +185,24 @@ export default function Resources() {
                    {pageData.annualReports.map((item: any, idx: number) => (
                       <div 
                         key={item.id || idx} 
-                        className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-5 border-b border-gray-200 hover:bg-gray-50 px-4 -mx-4 transition-colors rounded-lg"
+                        className="border-b border-gray-200 hover:bg-gray-50 px-4 -mx-4 transition-colors rounded-lg"
                       >
-                         <span className="text-[15px] font-medium text-gray-800 pr-4">{item.title}</span>
-                         
-                         <div className="flex flex-wrap items-center gap-3 shrink-0">
-                           {item.fileUrl ? (
-                             <>
-                               {/* NEW PREVIEW BUTTON */}
-                               <button 
-                                 onClick={() => setPreviewFile({ url: item.fileUrl, title: item.title })}
-                                 className="flex items-center justify-center gap-2 text-sm font-bold text-[#1B5E20] hover:text-[#2A4B38] transition-colors bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
-                               >
-                                  <Eye size={16} strokeWidth={2.5} />
-                                  Preview
-                               </button>
-
-                               {/* DOWNLOAD BUTTON */}
-                               <a 
-                                 href={item.fileUrl} 
-                                 target="_blank" 
-                                 rel="noopener noreferrer"
-                                 download
-                                 className="flex items-center justify-center gap-2 text-sm font-bold text-gray-900 hover:text-[#E2552B] transition-colors bg-white sm:bg-transparent border sm:border-transparent border-gray-200 py-2 sm:py-0 px-4 sm:px-0 rounded-md"
-                               >
-                                  <Download size={16} strokeWidth={2.5} />
-                                  Download
-                               </a>
-                             </>
-                           ) : (
-                             <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded">Missing PDF</span>
-                           )}
-                         </div>
+                        {item.fileUrl ? (
+                          <button 
+                            onClick={() => setPreviewFile({ url: item.fileUrl, title: item.title })}
+                            className="w-full flex items-center justify-between gap-4 py-5 text-left group"
+                          >
+                            <span className="text-[15px] font-medium text-gray-800 group-hover:text-[#E2552B] transition-colors">
+                              {item.title}
+                            </span>
+                            <ChevronRight size={18} className="text-gray-300 group-hover:text-[#E2552B] transition-colors shrink-0" />
+                          </button>
+                        ) : (
+                          <div className="w-full flex items-center justify-between gap-4 py-5">
+                            <span className="text-[15px] font-medium text-gray-500">{item.title}</span>
+                            <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded shrink-0">Missing PDF</span>
+                          </div>
+                        )}
                       </div>
                    ))}
                 </div>
@@ -213,17 +221,20 @@ export default function Resources() {
             <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50 shrink-0">
               <h3 className="font-bold text-gray-900 truncate pr-4 text-lg">{previewFile.title}</h3>
               <div className="flex items-center gap-2">
-                <a 
-                  href={previewFile.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm font-bold text-white bg-[#1B5E20] hover:bg-[#2A4B38] px-4 py-2 rounded-lg transition-colors"
+                
+                {/* FORCED DOWNLOAD BUTTON */}
+                <button 
+                  onClick={() => handleForceDownload(previewFile.url, previewFile.title)}
+                  disabled={isDownloading}
+                  className="flex items-center gap-2 text-sm font-bold text-white bg-[#1B5E20] hover:bg-[#2A4B38] px-4 py-2 rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <Download size={16} /> Download
-                </a>
+                  {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} 
+                  {isDownloading ? 'Downloading...' : 'Download File'}
+                </button>
+
                 <button 
                   onClick={() => setPreviewFile(null)} 
-                  className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full transition-colors"
+                  className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full transition-colors ml-2"
                 >
                   <X size={20} />
                 </button>

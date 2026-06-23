@@ -13,12 +13,34 @@ export default function AdminEvents() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any>(null);
 
-  // --- FETCH EVENTS ---
+  // --- FETCH & AUTO-SORT EVENTS ---
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "events"), (snapshot) => {
       const loadedEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      // Sort by date descending
-      loadedEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      const now = new Date().getTime();
+
+      // Smart Sorting Logic:
+      // 1. Future events first (closest to today at the top)
+      // 2. Past events at the bottom (most recent past event at the top of the past list)
+      loadedEvents.sort((a, b) => {
+        const timeA = new Date(a.date).getTime();
+        const timeB = new Date(b.date).getTime();
+        const isAPast = timeA <= now;
+        const isBPast = timeB <= now;
+
+        if (!isAPast && !isBPast) {
+          // Both are in the future: sort closest date first
+          return timeA - timeB;
+        } else if (isAPast && isBPast) {
+          // Both are in the past: sort most recent first
+          return timeB - timeA;
+        } else {
+          // One is future, one is past: future always comes first
+          return isAPast ? 1 : -1;
+        }
+      });
+
       setEvents(loadedEvents);
       setIsLoading(false);
     });
@@ -31,7 +53,8 @@ export default function AdminEvents() {
     setIsSaving(true);
     try {
       if (editingEvent.id) {
-        await updateDoc(doc(db, "events", editingService.id), editingEvent);
+        // FIXED: Changed editingService.id to editingEvent.id to prevent crashing
+        await updateDoc(doc(db, "events", editingEvent.id), editingEvent);
         alert("Event updated successfully!");
       } else {
         await addDoc(collection(db, "events"), editingEvent);
@@ -142,47 +165,47 @@ export default function AdminEvents() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-1 space-y-2">
                   <label className="block text-sm font-bold text-gray-700">Cover Image</label>
-                  <ImageUploader preview={editingEvent.imagePreview} onUploadSuccess={(url: string) => setEditingEvent({...editingEvent, imagePreview: url})} />
+                  <ImageUploader preview={editingEvent.imagePreview} onUploadSuccess={(url: string) => setEditingEvent((prev: any) => ({...prev, imagePreview: url}))} />
                 </div>
 
                 <div className="md:col-span-2 space-y-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Event Title</label>
-                    <input required type="text" value={editingEvent.title} onChange={(e) => setEditingEvent({...editingEvent, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
+                    <input required type="text" value={editingEvent.title} onChange={(e) => setEditingEvent((prev: any) => ({...prev, title: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-1">Date & Time</label>
-                      <input required type="datetime-local" value={editingEvent.date} onChange={(e) => setEditingEvent({...editingEvent, date: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
+                      <input required type="datetime-local" value={editingEvent.date} onChange={(e) => setEditingEvent((prev: any) => ({...prev, date: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
                       <p className="text-[10px] text-gray-400 mt-1">If date is in the future, it automatically becomes the Hero Countdown Event.</p>
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-1">Category / Tag</label>
-                      <input type="text" value={editingEvent.category} onChange={(e) => setEditingEvent({...editingEvent, category: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Reporting, Waste..." />
+                      <input type="text" value={editingEvent.category} onChange={(e) => setEditingEvent((prev: any) => ({...prev, category: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Reporting, Waste..." />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Speakers</label>
-                    <input type="text" value={editingEvent.speakers} onChange={(e) => setEditingEvent({...editingEvent, speakers: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Jane Doe, John Smith" />
+                    <input type="text" value={editingEvent.speakers} onChange={(e) => setEditingEvent((prev: any) => ({...prev, speakers: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Jane Doe, John Smith" />
                   </div>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Event Description</label>
-                <textarea required rows={4} value={editingEvent.description} onChange={(e) => setEditingEvent({...editingEvent, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="Describe the webinar or event..." />
+                <textarea required rows={4} value={editingEvent.description} onChange={(e) => setEditingEvent((prev: any) => ({...prev, description: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="Describe the webinar or event..." />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Registration Link (For Upcoming)</label>
-                  <input type="url" value={editingEvent.link} onChange={(e) => setEditingEvent({...editingEvent, link: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://zoom.us/..." />
+                  <input type="url" value={editingEvent.link} onChange={(e) => setEditingEvent((prev: any) => ({...prev, link: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://zoom.us/..." />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-[#E2552B] mb-1">YouTube Recording Link (For Past)</label>
-                  <input type="url" value={editingEvent.youtubeLink} onChange={(e) => setEditingEvent({...editingEvent, youtubeLink: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://youtube.com/..." />
+                  <input type="url" value={editingEvent.youtubeLink} onChange={(e) => setEditingEvent((prev: any) => ({...prev, youtubeLink: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://youtube.com/..." />
                 </div>
               </div>
 
