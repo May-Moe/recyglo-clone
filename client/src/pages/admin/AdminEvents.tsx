@@ -1,93 +1,120 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Calendar, Edit, X, Loader2, Save, Image as ImageIcon, UploadCloud } from "lucide-react";
+import { Plus, Trash2, Calendar, Edit, X, Loader2, Save, Image as ImageIcon, UploadCloud, MapPin, Video } from "lucide-react";
 import { collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 
 export default function AdminEvents() {
-  const [events, setEvents] = useState<any[]>([]);
+  // Main view toggle
+  const [viewMode, setViewMode] = useState<'webinars' | 'inPerson'>('webinars');
+
+  // Data states
+  const [webinars, setWebinars] = useState<any[]>([]);
+  const [inPersonEvents, setInPersonEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<any>(null);
+  // Modal states
+  const [isWebinarModalOpen, setIsWebinarModalOpen] = useState(false);
+  const [editingWebinar, setEditingWebinar] = useState<any>(null);
 
-  // --- FETCH & AUTO-SORT EVENTS ---
+  const [isInPersonModalOpen, setIsInPersonModalOpen] = useState(false);
+  const [editingInPerson, setEditingInPerson] = useState<any>(null);
+
+  // --- FETCH & AUTO-SORT DATA ---
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "events"), (snapshot) => {
-      const loadedEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
+    // Fetch Webinars
+    const unsubWebinars = onSnapshot(collection(db, "events"), (snapshot) => {
+      const loaded = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const now = new Date().getTime();
-
-      // Smart Sorting Logic:
-      // 1. Future events first (closest to today at the top)
-      // 2. Past events at the bottom (most recent past event at the top of the past list)
-      loadedEvents.sort((a, b) => {
+      loaded.sort((a, b) => {
         const timeA = new Date(a.date).getTime();
         const timeB = new Date(b.date).getTime();
-        const isAPast = timeA <= now;
-        const isBPast = timeB <= now;
-
-        if (!isAPast && !isBPast) {
-          // Both are in the future: sort closest date first
-          return timeA - timeB;
-        } else if (isAPast && isBPast) {
-          // Both are in the past: sort most recent first
-          return timeB - timeA;
-        } else {
-          // One is future, one is past: future always comes first
-          return isAPast ? 1 : -1;
-        }
+        if (timeA > now && timeB > now) return timeA - timeB; // Both future: nearest first
+        if (timeA <= now && timeB <= now) return timeB - timeA; // Both past: newest first
+        return timeA > now ? -1 : 1; // Future always beats past
       });
-
-      setEvents(loadedEvents);
+      setWebinars(loaded);
       setIsLoading(false);
     });
-    return () => unsubscribe();
+
+    // Fetch In-Person Events
+    const unsubInPerson = onSnapshot(collection(db, "industry_events"), (snapshot) => {
+      const loaded = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      loaded.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setInPersonEvents(loaded);
+    });
+
+    return () => { unsubWebinars(); unsubInPerson(); };
   }, []);
 
-  // --- SAVE EVENT ---
-  const handleSaveEvent = async (e: React.FormEvent) => {
+  // --- WEBINAR HANDLERS ---
+  const handleSaveWebinar = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      if (editingEvent.id) {
-        // FIXED: Changed editingService.id to editingEvent.id to prevent crashing
-        await updateDoc(doc(db, "events", editingEvent.id), editingEvent);
-        alert("Event updated successfully!");
+      if (editingWebinar.id) {
+        await updateDoc(doc(db, "events", editingWebinar.id), editingWebinar);
       } else {
-        await addDoc(collection(db, "events"), editingEvent);
-        alert("Event created successfully!");
+        await addDoc(collection(db, "events"), editingWebinar);
       }
-      setIsModalOpen(false);
+      setIsWebinarModalOpen(false);
     } catch (error) {
-      console.error("Error saving event: ", error);
-      alert("Failed to save event.");
-    } finally {
-      setIsSaving(false);
+      alert("Failed to save webinar.");
     }
+    setIsSaving(false);
   };
 
-  // --- DELETE EVENT ---
-  const handleDeleteEvent = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this event? This cannot be undone.")) {
-      await deleteDoc(doc(db, "events", id));
-    }
+  const handleDeleteWebinar = async (id: string) => {
+    if (window.confirm("Delete this webinar?")) await deleteDoc(doc(db, "events", id));
   };
 
-  const openNewEventModal = () => {
-    setEditingEvent({
-      title: "",
-      date: new Date().toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm
-      category: "Webinar",
-      speakers: "",
-      description: "",
-      link: "", // External registration link
-      youtubeLink: "", // For past recording
-      imagePreview: ""
+  const openNewWebinarModal = () => {
+    setEditingWebinar({
+      title: "", date: new Date().toISOString().slice(0, 16), category: "Webinar", speakers: "", description: "", link: "", youtubeLink: "", imagePreview: ""
     });
-    setIsModalOpen(true);
+    setIsWebinarModalOpen(true);
+  };
+
+  // --- IN-PERSON EVENT HANDLERS ---
+  const handleSaveInPerson = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      if (editingInPerson.id) {
+        await updateDoc(doc(db, "industry_events", editingInPerson.id), editingInPerson);
+      } else {
+        await addDoc(collection(db, "industry_events"), editingInPerson);
+      }
+      setIsInPersonModalOpen(false);
+    } catch (error) {
+      alert("Failed to save event.");
+    }
+    setIsSaving(false);
+  };
+
+  const handleDeleteInPerson = async (id: string) => {
+    if (window.confirm("Delete this event?")) await deleteDoc(doc(db, "industry_events", id));
+  };
+
+  const openNewInPersonModal = () => {
+    setEditingInPerson({
+      title: "", date: new Date().toISOString().slice(0, 10), type: "Conference", location: "", description: "", images: []
+    });
+    setIsInPersonModalOpen(true);
+  };
+
+  // Gallery Array Handlers for In-Person
+  const addGalleryImage = (url: string) => {
+    setEditingInPerson((prev: any) => ({ ...prev, images: [...(prev.images || []), url] }));
+  };
+  const removeGalleryImage = (index: number) => {
+    setEditingInPerson((prev: any) => {
+      const newImages = [...prev.images];
+      newImages.splice(index, 1);
+      return { ...prev, images: newImages };
+    });
   };
 
   if (isLoading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
@@ -99,121 +126,247 @@ export default function AdminEvents() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Manage Events & Webinars</h1>
-          <p className="text-gray-500 text-sm">Add upcoming events or upload past webinar recordings.</p>
+          <p className="text-gray-500 text-sm">Control online webinars and physical industry events.</p>
         </div>
-        <Button onClick={openNewEventModal} className="bg-[#E2552B] hover:bg-[#E2552B]/90 text-white flex items-center gap-2 px-6">
-          <Plus size={18} /> Create New Event
-        </Button>
+        
+        {/* Toggle Switches */}
+        <div className="flex bg-gray-100 p-1 rounded-xl">
+          <button 
+            onClick={() => setViewMode('webinars')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all ${viewMode === 'webinars' ? 'bg-white text-[#1B5E20] shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+          >
+            <Video size={16} /> Online Webinars
+          </button>
+          <button 
+            onClick={() => setViewMode('inPerson')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all ${viewMode === 'inPerson' ? 'bg-white text-[#1B5E20] shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+          >
+            <MapPin size={16} /> In-Person Events
+          </button>
+        </div>
       </div>
 
-      {/* Events List */}
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-        {events.length === 0 ? (
-          <div className="p-12 text-center text-gray-500 flex flex-col items-center">
-            <Calendar size={48} className="text-gray-300 mb-4" />
-            <p>No events found. Click "Create New Event" to get started.</p>
+      {/* --- WEBINARS VIEW --- */}
+      {viewMode === 'webinars' && (
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden animate-in fade-in">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <h3 className="font-bold text-gray-700">All Webinars ({webinars.length})</h3>
+            <Button onClick={openNewWebinarModal} className="bg-[#E2552B] hover:bg-[#c94b26] text-white h-9 px-4">
+              <Plus size={16} className="mr-2" /> Add Webinar
+            </Button>
           </div>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {events.map((ev) => {
-              const isPast = new Date(ev.date).getTime() < new Date().getTime();
-              return (
+          {webinars.length === 0 ? (
+            <div className="p-12 text-center text-gray-500 flex flex-col items-center">
+              <Calendar size={48} className="text-gray-300 mb-4" />
+              <p>No webinars found.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {webinars.map((ev) => {
+                const isPast = new Date(ev.date).getTime() < new Date().getTime();
+                return (
+                  <div key={ev.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start gap-4">
+                      <div className="w-32 h-20 bg-gray-200 rounded-lg overflow-hidden shrink-0">
+                        {ev.imagePreview ? <img src={ev.imagePreview} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon size={20}/></div>}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-bold text-gray-900 text-lg">{ev.title}</h3>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isPast ? 'bg-gray-100 text-gray-500' : 'bg-[#E2552B]/10 text-[#E2552B]'}`}>
+                            {isPast ? 'Past' : 'Upcoming'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-1"><Calendar size={14} className="inline mr-1"/> {new Date(ev.date).toLocaleString()}</p>
+                        <p className="text-sm text-gray-500 line-clamp-1">{ev.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button onClick={() => { setEditingWebinar(ev); setIsWebinarModalOpen(true); }} variant="outline" size="sm" className="text-[#1B5E20] border-[#1B5E20]">
+                        <Edit size={16} className="mr-2" /> Edit
+                      </Button>
+                      <Button onClick={() => handleDeleteWebinar(ev.id)} variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50">
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* --- IN-PERSON EVENTS VIEW --- */}
+      {viewMode === 'inPerson' && (
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden animate-in fade-in">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <h3 className="font-bold text-gray-700">All In-Person Events ({inPersonEvents.length})</h3>
+            <Button onClick={openNewInPersonModal} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white h-9 px-4">
+              <Plus size={16} className="mr-2" /> Add Event
+            </Button>
+          </div>
+          {inPersonEvents.length === 0 ? (
+            <div className="p-12 text-center text-gray-500 flex flex-col items-center">
+              <MapPin size={48} className="text-gray-300 mb-4" />
+              <p>No in-person events found.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {inPersonEvents.map((ev) => (
                 <div key={ev.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start gap-4">
-                    <div className="w-32 h-20 bg-gray-200 rounded-lg overflow-hidden shrink-0">
-                      {ev.imagePreview ? <img src={ev.imagePreview} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon size={20}/></div>}
+                    <div className="w-24 h-24 bg-gray-100 border border-gray-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-2 relative">
+                      {ev.images && ev.images.length > 0 ? (
+                        <>
+                          <img src={ev.images[0]} className="w-full h-full object-cover rounded-lg" />
+                          <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">+{ev.images.length}</div>
+                        </>
+                      ) : <ImageIcon className="text-gray-300" />}
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-gray-900 text-lg">{ev.title}</h3>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isPast ? 'bg-gray-100 text-gray-500' : 'bg-[#E2552B]/10 text-[#E2552B]'}`}>
-                          {isPast ? 'Past' : 'Upcoming'}
-                        </span>
+                        <span className="bg-gray-200 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{ev.type}</span>
                       </div>
-                      <p className="text-sm text-gray-500 mb-1"><Calendar size={14} className="inline mr-1"/> {new Date(ev.date).toLocaleString()}</p>
+                      <p className="text-sm text-[#E2552B] font-bold mb-1"><MapPin size={14} className="inline mr-1"/> {ev.location}</p>
                       <p className="text-sm text-gray-500 line-clamp-1">{ev.description}</p>
                     </div>
                   </div>
-                  
                   <div className="flex items-center gap-2 shrink-0">
-                    <Button onClick={() => { setEditingEvent(ev); setIsModalOpen(true); }} variant="outline" size="sm" className="text-[#1B5E20] border-[#1B5E20]">
+                    <Button onClick={() => { setEditingInPerson(ev); setIsInPersonModalOpen(true); }} variant="outline" size="sm" className="text-[#1B5E20] border-[#1B5E20]">
                       <Edit size={16} className="mr-2" /> Edit
                     </Button>
-                    <Button onClick={() => handleDeleteEvent(ev.id)} variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50">
+                    <Button onClick={() => handleDeleteInPerson(ev.id)} variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50">
                       <Trash2 size={16} />
                     </Button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Editor Modal */}
-      {isModalOpen && editingEvent && (
+      {/* WEBINAR EDITOR MODAL */}
+      {isWebinarModalOpen && editingWebinar && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
-            
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
-              <h2 className="text-xl font-bold text-gray-900">{editingEvent.id ? 'Edit Event' : 'Create New Event'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900"><X size={24} /></button>
+              <h2 className="text-xl font-bold text-gray-900">{editingWebinar.id ? 'Edit Webinar' : 'Create Webinar'}</h2>
+              <button onClick={() => setIsWebinarModalOpen(false)} className="text-gray-400 hover:text-gray-900"><X size={24} /></button>
             </div>
             
-            <form onSubmit={handleSaveEvent} className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
-              
+            <form onSubmit={handleSaveWebinar} className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-1 space-y-2">
                   <label className="block text-sm font-bold text-gray-700">Cover Image</label>
-                  <ImageUploader preview={editingEvent.imagePreview} onUploadSuccess={(url: string) => setEditingEvent((prev: any) => ({...prev, imagePreview: url}))} />
+                  <ImageUploader preview={editingWebinar.imagePreview} onUploadSuccess={(url: string) => setEditingWebinar((prev: any) => ({...prev, imagePreview: url}))} />
                 </div>
-
                 <div className="md:col-span-2 space-y-4">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Event Title</label>
-                    <input required type="text" value={editingEvent.title} onChange={(e) => setEditingEvent((prev: any) => ({...prev, title: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Webinar Title</label>
+                    <input required type="text" value={editingWebinar.title} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, title: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
                   </div>
-                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-1">Date & Time</label>
-                      <input required type="datetime-local" value={editingEvent.date} onChange={(e) => setEditingEvent((prev: any) => ({...prev, date: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-                      <p className="text-[10px] text-gray-400 mt-1">If date is in the future, it automatically becomes the Hero Countdown Event.</p>
+                      <input required type="datetime-local" value={editingWebinar.date} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, date: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">Category / Tag</label>
-                      <input type="text" value={editingEvent.category} onChange={(e) => setEditingEvent((prev: any) => ({...prev, category: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Reporting, Waste..." />
+                      <label className="block text-sm font-bold text-gray-700 mb-1">Category</label>
+                      <input type="text" value={editingWebinar.category} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, category: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Reporting, Waste..." />
                     </div>
                   </div>
-
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Speakers</label>
-                    <input type="text" value={editingEvent.speakers} onChange={(e) => setEditingEvent((prev: any) => ({...prev, speakers: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Jane Doe, John Smith" />
+                    <input type="text" value={editingWebinar.speakers} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, speakers: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Jane Doe, John Smith" />
                   </div>
                 </div>
               </div>
-
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Event Description</label>
-                <textarea required rows={4} value={editingEvent.description} onChange={(e) => setEditingEvent((prev: any) => ({...prev, description: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="Describe the webinar or event..." />
+                <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                <textarea required rows={4} value={editingWebinar.description} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, description: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Registration Link (For Upcoming)</label>
-                  <input type="url" value={editingEvent.link} onChange={(e) => setEditingEvent((prev: any) => ({...prev, link: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://zoom.us/..." />
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Registration Link (Upcoming)</label>
+                  <input type="url" value={editingWebinar.link} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, link: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://zoom.us/..." />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-[#E2552B] mb-1">YouTube Recording Link (For Past)</label>
-                  <input type="url" value={editingEvent.youtubeLink} onChange={(e) => setEditingEvent((prev: any) => ({...prev, youtubeLink: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://youtube.com/..." />
+                  <label className="block text-sm font-bold text-[#E2552B] mb-1">YouTube Link (Past)</label>
+                  <input type="url" value={editingWebinar.youtubeLink} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, youtubeLink: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://youtube.com/..." />
                 </div>
               </div>
-
             </form>
-
             <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 shrink-0 bg-white rounded-b-2xl">
-              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSaveEvent} disabled={isSaving || !editingEvent.title} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
+              <Button type="button" variant="outline" onClick={() => setIsWebinarModalOpen(false)}>Cancel</Button>
+              <Button onClick={handleSaveWebinar} disabled={isSaving || !editingWebinar.title} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
+                {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />} Save Webinar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* IN-PERSON EVENT EDITOR MODAL */}
+      {isInPersonModalOpen && editingInPerson && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+              <h2 className="text-xl font-bold text-gray-900">{editingInPerson.id ? 'Edit In-Person Event' : 'Create In-Person Event'}</h2>
+              <button onClick={() => setIsInPersonModalOpen(false)} className="text-gray-400 hover:text-gray-900"><X size={24} /></button>
+            </div>
+            
+            <form onSubmit={handleSaveInPerson} className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Event Title</label>
+                  <input required type="text" value={editingInPerson.title} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, title: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Location</label>
+                  <input required type="text" value={editingInPerson.location} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, location: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. BITEC Bangna, Bangkok" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
+                  {/* Notice this is just a date, not datetime, usually sufficient for in-person day events */}
+                  <input required type="date" value={editingInPerson.date} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, date: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Event Type / Tag</label>
+                  <input required type="text" value={editingInPerson.type} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, type: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Conference, Workshop" />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Event Description</label>
+                <textarea required rows={3} value={editingInPerson.description} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, description: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="Briefly describe the event..." />
+              </div>
+
+              {/* IMAGE GALLERY UPLOADER */}
+              <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl">
+                <label className="block text-sm font-bold text-gray-700 mb-3">Event Photo Gallery (Slideshow)</label>
+                <div className="flex flex-wrap gap-4">
+                  {editingInPerson.images?.map((img: string, i: number) => (
+                    <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-300 group">
+                      <img src={img} className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => removeGalleryImage(i)} className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 size={24} />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  <div className="w-24 h-24 shrink-0">
+                    <ImageUploader onUploadSuccess={(url: string) => addGalleryImage(url)} small />
+                  </div>
+                </div>
+              </div>
+            </form>
+            
+            <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 shrink-0 bg-white rounded-b-2xl">
+              <Button type="button" variant="outline" onClick={() => setIsInPersonModalOpen(false)}>Cancel</Button>
+              <Button onClick={handleSaveInPerson} disabled={isSaving || !editingInPerson.title} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
                 {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />} Save Event
               </Button>
             </div>
@@ -225,7 +378,7 @@ export default function AdminEvents() {
 }
 
 // --- REUSABLE UPLOADER COMPONENT ---
-function ImageUploader({ preview, onUploadSuccess }: any) {
+function ImageUploader({ preview, small, onUploadSuccess }: any) {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -246,11 +399,11 @@ function ImageUploader({ preview, onUploadSuccess }: any) {
   };
 
   return (
-    <div className="border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors rounded-xl h-full w-full min-h-[160px]">
+    <div className={`border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors rounded-xl w-full h-full ${small ? 'min-h-full' : 'min-h-[160px]'}`}>
       <input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-      {isUploading ? <Loader2 className="animate-spin text-[#1B5E20]" size={24} /> : preview ? (
-        <><img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" /><div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20]" size={24} /></div></>
-      ) : <UploadCloud className="text-gray-400" size={32} />}
+      {isUploading ? <Loader2 className="animate-spin text-[#1B5E20]" size={small ? 16 : 24} /> : preview ? (
+        <><img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" /><div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20]" size={small ? 16 : 24} /></div></>
+      ) : <UploadCloud className="text-gray-400" size={small ? 20 : 32} />}
     </div>
   );
 }
