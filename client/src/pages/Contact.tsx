@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Mail, ChevronRight, Facebook, Linkedin, Instagram, ChevronDown, ChevronUp, Play, Loader2 } from 'lucide-react';
+import { Mail, ChevronRight, Facebook, Linkedin, Instagram, ChevronDown, ChevronUp, Play, Loader2, HelpCircle, Phone } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
 // --- FIREBASE IMPORTS ---
@@ -22,11 +22,15 @@ export default function Contact() {
 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // State for showing the example message questions
+  const [showMessageHint, setShowMessageHint] = useState(false);
 
   const [pageData, setPageData] = useState({
     heroData: { subtitle: "", title: "", description: "", imagePreview: "" },
-    contactInfo: { locations: "", email: "", lineId: "", facebook: "", linkedin: "", instagram: "" },
-    faqs: [] as any[]
+    contactInfo: { locations: "", email: "", phone: "", lineId: "", facebook: "", linkedin: "", instagram: "" },
+    faqs: [] as any[],
+    messageHints: [] as {id: string, text: string}[]
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -39,8 +43,9 @@ export default function Contact() {
         const data = docSnap.data();
         setPageData({
           heroData: data.heroData || { subtitle: "", title: "", description: "", imagePreview: "" },
-          contactInfo: data.contactInfo || { locations: "", email: "", lineId: "", facebook: "", linkedin: "", instagram: "" },
-          faqs: data.faqs || []
+          contactInfo: data.contactInfo || { locations: "", email: "", phone: "", lineId: "", facebook: "", linkedin: "", instagram: "" },
+          faqs: data.faqs || [],
+          messageHints: data.messageHints || []
         });
       }
       setIsLoading(false);
@@ -96,6 +101,7 @@ export default function Contact() {
       
       alert('Thank you for your message. We will get back to you soon!');
       setFormData({ name: '', email: '', subject: '', customSubject: '', message: '' });
+      setShowMessageHint(false); // Close the hint if it's open
     } catch (error) {
       console.error("Error submitting form: ", error);
       alert("Something went wrong. Please try again later.");
@@ -112,7 +118,7 @@ export default function Contact() {
     return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
   }
 
-  const locationList = pageData.contactInfo.locations.split(',').map(loc => loc.trim()).filter(loc => loc.length > 0);
+  const locationList = pageData.contactInfo.locations ? pageData.contactInfo.locations.split(',').map(loc => loc.trim()).filter(loc => loc.length > 0) : [];
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
@@ -231,7 +237,37 @@ export default function Contact() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Message <span className="text-red-500">*</span></label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-bold text-gray-700">Message <span className="text-red-500">*</span></label>
+                      <button 
+                        type="button" 
+                        onClick={() => setShowMessageHint(!showMessageHint)} 
+                        className="text-gray-400 hover:text-[#1B5E20] transition-colors flex items-center gap-1 text-xs font-bold"
+                      >
+                        <HelpCircle size={14} /> Need ideas?
+                      </button>
+                    </div>
+
+                    {/* DYNAMIC Example Questions Dropdown */}
+                    {showMessageHint && (
+                      <div className="mb-3 p-4 bg-[#1B5E20]/5 border border-[#1B5E20]/10 rounded-lg text-sm text-[#1B5E20] animate-in fade-in slide-in-from-top-1">
+                        <strong className="block mb-2 text-[#1B5E20]">Not sure what to ask? Here are some examples:</strong>
+                        <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                          {pageData.messageHints && pageData.messageHints.length > 0 ? (
+                            pageData.messageHints.map((hint: any) => (
+                              <li key={hint.id}>{hint.text}</li>
+                            ))
+                          ) : (
+                            <>
+                              <li>How does your ESG data analytics platform work?</li>
+                              <li>Can you help our company achieve Zero Waste to Landfill?</li>
+                              <li>What is the process and cost for scheduling a waste audit?</li>
+                            </>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+
                     <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Type message" required rows={5} className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors resize-none" />
                   </div>
                   
@@ -269,6 +305,12 @@ export default function Contact() {
                        <div className="w-[18px] h-[18px] bg-[#00B900] text-white rounded-full flex items-center justify-center font-bold text-[9px]">LINE</div>
                        <a href="https://line.me" target="_blank" rel="noopener noreferrer" className="hover:text-[#A3E635] transition-colors">
                          {pageData.contactInfo.lineId || 'Line ID not set'}
+                       </a>
+                     </li>
+                     <li className="flex items-center gap-3">
+                       <Phone size={18} />
+                       <a href={`tel:${pageData.contactInfo.phone}`} className="hover:text-[#A3E635] transition-colors">
+                         {pageData.contactInfo.phone || 'Phone not set'}
                        </a>
                      </li>
                    </ul>
@@ -310,9 +352,10 @@ export default function Contact() {
                     </button>
                     
                     <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === index ? 'max-h-[500px] opacity-100 pb-6' : 'max-h-0 opacity-0'}`}>
-                      <p className="text-gray-600 text-[15px] leading-relaxed pl-2 border-l-2 border-[#1B5E20]/20 whitespace-pre-line">
-                        {faq.a}
-                      </p>
+                      <div 
+                        className="text-gray-600 text-[15px] leading-relaxed pl-3 border-l-2 border-[#1B5E20]/20 whitespace-pre-line [&_a]:text-[#E2552B] [&_a]:font-bold hover:[&_a]:underline"
+                        dangerouslySetInnerHTML={{ __html: faq.a }}
+                      />
                     </div>
                   </div>
                ))}

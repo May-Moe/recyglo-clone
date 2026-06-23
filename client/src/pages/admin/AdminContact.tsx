@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, MapPin, MessageCircle, Plus, Trash2, UploadCloud, GripVertical, Loader2 } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, MapPin, MessageCircle, Plus, Trash2, UploadCloud, GripVertical, Loader2, HelpCircle } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase"; // Adjust path if needed
+import { db, storage } from "@/lib/firebase";
 
 export default function AdminContact() {
   const [activeTab, setActiveTab] = useState('hero');
@@ -20,16 +20,18 @@ export default function AdminContact() {
 
   // --- STATE: CONTACT INFO ---
   const [contactInfo, setContactInfo] = useState({
-    locations: "", // Comma-separated string for easy editing
+    locations: "", 
     email: "",
+    phone: "", 
     lineId: "",
     facebook: "",
     linkedin: "",
     instagram: ""
   });
 
-  // --- STATE: FAQS ---
+  // --- STATE: FAQS & HINTS ---
   const [faqs, setFaqs] = useState<any[]>([]);
+  const [messageHints, setMessageHints] = useState<{id: string, text: string}[]>([]);
 
   // --- 1. FETCH INITIAL DATA FROM FIREBASE ON LOAD ---
   useEffect(() => {
@@ -41,8 +43,16 @@ export default function AdminContact() {
         if (docSnap.exists() && Object.keys(docSnap.data()).length > 0) {
           const data = docSnap.data();
           if (data.heroData) setHeroData(data.heroData);
-          if (data.contactInfo) setContactInfo(data.contactInfo);
+          
+          if (data.contactInfo) {
+            setContactInfo({
+              ...data.contactInfo,
+              phone: data.contactInfo.phone || "" 
+            });
+          }
+          
           if (data.faqs && data.faqs.length > 0) setFaqs(data.faqs);
+          if (data.messageHints && data.messageHints.length > 0) setMessageHints(data.messageHints);
         } else {
           // If empty, pre-fill with defaults for easy migration
           setHeroData({
@@ -54,6 +64,7 @@ export default function AdminContact() {
           setContactInfo({
             locations: "Thailand, Vietnam, Myanmar, Indonesia, South Korea, Singapore, Malaysia",
             email: "Contact@recyglo.com",
+            phone: "(+66) 81 412 6842", 
             lineId: "@RecyGlo",
             facebook: "",
             linkedin: "",
@@ -66,7 +77,12 @@ export default function AdminContact() {
             { id: 'faq-4', q: "What services does the company provide?", a: "We offer comprehensive B2B Waste Management Solutions, Waste Auditing, ESG Data Analytics, Circular Economy implementations, and Sustainability Consulting." },
             { id: 'faq-5', q: "How do I request a consultation?", a: "Simply fill out the contact form above with your details and subject, and a member of our team will reach out to schedule a consultation." },
             { id: 'faq-6', q: "What are your business hours?", a: "Our standard business hours are Monday to Friday, from 8:30 AM to 5:30 PM." },
-            { id: 'faq-7', q: "Do you have social media channels?", a: "Yes! You can follow our journey and updates on Facebook, LinkedIn, and Instagram @RecyGlo." }
+            { id: 'faq-7', q: "Do you have social media channels?", a: "Yes! You can follow our journey and updates on <a href='https://facebook.com/recyglo' target='_blank'>Facebook</a>, LinkedIn, and Instagram @RecyGlo." }
+          ]);
+          setMessageHints([
+            { id: 'hint-1', text: "How does your ESG data analytics platform work?" },
+            { id: 'hint-2', text: "Can you help our company achieve Zero Waste to Landfill?" },
+            { id: 'hint-3', text: "What is the process and cost for scheduling a waste audit?" }
           ]);
         }
       } catch (error) {
@@ -88,6 +104,7 @@ export default function AdminContact() {
         heroData,
         contactInfo,
         faqs,
+        messageHints,
         lastUpdated: new Date()
       }, { merge: true });
 
@@ -100,10 +117,14 @@ export default function AdminContact() {
     }
   };
 
-  // --- FAQ HANDLERS ---
+  // --- FAQ & HINT HANDLERS ---
   const addFaq = () => setFaqs([...faqs, { id: `faq-${Date.now()}`, q: "", a: "" }]);
   const removeFaq = (id: string) => setFaqs(faqs.filter(f => f.id !== id));
   const updateFaq = (id: string, field: string, value: string) => setFaqs(faqs.map(f => f.id === id ? { ...f, [field]: value } : f));
+
+  const addHint = () => setMessageHints([...messageHints, { id: `hint-${Date.now()}`, text: "" }]);
+  const removeHint = (id: string) => setMessageHints(messageHints.filter(h => h.id !== id));
+  const updateHint = (id: string, text: string) => setMessageHints(messageHints.map(h => h.id === id ? { ...h, text } : h));
 
   if (isLoading) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
@@ -116,7 +137,7 @@ export default function AdminContact() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Edit Contact Page</h1>
-          <p className="text-gray-500 text-sm">Update contact details, social links, and FAQs.</p>
+          <p className="text-gray-500 text-sm">Update contact details, social links, FAQs, and form ideas.</p>
         </div>
         <Button onClick={handleSave} disabled={isSaving} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white flex items-center gap-2 px-6">
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save size={18} />}
@@ -130,6 +151,7 @@ export default function AdminContact() {
         <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
           <TabButton id="hero" label="Hero Banner" icon={<Layout size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="contact" label="Contact & Socials" icon={<MapPin size={18} />} activeTab={activeTab} onClick={setActiveTab} />
+          <TabButton id="hints" label="Form Ideas" icon={<HelpCircle size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="faqs" label="Manage FAQs" icon={<MessageCircle size={18} />} activeTab={activeTab} onClick={setActiveTab} />
         </div>
 
@@ -181,10 +203,14 @@ export default function AdminContact() {
                   <p className="text-xs text-gray-500 mt-1">Separate countries with a comma. These generate the list in the location block.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
                     <input type="email" value={contactInfo.email} onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Phone Number</label>
+                    <input type="text" value={contactInfo.phone} onChange={(e) => setContactInfo({...contactInfo, phone: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. (+66) 81 412 6842" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">LINE Official ID</label>
@@ -211,7 +237,48 @@ export default function AdminContact() {
             </div>
           )}
 
-          {/* TAB 3: FAQs */}
+          {/* TAB 3: FORM HINTS (NEW) */}
+          {activeTab === 'hints' && (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Form Message Ideas</h2>
+                  <p className="text-sm text-gray-500 mt-1">Manage the example questions that appear when users click "Need ideas?".</p>
+                </div>
+                <Button onClick={addHint} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
+                  <Plus size={16} className="mr-2" /> Add Idea
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {messageHints.length === 0 && <p className="text-gray-400 text-center py-8">No ideas added yet.</p>}
+                
+                {messageHints.map((hint, index) => (
+                  <div key={hint.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex gap-4 items-center group">
+                    <div className="cursor-grab text-gray-400">
+                      <GripVertical size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <input 
+                        type="text" 
+                        value={hint.text} 
+                        onChange={(e) => updateHint(hint.id, e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#1B5E20]" 
+                        placeholder="e.g. Can you help our company achieve Zero Waste?" 
+                      />
+                    </div>
+                    <div>
+                      <button onClick={() => removeHint(hint.id)} className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: FAQs */}
           {activeTab === 'faqs' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -222,6 +289,15 @@ export default function AdminContact() {
                 <Button onClick={addFaq} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add FAQ
                 </Button>
+              </div>
+
+              <div className="bg-[#1B5E20]/5 border border-[#1B5E20]/20 p-4 rounded-xl mb-6">
+                <p className="text-sm text-gray-700 font-medium">
+                  <strong>💡 Pro Tip:</strong> You can add clickable links inside your FAQ answers using standard HTML tags. For example:<br/>
+                  <code className="text-xs bg-white border border-gray-200 px-2 py-1 rounded mt-2 inline-block">
+                    &lt;a href="https://facebook.com/recyglo" target="_blank"&gt;Facebook&lt;/a&gt;
+                  </code>
+                </p>
               </div>
 
               <div className="space-y-4">
@@ -237,7 +313,7 @@ export default function AdminContact() {
                         <input type="text" value={faq.q} onChange={(e) => updateFaq(faq.id, 'q', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-900 focus:outline-none focus:border-[#1B5E20]" placeholder="Question..." />
                       </div>
                       <div>
-                        <textarea rows={2} value={faq.a} onChange={(e) => updateFaq(faq.id, 'a', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#1B5E20]" placeholder="Answer..." />
+                        <textarea rows={2} value={faq.a} onChange={(e) => updateFaq(faq.id, 'a', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#1B5E20]" placeholder="Answer (HTML allowed for links)..." />
                       </div>
                     </div>
                     <div>

@@ -97,67 +97,86 @@ export default function DashboardHome() {
 
       {/* Quick Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <Card className="border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white rounded-xl">
-          <CardContent className="p-6 flex flex-col gap-4">
-            <div className="flex justify-between items-start">
-              <div className="p-3 rounded-lg bg-[#1B5E20]/10 text-[#1B5E20]">
-                <Briefcase size={22} />
-              </div>
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900">
-                {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-gray-300" /> : stats.solutions}
-              </h3>
-              <p className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">Active Solutions</p>
-            </div>
-          </CardContent>
-        </Card>
+        
+        {/* CLICKABLE SOLUTIONS CARD */}
+        <Link href="/admin/solutions">
+          <div className="cursor-pointer block h-full">
+            <Card className="border-gray-200 shadow-sm hover:shadow-lg hover:border-[#1B5E20] transition-all bg-white rounded-xl group h-full">
+              <CardContent className="p-6 flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div className="p-3 rounded-lg bg-[#1B5E20]/10 text-[#1B5E20] group-hover:bg-[#1B5E20] group-hover:text-white transition-colors">
+                    <Briefcase size={22} />
+                  </div>
+                  <ArrowRight size={20} className="text-gray-300 opacity-0 group-hover:opacity-100 group-hover:text-[#1B5E20] -translate-x-2 group-hover:translate-x-0 transition-all" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900 group-hover:text-[#1B5E20] transition-colors">
+                    {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-gray-300" /> : stats.solutions}
+                  </h3>
+                  <p className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">Active Solutions</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </Link>
 
-        <Card className="border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white rounded-xl">
-          <CardContent className="p-6 flex flex-col gap-4">
-            <div className="flex justify-between items-start">
-              <div className="p-3 rounded-lg bg-[#76FF03]/20 text-[#1B5E20]">
-                <FileText size={22} />
-              </div>
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900">
-                {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-gray-300" /> : stats.articles}
-              </h3>
-              <p className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">Published Articles</p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* CLICKABLE ARTICLES CARD */}
+        <Link href="/admin/articles">
+          <div className="cursor-pointer block h-full">
+            <Card className="border-gray-200 shadow-sm hover:shadow-lg hover:border-[#76FF03] transition-all bg-white rounded-xl group h-full">
+              <CardContent className="p-6 flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div className="p-3 rounded-lg bg-[#76FF03]/20 text-[#1B5E20] group-hover:bg-[#76FF03] group-hover:text-[#1B5E20] transition-colors">
+                    <FileText size={22} />
+                  </div>
+                  <ArrowRight size={20} className="text-gray-300 opacity-0 group-hover:opacity-100 group-hover:text-[#1B5E20] -translate-x-2 group-hover:translate-x-0 transition-all" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900 group-hover:text-[#1B5E20] transition-colors">
+                    {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-gray-300" /> : stats.articles}
+                  </h3>
+                  <p className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">Published Articles</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </Link>
 
-        <Card className="border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white rounded-xl">
-          <CardContent className="p-6 flex flex-col gap-4">
-            <div className="flex justify-between items-start">
-              <div className="p-3 rounded-lg bg-orange-500/10 text-[#E2552B]">
-                <ImageIcon size={22} />
+        {/* MEDIA CARD (Unlinked, static display) */}
+        <div className="block h-full">
+          <Card className="border-gray-200 shadow-sm transition-shadow bg-white rounded-xl h-full">
+            <CardContent className="p-6 flex flex-col gap-4">
+              <div className="flex justify-between items-start">
+                <div className="p-3 rounded-lg bg-orange-500/10 text-[#E2552B]">
+                  <ImageIcon size={22} />
+                </div>
               </div>
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900">
-                {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-gray-300" /> : stats.media}
-              </h3>
-              <p className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">Media Files</p>
-            </div>
-          </CardContent>
-        </Card>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">
+                  {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-gray-300" /> : stats.media}
+                </h3>
+                <p className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">Media Files</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        <Card className="border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white rounded-xl">
-          <CardContent className="p-6 flex flex-col gap-4">
-            <div className="flex justify-between items-start">
-              <div className="p-3 rounded-lg bg-blue-500/10 text-blue-600">
-                <TrendingUp size={22} />
+        {/* STATUS CARD (Unlinked, static display) */}
+        <div className="block h-full">
+          <Card className="border-gray-200 shadow-sm transition-shadow bg-white rounded-xl h-full">
+            <CardContent className="p-6 flex flex-col gap-4">
+              <div className="flex justify-between items-start">
+                <div className="p-3 rounded-lg bg-blue-500/10 text-blue-600">
+                  <TrendingUp size={22} />
+                </div>
               </div>
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900">Online</h3>
-              <p className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">Database Status</p>
-            </div>
-          </CardContent>
-        </Card>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">Online</h3>
+                <p className="text-sm font-semibold text-gray-500 mt-1 uppercase tracking-wider">Database Status</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Quick Actions */}

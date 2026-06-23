@@ -192,7 +192,7 @@ export default function AdminImpact() {
         {/* LEFT SIDE: Tab Navigation */}
         <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
           <TabButton id="hero" label="Hero & Regional Scale" icon={<Layout size={18} />} activeTab={activeTab} onClick={setActiveTab} />
-          <TabButton id="crisis" label="The Broken System" icon={<AlertTriangle size={18} />} activeTab={activeTab} onClick={setActiveTab} />
+          {/* <TabButton id="crisis" label="The Broken System" icon={<AlertTriangle size={18} />} activeTab={activeTab} onClick={setActiveTab} /> */}
           <TabButton id="lever2" label="Lever 2: Workers" icon={<Briefcase size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="lever3" label="Lever 3: Ocean" icon={<Globe size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="lever1" label="Lever 1: SheWorks" icon={<Users size={18} />} activeTab={activeTab} onClick={setActiveTab} />
@@ -274,7 +274,7 @@ export default function AdminImpact() {
           )}
 
           {/* TAB 2: THE BROKEN SYSTEM */}
-          {activeTab === 'crisis' && (
+          {/* {activeTab === 'crisis' && (
             <div className="space-y-8 animate-in fade-in">
               <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Section Intro</h3>
@@ -312,7 +312,7 @@ export default function AdminImpact() {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* TAB 3: LEVER 2 (WORKERS) */}
           {activeTab === 'lever2' && (
