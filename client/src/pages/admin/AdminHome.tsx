@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users, Briefcase, Monitor } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users, Briefcase, Monitor, ArrowLeft, ArrowRight } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -115,7 +115,7 @@ export default function AdminHome() {
     }
   };
 
-  // --- HANDLERS FOR UPDATING LOCAL STATE (FIXED WITH `prev =>` TO PREVENT BATCHING BUGS) ---
+  // --- HANDLERS FOR UPDATING LOCAL STATE ---
   const addHeroSlide = () => setHeroSlides(prev => [...prev, { id: `slide-${Date.now()}`, subtitle: "", title: "", description: "", imagePreview: "", button1Text: "", button1Link: "", button2Text: "", button2Link: "" }]);
   const removeHeroSlide = (id: string) => setHeroSlides(prev => prev.filter(s => s.id !== id));
   const updateHeroSlide = (id: string, field: string, value: string) => setHeroSlides(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
@@ -132,9 +132,25 @@ export default function AdminHome() {
   const removeGalleryImage = (id: string) => setGalleryImages(prev => prev.filter(img => img.id !== id));
   const updateGalleryImage = (id: string, field: string, value: string) => setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, [field]: value } : img));
 
+  // --- PARTNERS LOGIC WITH SORTING ---
   const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
   const removePartner = (id: string) => setPartners(prev => prev.filter(p => p.id !== id));
   const updatePartner = (id: string, field: string, value: string) => setPartners(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  
+  // NEW: Move Partner Left/Right
+  const movePartner = (index: number, direction: 'left' | 'right') => {
+    setPartners(prev => {
+      const newPartners = [...prev];
+      if (direction === 'left' && index > 0) {
+        // Swap with previous
+        [newPartners[index - 1], newPartners[index]] = [newPartners[index], newPartners[index - 1]];
+      } else if (direction === 'right' && index < newPartners.length - 1) {
+        // Swap with next
+        [newPartners[index + 1], newPartners[index]] = [newPartners[index], newPartners[index + 1]];
+      }
+      return newPartners;
+    });
+  };
 
   const addService = () => setFeaturedServices(prev => [...prev, { id: `service-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
   const removeService = (id: string) => setFeaturedServices(prev => prev.filter(s => s.id !== id));
@@ -223,20 +239,19 @@ export default function AdminHome() {
                       <div className="md:col-span-8 space-y-4">
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
-                          <input type="text" value={slide.subtitle} onChange={(e) => updateHeroSlide(slide.id, 'subtitle', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-white" placeholder="e.g. Zero Waste to Landfill" />
+                          <input type="text" value={slide.subtitle} onChange={(e) => updateHeroSlide(slide.id, 'subtitle', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Zero Waste to Landfill" />
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">Main Heading</label>
-                          <input type="text" value={slide.title} onChange={(e) => updateHeroSlide(slide.id, 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-white font-bold" placeholder="e.g. Circular Economy Strategies" />
+                          <input type="text" value={slide.title} onChange={(e) => updateHeroSlide(slide.id, 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" placeholder="e.g. Circular Economy Strategies" />
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                          <textarea rows={3} value={slide.description} onChange={(e) => updateHeroSlide(slide.id, 'description', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-white" placeholder="Enter paragraph text..." />
+                          <textarea rows={3} value={slide.description} onChange={(e) => updateHeroSlide(slide.id, 'description', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Enter paragraph text..." />
                         </div>
                       </div>
                     </div>
                     
-                    {/* DYNAMIC BUTTONS ROW */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-4">
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Text (Left)</label>
@@ -395,13 +410,13 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 4: PARTNERS */}
+          {/* TAB 4: PARTNERS WITH NEW SORTING ARROWS */}
           {activeTab === 'partners' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Trusted Partners & Brands</h2>
-                  <p className="text-sm text-gray-500 mt-1">Upload logos of the brands and organizations you work with.</p>
+                  <p className="text-sm text-gray-500 mt-1">Upload logos of the brands and organizations you work with. Use arrows to reorder.</p>
                 </div>
                 <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add Logo
@@ -423,10 +438,11 @@ export default function AdminHome() {
                 </div>
               </div>
 
+              {/* PARTNERS GRID WITH SORTING */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {partners.map((partner) => (
+                {partners.map((partner, index) => (
                   <div key={partner.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
-                    <div className="aspect-video relative">
+                    <div className="aspect-video relative overflow-hidden rounded-lg">
                       <ImageUploader 
                         preview={partner.imagePreview} 
                         onUploadSuccess={(url: string, fileName: string) => {
@@ -434,14 +450,40 @@ export default function AdminHome() {
                           if(fileName) updatePartner(partner.id, 'fileName', fileName);
                         }}
                       />
-                      <button 
-                        onClick={() => removePartner(partner.id)}
-                        className="absolute top-1 right-1 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      
+                      {/* NEW: Hover Action Bar for Sorting and Deleting */}
+                      <div className="absolute top-0 right-0 left-0 p-1 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        {/* Sort Left/Right */}
+                        <div className="flex gap-1">
+                          <button 
+                            onClick={() => movePartner(index, 'left')}
+                            disabled={index === 0}
+                            className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"
+                            title="Move Left"
+                          >
+                            <ArrowLeft size={14} />
+                          </button>
+                          <button 
+                            onClick={() => movePartner(index, 'right')}
+                            disabled={index === partners.length - 1}
+                            className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"
+                            title="Move Right"
+                          >
+                            <ArrowRight size={14} />
+                          </button>
+                        </div>
+                        
+                        {/* Delete */}
+                        <button 
+                          onClick={() => removePartner(partner.id)}
+                          className="bg-white/90 backdrop-blur text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all"
+                          title="Delete Logo"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
-                    {/* Editable Extracted File Name Field */}
+                    
                     <input 
                       type="text" 
                       value={partner.fileName || ''} 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Layout, FileText, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, Video } from "lucide-react";
+import { Save, Layout, FileText, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, Video, Info } from "lucide-react";
 import { doc, getDoc, setDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase"; 
@@ -318,19 +318,19 @@ export default function AdminArticles() {
                 <div className="flex items-center justify-between border-b pb-4 mb-6">
                   <div>
                     <h3 className="font-bold text-lg text-[#1B5E20]">Article Body</h3>
-                    <p className="text-xs text-gray-500">Build your article structure here using text, images, and lists.</p>
+                    <p className="text-xs text-gray-500">Build your article structure here using text, images, and videos.</p>
                   </div>
                   <div className="flex gap-2 flex-wrap">
-                    <Button onClick={() => addContentBlock('text')} size="sm" variant="outline"><Type size={14} className="mr-1"/> Text</Button>
-                    <Button onClick={() => addContentBlock('image')} size="sm" variant="outline"><ImageIcon size={14} className="mr-1"/> Image</Button>
-                    <Button onClick={() => addContentBlock('video')} size="sm" variant="outline"><Video size={14} className="mr-1"/> Video</Button>
-                    <Button onClick={() => addContentBlock('list')} size="sm" variant="outline"><List size={14} className="mr-1"/> List</Button>
+                    <Button type="button" onClick={() => addContentBlock('text')} size="sm" variant="outline"><Type size={14} className="mr-1"/> Text</Button>
+                    <Button type="button" onClick={() => addContentBlock('image')} size="sm" variant="outline"><ImageIcon size={14} className="mr-1"/> Image</Button>
+                    <Button type="button" onClick={() => addContentBlock('video')} size="sm" variant="outline"><Video size={14} className="mr-1"/> Video</Button>
+                    <Button type="button" onClick={() => addContentBlock('list')} size="sm" variant="outline"><List size={14} className="mr-1"/> List</Button>
                   </div>
                 </div>
 
                 <div className="space-y-6">
                   {(!editingArticle.contentBlocks || editingArticle.contentBlocks.length === 0) && (
-                    <div className="text-center py-8 text-gray-400 border-2 border-dashed rounded-xl">Article is empty. Click a button above to add a paragraph or image.</div>
+                    <div className="text-center py-8 text-gray-400 border-2 border-dashed rounded-xl">Article is empty. Click a button above to add a paragraph or media.</div>
                   )}
 
                   {editingArticle.contentBlocks?.map((block: any, index: number) => (
@@ -346,6 +346,7 @@ export default function AdminArticles() {
                           <textarea rows={6} value={block.text} onChange={(e) => updateContentBlock(block.id, 'text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none" placeholder="Write paragraph text here..." />
                         </div>
                       )}
+                      
                       {block.type === 'image' && (
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div className="md:col-span-1"><ImageUploader folder="article-images" preview={block.imagePreview} small onUploadSuccess={(url: string) => updateContentBlock(block.id, 'imagePreview', url)} /></div>
@@ -355,12 +356,24 @@ export default function AdminArticles() {
                           </div>
                         </div>
                       )}
+
                       {block.type === 'video' && (
                         <div className="space-y-3">
                           <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="Video Title..." />
-                          <input type="text" value={block.videoUrl} onChange={(e) => updateContentBlock(block.id, 'videoUrl', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none text-[#E2552B]" placeholder="YouTube Embed URL (https://youtube.com/embed/...)" />
+                          
+                          {/* NEW: EMBED INSTRUCTION ALERT BOX */}
+                          <div className="bg-[#E2552B]/5 border border-[#E2552B]/20 rounded-md p-3 flex items-start gap-2 text-sm text-[#E2552B]">
+                            <Info size={16} className="shrink-0 mt-0.5" />
+                            <div className="leading-relaxed">
+                              <strong>Important:</strong> You must use the YouTube <strong>Embed Link</strong>, not the standard watch link. <br/>
+                              <span className="text-xs opacity-80">Example: <code>https://www.youtube.com/embed/YOUR_VIDEO_ID</code></span>
+                            </div>
+                          </div>
+
+                          <input type="text" value={block.videoUrl} onChange={(e) => updateContentBlock(block.id, 'videoUrl', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none text-[#E2552B]" placeholder="https://youtube.com/embed/..." />
                         </div>
                       )}
+
                       {block.type === 'list' && (
                         <div className="space-y-3">
                           <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="List Title..." />

@@ -1,7 +1,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter'; 
 
@@ -304,7 +304,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* 7. AWARDS & RECOGNITION CAROUSEL */}
+      {/* 7. AWARDS & RECOGNITION CAROUSEL (PROFESSIONAL SAAS DESIGN) */}
       {pageData.awards.length > 0 && (
         <section id="awards" className="py-24 bg-white border-t border-gray-100 scroll-mt-24">
           <div className="container px-4 sm:px-8 lg:px-12">
@@ -321,28 +321,53 @@ export default function About() {
                 <button 
                   onClick={prevAward} 
                   disabled={awardIndex === 0}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 p-2 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md disabled:opacity-30 z-10"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 p-2 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md disabled:opacity-30 z-10 transition-all"
                 >
                   <ChevronLeft size={24} className="text-gray-600" />
                 </button>
 
-                <div className="overflow-hidden px-2">
+                <div className="overflow-hidden px-2 py-4">
                    <div 
                      className="flex transition-transform duration-500 ease-in-out gap-6"
                      style={{ transform: `translateX(calc(-${(awardIndex * 100) / awardsPerPage}% - ${awardIndex * 1.5}rem))` }}
                    >
                       {pageData.awards.map((award: any, i: number) => (
                         <div key={award.id || i} className="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] flex-shrink-0">
-                           <div className="bg-white border border-gray-100 rounded-2xl p-6 h-48 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                              {award.imagePreview ? (
-                                <img src={award.imagePreview} alt={award.title} className="max-w-full max-h-full object-contain z-10" />
-                              ) : (
-                                <div className="text-center text-gray-400 z-10">
-                                   <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-3"></div>
-                                   <p className="font-bold text-sm text-gray-800">{award.title}</p>
-                                   <p className="text-xs">{award.year}</p>
-                                </div>
-                              )}
+                           
+                           {/* PROFESSIONAL AWARD CARD */}
+                           <div className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl shadow-gray-200/40 transition-all duration-300 flex flex-col overflow-hidden h-full">
+                              
+                              {/* TOP: Image Canvas */}
+                              <div className="h-48 w-full bg-[#F8F9F7] relative flex items-center justify-center p-6 border-b border-gray-100 overflow-hidden">
+                                 {/* Floating Year Badge */}
+                                 <div className="absolute top-3 right-3 bg-white px-2.5 py-1 rounded text-[10px] font-black tracking-widest text-[#E2552B] border border-gray-100 flex items-center gap-1.5 z-20 shadow-sm">
+                                     <Trophy size={12} className="text-[#E2552B]" /> {award.year}
+                                 </div>
+                                 
+                                 {/* Subtle Hover Glow */}
+                                 <div className="absolute inset-0 bg-gradient-to-tr from-[#1B5E20]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                 
+                                 {/* Image */}
+                                 {award.imagePreview ? (
+                                   <img src={award.imagePreview} alt={award.title} className="max-w-full max-h-full object-contain relative z-10 drop-shadow-md group-hover:scale-110 transition-transform duration-500" />
+                                 ) : (
+                                   <div className="w-16 h-16 bg-gray-200 rounded-full border-2 border-dashed border-gray-300 relative z-10"></div>
+                                 )}
+                              </div>
+                              
+                              {/* BOTTOM: Structured Typography */}
+                              <div className="p-5 flex flex-col flex-grow bg-white justify-between">
+                                 <h3 className="font-bold text-gray-900 group-hover:text-[#1B5E20] transition-colors leading-snug line-clamp-3 text-sm md:text-base">
+                                     {award.title}
+                                 </h3>
+                                  {award.description && (
+                                  <p className="text-gray-500 text-xs mt-2 line-clamp-3 leading-relaxed flex-grow">
+                                    {award.description}
+                                  </p>
+                                )}
+                                 <div className="w-8 h-1 bg-[#1B5E20]/20 mt-4 rounded-full group-hover:bg-[#76FF03] group-hover:w-12 transition-all duration-300"></div>
+                              </div>
+
                            </div>
                         </div>
                       ))}
@@ -352,7 +377,7 @@ export default function About() {
                 <button 
                   onClick={nextAward} 
                   disabled={awardIndex >= maxIndex}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 p-2 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md disabled:opacity-30 z-10"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 p-2 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md disabled:opacity-30 z-10 transition-all"
                 >
                   <ChevronRight size={24} className="text-gray-600" />
                 </button>

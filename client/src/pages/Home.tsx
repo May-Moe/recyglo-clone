@@ -175,62 +175,79 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
       <Header />
 
-      {/* HERO SECTION */}
+      {/* HERO SECTION - WITH STAGGERED ANIMATIONS & ZOOM */}
       {pageData.heroSlides.length > 0 && (
         <section className="relative h-[650px] md:h-[800px] w-full overflow-hidden bg-[#1B5E20]">
           <div 
-            className="flex w-full h-full transition-transform duration-[1500ms] ease-in-out"
+            className="flex w-full h-full transition-transform duration-[1200ms] ease-in-out"
             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
           >
-            {pageData.heroSlides.map((slide: any, index: number) => (
-              <div key={index} className="w-full h-full flex-shrink-0 relative">
-                <div
-                  className="absolute inset-0 bg-black/40" 
-                  style={slide.imagePreview ? {
-                    backgroundImage: `url(${slide.imagePreview})`, 
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  } : {}}
-                />
-                <div className="container px-4 sm:px-8 lg:px-12 relative z-20 h-full flex items-center">
-                  <div className="w-full max-w-3xl">
-                     <h2 className="text-lg md:text-xl font-medium mb-4 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] leading-snug">
-                        {slide[`subtitle_${currentLang}`] || slide.subtitle_en || slide.subtitle}
-                     </h2>
-                     <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] leading-[1.1]">
-                        {slide[`title_${currentLang}`] || slide.title_en || slide.title}
-                     </h1>
-                     <p className="text-base md:text-lg text-white/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] mb-10 leading-relaxed max-w-2xl">
-                        {slide[`description_${currentLang}`] || slide.description_en || slide.description}
-                     </p>
-                     
-                     <div className="flex flex-col sm:flex-row gap-4">
-                        <Button 
-                          onClick={() => { 
-                            const link = slide.button1Link || '/carbon-calculator';
-                            if (link.startsWith('http')) window.open(link, '_blank');
-                            else { setLocation(link); window.scrollTo(0, 0); }
-                          }} 
-                          className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all"
-                        >
-                          <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
-                          {slide.button1Text || t('home.calcButton', 'Calculate Carbon Footprint')}
-                        </Button>
-                        <Button 
-                          className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center" 
-                          onClick={() => { 
-                            const link = slide.button2Link || '/solutions';
-                            if (link.startsWith('http')) window.open(link, '_blank');
-                            else { setLocation(link); window.scrollTo(0, 0); }
-                          }}
-                        >
-                          {slide.button2Text || t('home.solutionsButton', 'Our Solutions')}
-                        </Button>
-                     </div>
+            {pageData.heroSlides.map((slide: any, index: number) => {
+              const isActive = index === currentSlide;
+
+              return (
+                <div key={index} className="w-full h-full flex-shrink-0 relative overflow-hidden">
+                  
+                  {/* Slow Cinematic Zoom Background */}
+                  <div
+                    className={`absolute inset-0 transition-transform duration-[15000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`} 
+                    style={slide.imagePreview ? {
+                      backgroundImage: `url(${slide.imagePreview})`, 
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    } : {}}
+                  />
+                  {/* Dark Overlay */}
+                  <div className="absolute inset-0 bg-black/40" />
+
+                  <div className="container px-4 sm:px-8 lg:px-12 relative z-20 h-full flex items-center">
+                    <div className="w-full max-w-4xl">
+                       
+                       {/* Subtitle - Fades and slides up first */}
+                       <h2 className={`text-lg md:text-xl font-semibold mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] leading-snug text-[#76FF03] transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-8'}`}>
+                          {slide[`subtitle_${currentLang}`] || slide.subtitle_en || slide.subtitle}
+                       </h2>
+                       
+                       {/* Main Title - Fades and slides up second */}
+                       <h1 className={`text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] leading-tight tracking-tight transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-500' : 'opacity-0 translate-y-8'}`}>
+                          {slide[`title_${currentLang}`] || slide.title_en || slide.title}
+                       </h1>
+                       
+                       {/* Description - Fades and slides up third */}
+                       <p className={`text-base md:text-lg text-white/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] mb-10 leading-relaxed max-w-2xl font-light transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-700' : 'opacity-0 translate-y-8'}`}>
+                          {slide[`description_${currentLang}`] || slide.description_en || slide.description}
+                       </p>
+                       
+                       {/* Buttons - Fades and slides up last */}
+                       <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-1000' : 'opacity-0 translate-y-8'}`}>
+                          <Button 
+                            onClick={() => { 
+                              const link = slide.button1Link || '/carbon-calculator';
+                              if (link.startsWith('http')) window.open(link, '_blank');
+                              else { setLocation(link); window.scrollTo(0, 0); }
+                            }} 
+                            className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
+                          >
+                            <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
+                            {slide.button1Text || t('home.calcButton', 'Calculate Carbon Footprint')}
+                          </Button>
+                          <Button 
+                            className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" 
+                            onClick={() => { 
+                              const link = slide.button2Link || '/solutions';
+                              if (link.startsWith('http')) window.open(link, '_blank');
+                              else { setLocation(link); window.scrollTo(0, 0); }
+                            }}
+                          >
+                            {slide.button2Text || t('home.solutionsButton', 'Our Solutions')}
+                          </Button>
+                       </div>
+
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex gap-3">
@@ -239,8 +256,8 @@ export default function Home() {
             ))}
           </div>
 
-          <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white backdrop-blur-sm border border-white/20 hover:bg-black/40 transition-colors hidden md:block"><ChevronLeft size={32} /></button>
-          <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white backdrop-blur-sm border border-white/20 hover:bg-black/40 transition-colors hidden md:block"><ChevronRight size={32} /></button>
+          <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white backdrop-blur-sm border border-white/20 hover:bg-black/40 transition-colors hidden md:block hover:scale-110"><ChevronLeft size={32} /></button>
+          <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white backdrop-blur-sm border border-white/20 hover:bg-black/40 transition-colors hidden md:block hover:scale-110"><ChevronRight size={32} /></button>
         </section>
       )}
 
@@ -393,8 +410,8 @@ export default function Home() {
                          </p>
                        </div>
                        <div className="flex items-center justify-end text-gray-900 font-medium text-sm mt-4 group-hover:text-[#E2552B] transition-colors">
-                          Explore {serviceTitle}
-                          <ArrowRight size={16} className="ml-2 group-hover:translate-x-2 transition-transform" />
+                         Explore {serviceTitle}
+                         <ArrowRight size={16} className="ml-2 group-hover:translate-x-2 transition-transform" />
                        </div>
                     </CardContent>
                  </Card>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Users, BookOpen, Trophy, Plus, Trash2, UploadCloud, Loader2, Target, Briefcase } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Users, BookOpen, Trophy, Plus, Trash2, UploadCloud, Loader2, Target, Briefcase, ArrowLeft, ArrowRight } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -67,10 +67,10 @@ export default function AdminAbout() {
   ]);
 
   const [awards, setAwards] = useState([
-    { id: 'award-1', title: "Sustainability Excellence", year: "2024", imagePreview: "" },
-    { id: 'award-2', title: "Green Tech Innovator", year: "2023", imagePreview: "" },
-    { id: 'award-3', title: "Best ESG Platform", year: "2023", imagePreview: "" },
-    { id: 'award-4', title: "Circular Economy Leader", year: "2022", imagePreview: "" },
+    { id: 'award-1', title: "Sustainability Excellence", year: "2024", description: "", imagePreview: "" },
+    { id: 'award-2', title: "Green Tech Innovator", year: "2023", description: "", imagePreview: "" },
+    { id: 'award-3', title: "Best ESG Platform", year: "2023", description: "", imagePreview: "" },
+    { id: 'award-4', title: "Circular Economy Leader", year: "2022", description: "", imagePreview: "" },
   ]);
 
   const [partners, setPartners] = useState<any[]>([]);
@@ -92,7 +92,12 @@ export default function AdminAbout() {
           if (data.partnersHeader) setPartnersHeader(data.partnersHeader);
 
           if (data.teamMembers && data.teamMembers.length > 0) setTeamMembers(data.teamMembers);
-          if (data.awards && data.awards.length > 0) setAwards(data.awards);
+          
+          // Ensure old awards get a description field if they didn't have one
+          if (data.awards && data.awards.length > 0) {
+            setAwards(data.awards.map((a: any) => ({...a, description: a.description || ""})));
+          }
+          
           if (data.partners && data.partners.length > 0) setPartners(data.partners); 
         }
       } catch (error) {
@@ -131,18 +136,43 @@ export default function AdminAbout() {
     }
   };
 
-  // --- FIXED UPDATE LOGIC WITH `prev =>` TO PREVENT BATCHING OVERWRITES ---
+  // --- HANDLERS FOR UPDATING LOCAL STATE ---
   const addTeamMember = () => setTeamMembers(prev => [...prev, { id: `team-${Date.now()}`, name: "", title: "", imagePreview: "" }]);
   const removeTeamMember = (id: string) => setTeamMembers(prev => prev.filter(m => m.id !== id));
   const updateTeamMember = (id: string, field: string, value: string) => setTeamMembers(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
 
-  const addAward = () => setAwards(prev => [...prev, { id: `award-${Date.now()}`, title: "", year: "", imagePreview: "" }]);
+  const addAward = () => setAwards(prev => [...prev, { id: `award-${Date.now()}`, title: "", year: "", description: "", imagePreview: "" }]);
   const removeAward = (id: string) => setAwards(prev => prev.filter(a => a.id !== id));
   const updateAward = (id: string, field: string, value: string) => setAwards(prev => prev.map(a => a.id === id ? { ...a, [field]: value } : a));
+  
+  // NEW: Move Award Left/Right
+  const moveAward = (index: number, direction: 'left' | 'right') => {
+    setAwards(prev => {
+      const newAwards = [...prev];
+      if (direction === 'left' && index > 0) {
+        [newAwards[index - 1], newAwards[index]] = [newAwards[index], newAwards[index - 1]];
+      } else if (direction === 'right' && index < newAwards.length - 1) {
+        [newAwards[index + 1], newAwards[index]] = [newAwards[index], newAwards[index + 1]];
+      }
+      return newAwards;
+    });
+  };
 
   const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
   const removePartner = (id: string) => setPartners(prev => prev.filter(p => p.id !== id));
   const updatePartner = (id: string, field: string, value: string) => setPartners(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  
+  const movePartner = (index: number, direction: 'left' | 'right') => {
+    setPartners(prev => {
+      const newPartners = [...prev];
+      if (direction === 'left' && index > 0) {
+        [newPartners[index - 1], newPartners[index]] = [newPartners[index], newPartners[index - 1]];
+      } else if (direction === 'right' && index < newPartners.length - 1) {
+        [newPartners[index + 1], newPartners[index]] = [newPartners[index], newPartners[index + 1]];
+      }
+      return newPartners;
+    });
+  };
 
   if (isLoading) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
@@ -202,7 +232,6 @@ export default function AdminAbout() {
                     <textarea rows={4} value={heroData.description} onChange={(e) => setHeroData({...heroData, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
                   </div>
                   
-                  {/* NEW DYNAMIC BUTTONS FOR ABOUT US HERO */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-4">
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Text (Left)</label>
@@ -326,7 +355,6 @@ export default function AdminAbout() {
                 </Button>
               </div>
 
-              {/* SECTION HEADINGS */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -380,7 +408,6 @@ export default function AdminAbout() {
                 </Button>
               </div>
 
-              {/* SECTION HEADINGS */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -395,39 +422,73 @@ export default function AdminAbout() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {awards.length === 0 && <p className="text-gray-400 py-8 col-span-4 text-center">No awards added yet.</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {awards.length === 0 && <p className="text-gray-400 py-8 col-span-3 text-center">No awards added yet.</p>}
                 
-                {awards.map((award) => (
-                  <div key={award.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 relative group flex flex-col gap-3">
-                    <button onClick={() => removeAward(award.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition-colors z-10">
-                      <Trash2 size={16} />
-                    </button>
-                    <div className="w-full aspect-video">
-                      <ImageUploader preview={award.imagePreview} small onUploadSuccess={(url: string) => updateAward(award.id, 'imagePreview', url)} />
+                {awards.map((award, index) => (
+                  <div key={award.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group flex flex-col gap-3">
+                    
+                    {/* Hover Action Bar for Sorting and Deleting */}
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                      <button 
+                        onClick={() => moveAward(index, 'left')}
+                        disabled={index === 0}
+                        className="bg-white text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all border border-gray-100"
+                      >
+                        <ArrowLeft size={14} />
+                      </button>
+                      <button 
+                        onClick={() => moveAward(index, 'right')}
+                        disabled={index === awards.length - 1}
+                        className="bg-white text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all border border-gray-100"
+                      >
+                        <ArrowRight size={14} />
+                      </button>
+                      <button 
+                        onClick={() => removeAward(award.id)}
+                        className="bg-white text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all border border-gray-100"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
-                    <input type="text" value={award.title} onChange={(e) => updateAward(award.id, 'title', e.target.value)} className="w-full px-2 py-1 text-center border border-gray-200 rounded focus:outline-none text-sm font-bold bg-white" placeholder="Award Name" />
-                    <input type="text" value={award.year} onChange={(e) => updateAward(award.id, 'year', e.target.value)} className="w-full px-2 py-1 text-center border border-gray-200 rounded focus:outline-none text-xs bg-white" placeholder="Year (e.g. 2024)" />
+
+                    <div className="w-full aspect-video rounded-lg overflow-hidden border border-gray-200">
+                      <ImageUploader preview={award.imagePreview} onUploadSuccess={(url: string) => updateAward(award.id, 'imagePreview', url)} />
+                    </div>
+                    
+                    <div className="space-y-2 mt-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Award Title</label>
+                        <input type="text" value={award.title} onChange={(e) => updateAward(award.id, 'title', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-md focus:outline-none text-sm font-bold bg-white focus:border-[#1B5E20]" placeholder="e.g. Best ESG Platform" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Year</label>
+                        <input type="text" value={award.year} onChange={(e) => updateAward(award.id, 'year', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-md focus:outline-none text-sm bg-white focus:border-[#1B5E20]" placeholder="e.g. 2024" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Description</label>
+                        <textarea rows={2} value={award.description} onChange={(e) => updateAward(award.id, 'description', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-md focus:outline-none text-sm bg-white focus:border-[#1B5E20]" placeholder="Short description..." />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* TAB 6: PARTNERSHIPS */}
+          {/* TAB 6: PARTNERSHIPS WITH NEW SORTING ARROWS */}
           {activeTab === 'partners' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Strategic Partnerships</h2>
-                  <p className="text-sm text-gray-500 mt-1">Upload logos and see the exact file name extracted from the upload below them.</p>
+                  <p className="text-sm text-gray-500 mt-1">Upload logos of the brands and organizations you work with. Use arrows to reorder.</p>
                 </div>
                 <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add Logo
                 </Button>
               </div>
 
-              {/* SECTION HEADINGS */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -442,10 +503,11 @@ export default function AdminAbout() {
                 </div>
               </div>
 
+              {/* PARTNERS GRID WITH SORTING */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {partners.map((partner) => (
+                {partners.map((partner, index) => (
                   <div key={partner.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
-                    <div className="aspect-video relative">
+                    <div className="aspect-video relative overflow-hidden rounded-lg">
                       <ImageUploader 
                         preview={partner.imagePreview} 
                         onUploadSuccess={(url: string, fileName: string) => {
@@ -453,14 +515,40 @@ export default function AdminAbout() {
                           if(fileName) updatePartner(partner.id, 'fileName', fileName);
                         }}
                       />
-                      <button 
-                        onClick={() => removePartner(partner.id)}
-                        className="absolute top-1 right-1 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      
+                      {/* Hover Action Bar for Sorting and Deleting */}
+                      <div className="absolute top-0 right-0 left-0 p-1 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        {/* Sort Left/Right */}
+                        <div className="flex gap-1">
+                          <button 
+                            onClick={() => movePartner(index, 'left')}
+                            disabled={index === 0}
+                            className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"
+                            title="Move Left"
+                          >
+                            <ArrowLeft size={14} />
+                          </button>
+                          <button 
+                            onClick={() => movePartner(index, 'right')}
+                            disabled={index === partners.length - 1}
+                            className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"
+                            title="Move Right"
+                          >
+                            <ArrowRight size={14} />
+                          </button>
+                        </div>
+                        
+                        {/* Delete */}
+                        <button 
+                          onClick={() => removePartner(partner.id)}
+                          className="bg-white/90 backdrop-blur text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all"
+                          title="Delete Logo"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
-                    {/* Editable Extracted File Name Field */}
+                    
                     <input 
                       type="text" 
                       value={partner.fileName || ''} 
@@ -499,7 +587,6 @@ function TabButton({ id, label, icon, activeTab, onClick }: any) {
   );
 }
 
-// UPDATED: Automatically extracts file.name and passes it up!
 function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -512,7 +599,6 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
       const fileRef = ref(storage, `about-page/${Date.now()}_${file.name}`);
       await uploadBytes(fileRef, file);
       const url = await getDownloadURL(fileRef);
-      // Passing both the URL and the original file name
       if (onUploadSuccess) onUploadSuccess(url, file.name);
     } catch (error) {
       console.error("Upload failed:", error);
