@@ -42,7 +42,7 @@ export default function Header() {
     const unsubscribe = onSnapshot(collection(db, "services"), (snapshot) => {
       const fetchedServices = snapshot.docs.map(doc => doc.data());
       
-      // ✅ FIX: Sort by the custom `orderIndex` set in the Admin CMS!
+      // Sort by the custom `orderIndex` set in the Admin CMS!
       fetchedServices.sort((a, b) => {
         // If they have an orderIndex, use that
         if (a.orderIndex !== undefined && b.orderIndex !== undefined) {
@@ -58,15 +58,16 @@ export default function Header() {
   }, []);
 
   // --- DYNAMIC SERVICES GENERATION ---
+  // UPDATED: Changed href to use /services instead of /solutions
   const dynamicServices = [
     { 
       title: t('nav.allServices', 'All Services'), 
-      href: '/solutions', 
+      href: '/services', 
       desc: t('nav.allServicesDesc', 'View all our comprehensive sustainability solutions.') 
     },
     ...rawServices.map(data => ({
       title: data[`title_${currentLang}`] || data.title_en || data.title || '',
-      href: `/solutions/${data.slug}`,
+      href: `/services/${data.slug}`,
       desc: data[`desc_${currentLang}`] || data.desc_en || data.desc || t('nav.learnMore', 'Learn more about this service.')
     }))
   ];
@@ -76,7 +77,7 @@ export default function Header() {
     { label: t('nav.home', 'Home'), href: '/' },
     { 
       label: t('nav.services', 'Services'), 
-      href: '/solutions',
+      href: '/services', // UPDATED
       items: dynamicServices 
     },
     {
@@ -114,11 +115,9 @@ export default function Header() {
       href: '/impact',
       items: [
         { title: t('nav.ourImpact', 'Our Impact'), href: '/impact', desc: t('nav.impactDesc', 'Read our verified impact report and sustainability milestones.') },
-        // ✅ CHANGED to link directly to the new /events page
         { title: t('nav.events', 'Events & Webinars'), href: '/events', desc: t('nav.eventsDesc', 'Join our upcoming sustainability events and educational webinars.') },
         { title: t('nav.blog', 'Blogs'), href: '/articles', desc: t('nav.blogDesc', 'Latest news, insights, and industry updates.') },
         { title: t('nav.research', 'Resources'), href: '/resources', desc: t('nav.researchDesc', 'Explore our case studies and in-depth academic research.') },
-        // { title: t('nav.faqs', 'FAQs'), href: '/impact#faqs', desc: t('nav.faqsDesc', 'Frequently asked questions about our solutions and operations.') },
       ]
     },
     {
@@ -235,19 +234,6 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
-          {/* Admin Login Button */}
-          {/* <Button
-            variant="outline"
-            className="hidden lg:inline-flex border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20]/10 font-semibold gap-2"
-            onClick={() => {
-              setLocation('/login');
-              window.scrollTo(0, 0);
-            }}
-          >
-            <Lock size={16} />
-            {t('nav.adminLogin', 'Login')}
-          </Button> */}
 
           {/* Book a Consultation Button */}
           <Button

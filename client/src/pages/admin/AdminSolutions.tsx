@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Layout, Briefcase, Video, Factory, MonitorSmartphone, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, ArrowUp, ArrowDown } from "lucide-react";
+import { Save, Layout, Briefcase, Video, Factory, MonitorSmartphone, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, ArrowUp, ArrowDown, Info } from "lucide-react";
 import { doc, getDoc, setDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase"; 
@@ -359,7 +359,7 @@ export default function AdminSolutions() {
                   <div key={service.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow bg-gray-50 group">
                     <div className="flex items-center gap-4">
                       
-                      {/* NEW: REORDER ARROWS */}
+                      {/* REORDER ARROWS */}
                       <div className="flex flex-col gap-1 pr-2 border-r border-gray-200 opacity-30 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => moveService(index, 'up')} disabled={index === 0} className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"><ArrowUp size={16}/></button>
                         <button onClick={() => moveService(index, 'down')} disabled={index === orderedServices.length - 1} className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"><ArrowDown size={16}/></button>
@@ -370,7 +370,8 @@ export default function AdminSolutions() {
                       </div>
                       <div>
                         <h3 className="font-bold text-gray-900">{service.title}</h3>
-                        <p className="text-sm text-gray-500 font-mono">/solutions/{service.slug}</p>
+                        {/* ✅ UPDATED SLUG PATH TEXT */}
+                        <p className="text-sm text-gray-500 font-mono">/services/{service.slug}</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -420,6 +421,16 @@ export default function AdminSolutions() {
               <h2 className="text-xl font-bold text-gray-900 border-b pb-4">Our Products Video</h2>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">YouTube Embed URL</label>
+                
+                {/* INSTRUCTION ALERT BOX */}
+                <div className="bg-[#E2552B]/5 border border-[#E2552B]/20 rounded-md p-3 flex items-start gap-2 text-sm text-[#E2552B] mb-3">
+                  <Info size={16} className="shrink-0 mt-0.5" />
+                  <div className="leading-relaxed">
+                    <strong>Important:</strong> You must use the YouTube <strong>Embed Link</strong>, not the standard watch link. <br/>
+                    <span className="text-xs opacity-80">Example: <code>https://www.youtube.com/embed/YOUR_VIDEO_ID</code></span>
+                  </div>
+                </div>
+
                 <input type="text" value={pageData.videoUrl} onChange={(e) => setPageData({...pageData, videoUrl: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://www.youtube.com/embed/..." />
               </div>
               {pageData.videoUrl && (
@@ -497,7 +508,9 @@ export default function AdminSolutions() {
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Service Title</label>
                     <input type="text" value={editingService.title} onChange={(e) => setEditingService({...editingService, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold text-lg" placeholder="e.g. Consulting & Training" required />
-                    <p className="text-xs text-gray-400 mt-1">URL will be: /solutions/{editingService.title ? editingService.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '...'}</p>
+                    
+                    {/* ✅ UPDATED SLUG PATH TEXT */}
+                    <p className="text-xs text-gray-400 mt-1">URL will be: /services/{editingService.title ? editingService.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '...'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Short Summary</label>
@@ -584,7 +597,17 @@ export default function AdminSolutions() {
                       {block.type === 'video' && (
                         <div className="space-y-3">
                           <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="Video Title..." />
-                          <input type="text" value={block.videoUrl} onChange={(e) => updateContentBlock(block.id, 'videoUrl', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none text-[#E2552B]" placeholder="YouTube Embed URL (https://youtube.com/embed/...)" />
+                          
+                          {/* INSTRUCTION ALERT BOX */}
+                          <div className="bg-[#E2552B]/5 border border-[#E2552B]/20 rounded-md p-3 flex items-start gap-2 text-sm text-[#E2552B]">
+                            <Info size={16} className="shrink-0 mt-0.5" />
+                            <div className="leading-relaxed">
+                              <strong>Important:</strong> You must use the YouTube <strong>Embed Link</strong>, not the standard watch link. <br/>
+                              <span className="text-xs opacity-80">Example: <code>https://www.youtube.com/embed/YOUR_VIDEO_ID</code></span>
+                            </div>
+                          </div>
+
+                          <input type="text" value={block.videoUrl} onChange={(e) => updateContentBlock(block.id, 'videoUrl', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none text-[#E2552B]" placeholder="https://youtube.com/embed/..." />
                         </div>
                       )}
 

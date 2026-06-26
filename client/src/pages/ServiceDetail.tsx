@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 
 export default function ServiceDetail() {
   const [, setLocation] = useLocation();
-  const [match, params] = useRoute('/solutions/:slug');
+  const [match, params] = useRoute('/services/:slug');
   const slug = params?.slug;
 
   const [service, setService] = useState<any>(null);
@@ -47,7 +47,7 @@ export default function ServiceDetail() {
       <div className="flex-1 flex flex-col items-center justify-center">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Service Not Found</h1>
         <p className="text-gray-500 mb-8">We couldn't find the solution you were looking for.</p>
-        <Link href="/solutions" className="px-6 py-3 bg-[#1B5E20] text-white rounded-md font-bold">Back to Solutions</Link>
+        <Link href="/services" className="px-6 py-3 bg-[#1B5E20] text-white rounded-md font-bold">Back to Services</Link>
       </div>
       <Footer />
     </div>
@@ -93,9 +93,9 @@ export default function ServiceDetail() {
                 </Button>
                 <Button 
                   className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-8 py-6 rounded-md shadow-md"
-                  onClick={() => setLocation('/solutions')}
+                  onClick={() => setLocation('/services')}
                 >
-                  Our Solutions
+                  Our Services
                 </Button>
              </div>
           </div>
@@ -110,7 +110,7 @@ export default function ServiceDetail() {
           <div className="mb-10 text-sm font-medium text-gray-500 flex items-center gap-2">
             <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">Home</Link>
             <ChevronRight size={14} className="text-gray-300" />
-            <Link href="/solutions" className="hover:text-gray-900 cursor-pointer transition-colors">Our Solutions</Link>
+            <Link href="/services" className="hover:text-gray-900 cursor-pointer transition-colors">Our Services</Link>
             <ChevronRight size={14} className="text-gray-300" />
             <span className="text-gray-900 font-bold">{service.title}</span>
           </div>

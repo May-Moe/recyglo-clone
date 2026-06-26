@@ -13,7 +13,6 @@ import { db } from "@/lib/firebase";
 function SolutionCard({ title, desc, isDark }: { title: string, desc: string, isDark: boolean }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // A simple helper to assign icons based on the title (since we didn't upload custom icons in the CMS for these)
   const getIcon = () => {
     const t = title.toLowerCase();
     if (t.includes('manufactur')) return Factory;
@@ -64,14 +63,12 @@ export default function Solutions() {
 
   // --- FETCH LIVE DATA FROM FIREBASE ---
   useEffect(() => {
-    // 1. Fetch static page data
     const unsubscribePage = onSnapshot(doc(db, "website_content", "solutions_page"), (docSnap) => {
       if (docSnap.exists()) {
         setPageData(prev => ({ ...prev, ...docSnap.data() }));
       }
     });
 
-    // 2. Fetch the dynamic services list!
     const unsubscribeServices = onSnapshot(collection(db, "services"), (snapshot) => {
       const loadedServices: any[] = [];
       snapshot.forEach((doc) => loadedServices.push({ id: doc.id, ...doc.data() }));
@@ -85,7 +82,7 @@ export default function Solutions() {
     };
   }, []);
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]">Loading solutions...</div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]">Loading services...</div>;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
@@ -125,7 +122,7 @@ export default function Solutions() {
       <section className="py-20 bg-[#F8F9F7]">
         <div className="container px-4 sm:px-8 lg:px-12">
            <div className="mb-16 text-sm font-medium text-gray-500 flex items-center gap-2">
-             <span>Solutions</span> <ChevronRight size={14} className="text-gray-300" /> <span className="text-gray-900 font-bold">All Services</span>
+             <span>Services</span> <ChevronRight size={14} className="text-gray-300" /> <span className="text-gray-900 font-bold">All Services</span>
            </div>
            
            <div className="space-y-24">
@@ -136,7 +133,7 @@ export default function Solutions() {
                    <div className="w-full md:w-1/2">
                       <div 
                         className="rounded-2xl overflow-hidden shadow-lg h-64 md:h-80 relative group cursor-pointer bg-gray-200"
-                        onClick={() => { setLocation(`/solutions/${service.slug}`); window.scrollTo(0,0); }}
+                        onClick={() => { setLocation(`/services/${service.slug}`); window.scrollTo(0,0); }}
                       >
                          <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10" />
                          {service.imagePreview && (
@@ -148,7 +145,7 @@ export default function Solutions() {
                       <h3 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-6">{service.title}</h3>
                       <p className="text-gray-600 text-lg leading-relaxed mb-8">{service.desc}</p>
                       <Button 
-                        onClick={() => { setLocation(`/solutions/${service.slug}`); window.scrollTo(0,0); }}
+                        onClick={() => { setLocation(`/services/${service.slug}`); window.scrollTo(0,0); }}
                         className="bg-[#E2552B] hover:bg-[#E2552B]/90 text-white font-bold px-8 py-6 rounded-md shadow-md transition-transform hover:-translate-y-1"
                       >
                          View More

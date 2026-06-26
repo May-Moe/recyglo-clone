@@ -43,7 +43,7 @@ function Router() {
       {/* PUBLIC ROUTES */}
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
-      <Route path="/solutions" component={Solutions} />
+      <Route path="/services" component={Solutions} />
       <Route path="/contact" component={Contact} />
       <Route path="/articles" component={Articles} />
       <Route path="/resources" component={Resources} />
@@ -54,7 +54,7 @@ function Router() {
       <Route path="/events" component={Events} />
       
       {/* THE ONLY SOLUTIONS ROUTE YOU NEED NOW */}
-      <Route path="/solutions/:slug" component={ServiceDetail} />
+      <Route path="/services/:slug" component={ServiceDetail} />
       
       {/* ADMIN ROUTES */}
       <Route path="/login" component={Login} />
