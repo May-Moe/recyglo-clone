@@ -41,7 +41,6 @@ export default function Home() {
     featuredServices: [],
     platformsHeader: { title: "", subtitle: "" },
     digitalPlatforms: [],
-    // NEW DYNAMIC HEADERS FOR ALL SECTIONS
     partnersHeader: { title: "", description: "" },
     testimonialsHeader: { title: "", description: "" },
     valuesHeader: { title: "", description: "" },
@@ -63,13 +62,13 @@ export default function Home() {
           visionData: data.visionData || { mission: "", vision: "", goal: "" },
           values: data.values || [],
           testimonials: data.testimonials || [],
-          galleryImages: data.galleryImages ? data.galleryImages.map((img: any) => img.preview) : [],
+          // ✅ FIX: Saving the whole gallery object instead of just the URL so we can access the altText!
+          galleryImages: data.galleryImages || [],
           partners: data.partners || [],
           servicesHeader: data.servicesHeader || { title: "", subtitle: "" },
           featuredServices: data.featuredServices || [],
           platformsHeader: data.platformsHeader || { title: "", subtitle: "" },
           digitalPlatforms: data.digitalPlatforms || [],
-          // Map the new headers
           partnersHeader: data.partnersHeader || { title: "", description: "" },
           testimonialsHeader: data.testimonialsHeader || { title: "", description: "" },
           valuesHeader: data.valuesHeader || { title: "", description: "" },
@@ -136,9 +135,16 @@ export default function Home() {
     setGalleryIndex((prev) => (prev - 1 + pageData.galleryImages.length) % pageData.galleryImages.length);
   };
 
+  // Helper for Gallery Image SRC
   const getGalleryImg = (index: number) => {
     if (pageData.galleryImages.length === 0) return ""; 
-    return pageData.galleryImages[index % pageData.galleryImages.length];
+    return pageData.galleryImages[index % pageData.galleryImages.length]?.preview || "";
+  };
+
+  // Helper for Gallery Image ALT Text
+  const getGalleryAlt = (index: number) => {
+    if (pageData.galleryImages.length === 0) return "Impact Gallery Image"; 
+    return pageData.galleryImages[index % pageData.galleryImages.length]?.altText || "Impact Gallery Image";
   };
 
   const blogPosts = [
@@ -147,25 +153,8 @@ export default function Home() {
     { id: 3, title: "Understanding the importance of circular economy in Thailand", image: blog3, tags: ["Circular Economy"], excerpt: "The “Take-Make-Waste” system normally endorsed by Thailand’s linear economy has been reprimanded...", date: "11 October 2024" }
   ];
 
-  // --- FEATURED SERVICES FALLBACK ---
-  const displayServices = pageData.featuredServices.length > 0 
-    ? pageData.featuredServices 
-    : [
-        { title: t('nav.wasteManagement', 'Waste Management Solutions'), imagePreview: service1, desc: t('home.service1Desc', 'RecyGlo offers comprehensive B2B waste management solutions...'), link: '/solutions/waste-management' },
-        { title: t('home.service2', 'Waste Auditing'), imagePreview: service2, desc: t('home.service2Desc', 'RecyGlo provides comprehensive waste auditing services...'), link: '/solutions/waste-auditing' },
-        { title: t('home.service3', 'Reporting and Compliance'), imagePreview: service3, desc: t('home.service3Desc', 'RecyGlo provides comprehensive reporting and compliance services...'), link: '/solutions/reporting' },
-        { title: t('home.service4', 'Consulting and Training'), imagePreview: service4, desc: t('home.service4Desc', 'RecyGlo provides expert sustainability consulting and training...'), link: '/solutions/consulting' },
-        { title: t('home.service5', 'ESG Data Analytics'), imagePreview: service5, desc: t('home.service5Desc', 'RecyGlo provides advanced ESG data analytics services...'), link: '/solutions/esg-data-analytics' },
-        { title: t('home.service6', 'Circular Economy'), imagePreview: service6, desc: t('home.service6Desc', 'RecyGlo leads impactful Circular Economy projects to help businesses...'), link: '/solutions/circular-economy' }
-      ];
-
- // --- DIGITAL PLATFORMS FALLBACK ---
-  const displayPlatforms = pageData.digitalPlatforms.length > 0
-    ? pageData.digitalPlatforms
-    : [
-        { title: t('nav.carbonAccounting', 'Carbon Accounting'), desc: t('nav.carbonDesc', 'Enterprise carbon footprint tracking and accounting platform.'), link: 'https://sanaterra.co', imagePreview: 'https://placehold.co/800x450/e2e8f0/64748b?text=SanaTerra+Platform' },
-        { title: t('nav.wasteManagement', 'Waste Management'), desc: t('nav.wasteDesc', 'Manage your waste operations and compliance workflows.'), link: 'https://app.recyglo.net', imagePreview: 'https://placehold.co/800x450/e2e8f0/64748b?text=RecyGlo+App' },
-      ];
+  const displayServices = pageData.featuredServices.length > 0 ? pageData.featuredServices : [];
+  const displayPlatforms = pageData.digitalPlatforms.length > 0 ? pageData.digitalPlatforms : [];
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]">Loading content...</div>;
@@ -175,93 +164,59 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
       <Header />
 
-      {/* HERO SECTION - WITH STAGGERED ANIMATIONS & ZOOM */}
+      {/* HERO SECTION */}
       {pageData.heroSlides.length > 0 && (
         <section className="relative h-[650px] md:h-[800px] w-full overflow-hidden bg-[#1B5E20]">
-          <div 
-            className="flex w-full h-full transition-transform duration-[1200ms] ease-in-out"
-            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-          >
+          <div className="flex w-full h-full transition-transform duration-[1200ms] ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
             {pageData.heroSlides.map((slide: any, index: number) => {
               const isActive = index === currentSlide;
-
               return (
                 <div key={index} className="w-full h-full flex-shrink-0 relative overflow-hidden">
                   
-                  {/* Slow Cinematic Zoom Background */}
+                  {/* ✅ ADDED: Visually hidden img tag for SEO Alt Text extraction */}
+                  {slide.altText && slide.imagePreview && (
+                    <img src={slide.imagePreview} alt={slide.altText} className="sr-only" />
+                  )}
+
                   <div
                     className={`absolute inset-0 transition-transform duration-[15000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`} 
-                    style={slide.imagePreview ? {
-                      backgroundImage: `url(${slide.imagePreview})`, 
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    } : {}}
+                    style={slide.imagePreview ? { backgroundImage: `url(${slide.imagePreview})`, backgroundSize: 'cover', backgroundPosition: 'center'} : {}}
                   />
-                  {/* Dark Overlay */}
                   <div className="absolute inset-0 bg-black/40" />
-
                   <div className="container px-4 sm:px-8 lg:px-12 relative z-20 h-full flex items-center">
                     <div className="w-full max-w-4xl">
-                       
-                       {/* Subtitle - Fades and slides up first */}
                        <h2 className={`text-lg md:text-xl font-semibold mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] leading-snug text-[#76FF03] transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-8'}`}>
                           {slide[`subtitle_${currentLang}`] || slide.subtitle_en || slide.subtitle}
                        </h2>
-                       
-                       {/* Main Title - Fades and slides up second */}
                        <h1 className={`text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] leading-tight tracking-tight transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-500' : 'opacity-0 translate-y-8'}`}>
                           {slide[`title_${currentLang}`] || slide.title_en || slide.title}
                        </h1>
-                       
-                       {/* Description - Fades and slides up third */}
                        <p className={`text-base md:text-lg text-white/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] mb-10 leading-relaxed max-w-2xl font-light transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-700' : 'opacity-0 translate-y-8'}`}>
                           {slide[`description_${currentLang}`] || slide.description_en || slide.description}
                        </p>
-                       
-                       {/* Buttons - Fades and slides up last */}
                        <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-1000' : 'opacity-0 translate-y-8'}`}>
-                          <Button 
-                            onClick={() => { 
-                              const link = slide.button1Link || '/carbon-calculator';
-                              if (link.startsWith('http')) window.open(link, '_blank');
-                              else { setLocation(link); window.scrollTo(0, 0); }
-                            }} 
-                            className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
-                          >
-                            <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
-                            {slide.button1Text || t('home.calcButton', 'Calculate Carbon Footprint')}
+                          <Button onClick={() => { window.open(slide.button1Link || '/carbon-calculator', '_blank'); }} className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105">
+                            <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> {slide.button1Text || t('home.calcButton', 'Calculate Carbon Footprint')}
                           </Button>
-                          <Button 
-                            className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" 
-                            onClick={() => { 
-                              const link = slide.button2Link || '/solutions';
-                              if (link.startsWith('http')) window.open(link, '_blank');
-                              else { setLocation(link); window.scrollTo(0, 0); }
-                            }}
-                          >
+                          <Button className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" onClick={() => { setLocation(slide.button2Link || '/services'); window.scrollTo(0, 0); }}>
                             {slide.button2Text || t('home.solutionsButton', 'Our Solutions')}
                           </Button>
                        </div>
-
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex gap-3">
-            {pageData.heroSlides.map((_, idx) => (
-              <button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2 transition-all duration-500 rounded-full shadow-md ${idx === currentSlide ? 'w-10 bg-[#76FF03]' : 'w-3 bg-white/70 hover:bg-white'}`} />
-            ))}
+            {pageData.heroSlides.map((_, idx) => (<button key={idx} onClick={() => setCurrentSlide(idx)} className={`h-2 transition-all duration-500 rounded-full shadow-md ${idx === currentSlide ? 'w-10 bg-[#76FF03]' : 'w-3 bg-white/70 hover:bg-white'}`} />))}
           </div>
-
           <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white backdrop-blur-sm border border-white/20 hover:bg-black/40 transition-colors hidden md:block hover:scale-110"><ChevronLeft size={32} /></button>
           <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white backdrop-blur-sm border border-white/20 hover:bg-black/40 transition-colors hidden md:block hover:scale-110"><ChevronRight size={32} /></button>
         </section>
       )}
 
-      {/* Trusted By Section */}
+      {/* Trusted By Section WITH SEO ALT TEXT & RESTORED PAGINATION DOTS */}
       {partners.length > 0 && (
         <section className="py-16 bg-white border-b border-gray-100 relative">
           <div className="container px-4 sm:px-8 lg:px-12">
@@ -280,10 +235,13 @@ export default function Home() {
                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                               {partners.slice(pageIndex * partnersPerPage, (pageIndex + 1) * partnersPerPage).map((partner: any, idx: number) => (
                                   <div key={partner.id || idx} className="h-24 bg-white border border-gray-100 rounded-xl flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow p-4 overflow-hidden">
-                                    {partner.imagePreview ? (
-                                      <img src={partner.imagePreview} alt="Partner Logo" className="max-w-full max-h-full object-contain mix-blend-multiply" />
-                                    ) : (
-                                      <span className="text-gray-400 text-sm font-bold">Logo Placeholder</span>
+                                    {partner.imagePreview && (
+                                      <img 
+                                        src={partner.imagePreview} 
+                                        alt={partner.altText || partner.fileName || "Partner Logo"} 
+                                        title={partner.altText || partner.fileName || "Partner Logo"}
+                                        className="max-w-full max-h-full object-contain mix-blend-multiply" 
+                                      />
                                     )}
                                   </div>
                               ))}
@@ -295,6 +253,7 @@ export default function Home() {
                <button onClick={nextPartnerPage} className="p-3 text-gray-400 hover:text-[#1B5E20] z-10 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0"><ChevronRight size={24} /></button>
             </div>
             
+            {/* ✅ RESTORED: DOT PAGINATION FOR PARTNERS SECTION */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-8 relative">
                  <div className="w-8"></div> 
@@ -306,6 +265,7 @@ export default function Home() {
                  <div className="text-sm font-medium text-gray-500">{partnerPageIndex + 1} / {totalPages}</div>
               </div>
             )}
+            
           </div>
         </section>
       )}
@@ -318,10 +278,10 @@ export default function Home() {
              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 <div className="lg:col-span-5 pr-8">
                    <h2 className="text-4xl font-bold text-[#1B5E20] mb-6 leading-tight">
-                     {pageData.testimonialsHeader?.title || t('home.testimonialsTitle', 'What Our Clients Say Behind, We Deliver Professional')}
+                     {pageData.testimonialsHeader?.title || t('home.testimonialsTitle', 'What Our Clients Say')}
                    </h2>
                    <p className="text-gray-600 mb-8 text-lg">
-                     {pageData.testimonialsHeader?.description || t('home.testimonialsDesc', 'Hear directly from industry leaders about how our solutions help them achieve sustainability goals.')}
+                     {pageData.testimonialsHeader?.description || t('home.testimonialsDesc', '')}
                    </p>
                    <div className="inline-block p-4 border border-gray-200 rounded-2xl relative">
                       <Quote className="text-gray-300 w-12 h-12" />
@@ -377,7 +337,7 @@ export default function Home() {
               {pageData.servicesHeader?.subtitle || 'Services'}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1B5E20] leading-tight">
-              {pageData.servicesHeader?.title || 'Integrated Sustainability Services for Business'}
+              {pageData.servicesHeader?.title || 'Integrated Sustainability Services'}
             </h2>
           </div>
           
@@ -402,16 +362,11 @@ export default function Home() {
                     </div>
                     <CardContent className="p-6 flex flex-col flex-grow justify-between w-3/5 sm:w-2/3">
                        <div>
-                         <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#1B5E20] transition-colors leading-tight">
-                           {serviceTitle}
-                         </h3>
-                         <p className="text-sm text-gray-600 line-clamp-3 mb-4 leading-relaxed">
-                           {serviceDesc}
-                         </p>
+                         <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#1B5E20] transition-colors leading-tight">{serviceTitle}</h3>
+                         <p className="text-sm text-gray-600 line-clamp-3 mb-4 leading-relaxed">{serviceDesc}</p>
                        </div>
                        <div className="flex items-center justify-end text-gray-900 font-medium text-sm mt-4 group-hover:text-[#E2552B] transition-colors">
-                         Explore {serviceTitle}
-                         <ArrowRight size={16} className="ml-2 group-hover:translate-x-2 transition-transform" />
+                         Explore {serviceTitle} <ArrowRight size={16} className="ml-2 group-hover:translate-x-2 transition-transform" />
                        </div>
                     </CardContent>
                  </Card>
@@ -454,20 +409,11 @@ export default function Home() {
                   </div>
                   
                   <CardContent className="p-8 flex flex-col flex-grow bg-white">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-[#1B5E20] transition-colors leading-tight">
-                      {platTitle}
-                    </h3>
-                    <p className="text-base text-gray-600 mb-8 leading-relaxed flex-grow">
-                      {platDesc}
-                    </p>
-                    
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-[#1B5E20] transition-colors leading-tight">{platTitle}</h3>
+                    <p className="text-base text-gray-600 mb-8 leading-relaxed flex-grow">{platDesc}</p>
                     <div className="mt-auto flex justify-end">
-                      <Button 
-                        variant="outline"
-                        className="border-2 border-[#1B5E20] text-[#1B5E20] bg-transparent hover:bg-[#1B5E20] hover:text-white transition-all font-bold px-5 py-5 rounded-md flex items-center gap-2 group-hover:bg-[#1B5E20] group-hover:text-white"
-                      >
-                        {t('home.explorePlatform', 'Explore Platform')}
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      <Button variant="outline" className="border-2 border-[#1B5E20] text-[#1B5E20] bg-transparent hover:bg-[#1B5E20] hover:text-white transition-all font-bold px-5 py-5 rounded-md flex items-center gap-2 group-hover:bg-[#1B5E20] group-hover:text-white">
+                        {t('home.explorePlatform', 'Explore Platform')} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </div>
                   </CardContent>
@@ -483,12 +429,8 @@ export default function Home() {
         <section className="py-24 bg-white border-y border-gray-100">
           <div className="container px-4 sm:px-8 lg:px-12">
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
-                {pageData.valuesHeader?.title || t('home.valuesTitle', 'Our Values')}
-              </h2>
-              {pageData.valuesHeader?.description && (
-                <p className="text-gray-600 max-w-3xl">{pageData.valuesHeader.description}</p>
-              )}
+              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">{pageData.valuesHeader?.title || t('home.valuesTitle', 'Our Values')}</h2>
+              {pageData.valuesHeader?.description && (<p className="text-gray-600 max-w-3xl">{pageData.valuesHeader.description}</p>)}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -511,12 +453,8 @@ export default function Home() {
         <div className="absolute inset-0 z-0 opacity-60" style={{ backgroundImage: `url('https://d2xsxph8kpxj0f.cloudfront.net/310519663457630341/K6tBx7feaJeR6NiJRmj9rs/testimonial-bg-a4TBoBLbxws7biQWxPfE9Q.webp')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }} />
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
            <div className="mb-12">
-             <h2 className="text-3xl font-bold text-[#76FF03] mb-4">
-               {pageData.visionHeader?.title || t('home.visionTitle', 'Our Strategic Vision for a Sustainable Asia-Pacific')}
-             </h2>
-             {pageData.visionHeader?.description && (
-               <p className="text-white/80 max-w-2xl">{pageData.visionHeader.description}</p>
-             )}
+             <h2 className="text-3xl font-bold text-[#76FF03] mb-4">{pageData.visionHeader?.title || t('home.visionTitle', 'Our Strategic Vision for a Sustainable Asia-Pacific')}</h2>
+             {pageData.visionHeader?.description && (<p className="text-white/80 max-w-2xl">{pageData.visionHeader.description}</p>)}
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -536,41 +474,37 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Impact in Action Masonry-like Grid */}
+      {/* Impact in Action Masonry-like Grid WITH SEO ALT TEXT */}
       {pageData.galleryImages.length > 4 && (
         <section className="py-24 bg-[#F8F9F7]">
           <div className="container px-4 sm:px-8 lg:px-12">
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
-                {pageData.galleryHeader?.title || t('home.impactGalleryTitle', 'Impact in Action')}
-              </h2>
-              {pageData.galleryHeader?.description && (
-                <p className="text-gray-600 max-w-3xl">{pageData.galleryHeader.description}</p>
-              )}
+              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">{pageData.galleryHeader?.title || t('home.impactGalleryTitle', 'Impact in Action')}</h2>
+              {pageData.galleryHeader?.description && (<p className="text-gray-600 max-w-3xl">{pageData.galleryHeader.description}</p>)}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-auto md:h-[600px]">
                <div className="flex flex-col gap-6 h-full">
                   <div className="rounded-xl overflow-hidden bg-gray-200 h-1/2 relative group cursor-pointer" onClick={() => { setGalleryIndex(0); setIsGalleryOpen(true); }}>
-                     <img src={getGalleryImg(0)} className="w-full h-full object-cover" alt="Impact" />
+                     <img src={getGalleryImg(0)} alt={getGalleryAlt(0)} className="w-full h-full object-cover" />
                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                       <span className="text-white font-bold tracking-wider">RecyGlo Team</span>
+                       <span className="text-white font-bold tracking-wider">View Gallery</span>
                      </div>
                   </div>
                   <div className="rounded-xl overflow-hidden bg-gray-200 h-1/2 relative group cursor-pointer" onClick={() => { setGalleryIndex(1); setIsGalleryOpen(true); }}>
-                     <img src={getGalleryImg(1)} className="w-full h-full object-cover" alt="Impact" />
+                     <img src={getGalleryImg(1)} alt={getGalleryAlt(1)} className="w-full h-full object-cover" />
                   </div>
                </div>
                <div className="flex flex-col gap-6 h-full">
                   <div className="rounded-xl overflow-hidden bg-gray-200 h-1/2 relative group cursor-pointer" onClick={() => { setGalleryIndex(2); setIsGalleryOpen(true); }}>
-                     <img src={getGalleryImg(2)} className="w-full h-full object-cover" alt="Impact" />
+                     <img src={getGalleryImg(2)} alt={getGalleryAlt(2)} className="w-full h-full object-cover" />
                   </div>
                   <div className="grid grid-cols-2 gap-6 h-1/2">
                      <div className="rounded-xl overflow-hidden bg-gray-200 h-full relative group cursor-pointer" onClick={() => { setGalleryIndex(3); setIsGalleryOpen(true); }}>
-                       <img src={getGalleryImg(3)} className="w-full h-full object-cover" alt="Impact" />
+                       <img src={getGalleryImg(3)} alt={getGalleryAlt(3)} className="w-full h-full object-cover" />
                      </div>
                      <div className="rounded-xl overflow-hidden bg-gray-200 h-full relative group flex items-center justify-center cursor-pointer" onClick={() => { setGalleryIndex(4); setIsGalleryOpen(true); }}>
-                       <img src={getGalleryImg(4)} className="absolute inset-0 w-full h-full object-cover blur-[2px] hover:blur-none transition-all" alt="Impact" />
+                       <img src={getGalleryImg(4)} alt={getGalleryAlt(4)} className="absolute inset-0 w-full h-full object-cover blur-[2px] hover:blur-none transition-all" />
                        <Button className="relative z-10 bg-white text-[#1B5E20] hover:bg-gray-100 font-bold pointer-events-none">{t('home.seeGallery', 'See Gallery')}</Button>
                      </div>
                   </div>
@@ -580,7 +514,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* FULL SCREEN GALLERY OVERLAY */}
+      {/* FULL SCREEN GALLERY OVERLAY WITH SEO ALT TEXT */}
       {isGalleryOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm">
           <button className="absolute left-4 md:left-8 text-white/70 hover:text-white transition-colors z-50 hidden sm:block" onClick={prevGalleryImage}><ChevronLeft size={48} /></button>
@@ -592,14 +526,14 @@ export default function Home() {
              </div>
              <div className="flex-grow p-4 overflow-hidden flex items-center justify-center bg-gray-50 relative">
                <button className="absolute left-2 bg-white/50 rounded-full p-1 sm:hidden z-10" onClick={prevGalleryImage}><ChevronLeft size={24} /></button>
-               <img key={galleryIndex} src={getGalleryImg(galleryIndex)} className="max-w-full max-h-full object-contain animate-in fade-in duration-300" alt="Gallery Focus" />
+               <img key={galleryIndex} src={getGalleryImg(galleryIndex)} alt={getGalleryAlt(galleryIndex)} className="max-w-full max-h-full object-contain animate-in fade-in duration-300" />
                <button className="absolute right-2 bg-white/50 rounded-full p-1 sm:hidden z-10" onClick={nextGalleryImage}><ChevronRight size={24} /></button>
              </div>
              <div className="p-4 border-t border-gray-100 bg-white rounded-b-xl overflow-x-auto">
                <div className="flex gap-2 justify-start sm:justify-center min-w-max">
                  {pageData.galleryImages.map((img: any, idx: number) => (
                    <button key={idx} onClick={() => setGalleryIndex(idx)} className={`flex-shrink-0 w-24 h-16 rounded-md overflow-hidden border-2 transition-all ${galleryIndex === idx ? 'border-[#E2552B] scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                     <img src={img} className="w-full h-full object-cover" alt={`Thumbnail ${idx}`} />
+                     <img src={img.preview} alt={img.altText || `Thumbnail ${idx}`} className="w-full h-full object-cover" />
                    </button>
                  ))}
                </div>

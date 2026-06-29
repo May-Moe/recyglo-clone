@@ -58,7 +58,7 @@ export default function Header() {
   }, []);
 
   // --- DYNAMIC SERVICES GENERATION ---
-  // UPDATED: Changed href to use /services instead of /solutions
+  // UPDATED: Removed the generic fallback description
   const dynamicServices = [
     { 
       title: t('nav.allServices', 'All Services'), 
@@ -68,7 +68,7 @@ export default function Header() {
     ...rawServices.map(data => ({
       title: data[`title_${currentLang}`] || data.title_en || data.title || '',
       href: `/services/${data.slug}`,
-      desc: data[`desc_${currentLang}`] || data.desc_en || data.desc || t('nav.learnMore', 'Learn more about this service.')
+      desc: data[`desc_${currentLang}`] || data.desc_en || data.desc || "" // Returns empty string if no description exists
     }))
   ];
 
@@ -77,7 +77,7 @@ export default function Header() {
     { label: t('nav.home', 'Home'), href: '/' },
     { 
       label: t('nav.services', 'Services'), 
-      href: '/services', // UPDATED
+      href: '/services', 
       items: dynamicServices 
     },
     {
@@ -176,9 +176,12 @@ export default function Header() {
                                 <a href={subItem.href} target="_blank" rel="noopener noreferrer">
                                   <NavigationMenuLink className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-primary focus:bg-primary/5 focus:text-primary w-full h-full cursor-pointer">
                                     <div className="text-sm font-bold leading-none text-foreground">{subItem.title}</div>
-                                    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground mt-2">
-                                      {subItem.desc}
-                                    </p>
+                                    {/* ✅ UPDATED: Only show description if it exists */}
+                                    {subItem.desc && (
+                                      <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground mt-2">
+                                        {subItem.desc}
+                                      </p>
+                                    )}
                                   </NavigationMenuLink>
                                 </a>
                               ) : (
@@ -188,9 +191,12 @@ export default function Header() {
                                     onClick={() => handleHashScroll(subItem.href)}
                                   >
                                     <div className="text-sm font-bold leading-none text-foreground">{subItem.title}</div>
-                                    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground mt-2">
-                                      {subItem.desc}
-                                    </p>
+                                    {/* ✅ UPDATED: Only show description if it exists */}
+                                    {subItem.desc && (
+                                      <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground mt-2">
+                                        {subItem.desc}
+                                      </p>
+                                    )}
                                   </NavigationMenuLink>
                                 </Link>
                               )}
@@ -270,22 +276,26 @@ export default function Header() {
                             href={subItem.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex flex-col"
                             onClick={() => setIsOpen(false)}
                           >
-                            {subItem.title}
+                            <span>{subItem.title}</span>
+                            {/* ✅ UPDATED FOR MOBILE TOO */}
+                            {subItem.desc && <span className="text-[10px] leading-snug mt-1 opacity-70">{subItem.desc}</span>}
                           </a>
                         ) : (
                           <Link
                             key={subItem.title}
                             href={subItem.href}
-                            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex flex-col"
                             onClick={() => {
                               setIsOpen(false);
                               handleHashScroll(subItem.href);
                             }}
                           >
-                            {subItem.title}
+                            <span>{subItem.title}</span>
+                            {/* ✅ UPDATED FOR MOBILE TOO */}
+                            {subItem.desc && <span className="text-[10px] leading-snug mt-1 opacity-70">{subItem.desc}</span>}
                           </Link>
                         )
                       ))}

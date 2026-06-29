@@ -98,27 +98,41 @@ export default function Articles() {
         />
         
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
-          <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
-             <h2 className="text-lg md:text-xl font-bold mb-2 text-gray-800">
-                {pageData.heroData.subtitle}
-             </h2>
-             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-[#1B5E20] leading-[1.1]">
-                {pageData.heroData.title}
-             </h1>
-             <p className="text-base text-gray-600 mb-8 leading-relaxed">
-                {pageData.heroData.description}
-             </p>
+  <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
+     
+     {/* Subtitle - Matched to Home: text-lg md:text-xl font-semibold */}
+     <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
+        {pageData.heroData.subtitle}
+     </h2>
+     
+     {/* Title - Matched to Home: text-3xl md:text-4xl lg:text-5xl font-extrabold */}
+     <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
+        {pageData.heroData.title}
+     </h1>
+     
+     {/* Description - Matched to Home: text-base md:text-lg font-light */}
+     <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
+        {pageData.heroData.description}
+     </p>
 
-             <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={() => { setLocation('/carbon-calculator'); window.scrollTo(0, 0); }} className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-6 py-6 rounded-md shadow-sm flex items-center gap-2 transition-all">
-                  <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> Calculate Carbon Footprint
-                </Button>
-                <Button className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-8 py-6 rounded-md shadow-md" onClick={() => setLocation('/solutions')}>
-                  Our Solutions
-                </Button>
-             </div>
-          </div>
-        </div>
+     {/* Buttons - Matched to Home (added hover:scale-105 and adjusted padding) */}
+     <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
+        <Button 
+          onClick={() => { setLocation('/carbon-calculator'); window.scrollTo(0, 0); }} 
+          className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
+        >
+          <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> Calculate Carbon Footprint
+        </Button>
+        
+        <Button 
+          onClick={() => { setLocation('/services'); window.scrollTo(0, 0); }}
+          className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" 
+        >
+          Our Solutions
+        </Button>
+     </div>
+  </div>
+</div>
       </section>
 
       {/* 2. BLOG LISTING SECTION */}

@@ -68,7 +68,7 @@ export default function About() {
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
       <Header />
 
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION - UPDATED TO MATCH HOME PAGE FONT SIZES */}
       <section className="relative py-12 md:py-20 overflow-hidden bg-[#1B5E20]">
         <div 
           className="absolute inset-0 z-0 opacity-80 bg-black/30" 
@@ -81,13 +81,16 @@ export default function About() {
         
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
           <div className="max-w-xl bg-white/90 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
-             <h2 className="text-lg md:text-xl font-medium mb-3 text-gray-800 leading-snug">
+             {/* Subtitle - Matched to Home: text-lg md:text-xl font-semibold */}
+             <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
                {pageData.heroData.subtitle}
              </h2>
-             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#1B5E20] leading-[1.1]">
+             {/* Title - Matched to Home: text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight */}
+             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
                {pageData.heroData.title}
              </h1>
-             <p className="text-base text-gray-600 mb-8 leading-relaxed">
+             {/* Description - Matched to Home: text-base md:text-lg font-light */}
+             <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
                {pageData.heroData.description}
              </p>
 
@@ -98,7 +101,7 @@ export default function About() {
                     if (link.startsWith('http')) window.open(link, '_blank');
                     else { setLocation(link); window.scrollTo(0, 0); }
                   }}
-                  className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-6 py-6 rounded-md shadow-sm flex items-center gap-2 transition-all"
+                  className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-6 py-6 rounded-md shadow-sm flex items-center gap-2 transition-all hover:scale-105"
                 >
                   <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
                   {pageData.heroData.button1Text || 'Calculate Carbon Footprint'}
@@ -110,7 +113,7 @@ export default function About() {
                     if (link.startsWith('http')) window.open(link, '_blank');
                     else { setLocation(link); window.scrollTo(0, 0); }
                   }}
-                  className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-8 py-6 rounded-md shadow-md"
+                  className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-8 py-6 rounded-md shadow-md transition-all hover:scale-105"
                 >
                   {pageData.heroData.button2Text || 'Our Solutions'}
                 </Button>
@@ -405,7 +408,8 @@ export default function About() {
                     {partner.imagePreview ? (
                       <img 
                         src={partner.imagePreview} 
-                        alt="Partner Logo" 
+                        alt={partner.altText || partner.fileName || "Partner Logo"} 
+                        title={partner.altText || partner.fileName || "Partner Logo"}
                         className="max-w-full max-h-full object-contain mix-blend-multiply opacity-80 hover:opacity-100 transition-opacity" 
                       />
                     ) : (

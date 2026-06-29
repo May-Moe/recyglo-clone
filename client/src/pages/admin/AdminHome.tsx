@@ -116,7 +116,7 @@ export default function AdminHome() {
   };
 
   // --- HANDLERS FOR UPDATING LOCAL STATE ---
-  const addHeroSlide = () => setHeroSlides(prev => [...prev, { id: `slide-${Date.now()}`, subtitle: "", title: "", description: "", imagePreview: "", button1Text: "", button1Link: "", button2Text: "", button2Link: "" }]);
+  const addHeroSlide = () => setHeroSlides(prev => [...prev, { id: `slide-${Date.now()}`, subtitle: "", title: "", description: "", imagePreview: "", altText: "", button1Text: "", button1Link: "", button2Text: "", button2Link: "" }]);
   const removeHeroSlide = (id: string) => setHeroSlides(prev => prev.filter(s => s.id !== id));
   const updateHeroSlide = (id: string, field: string, value: string) => setHeroSlides(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
 
@@ -128,24 +128,20 @@ export default function AdminHome() {
   const removeTestimonial = (id: string) => setTestimonials(prev => prev.filter(t => t.id !== id));
   const updateTestimonial = (id: string, field: string, value: string) => setTestimonials(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
 
-  const addGalleryImage = () => setGalleryImages(prev => [...prev, { id: `img-${Date.now()}`, preview: "", fileName: "" }]);
+  const addGalleryImage = () => setGalleryImages(prev => [...prev, { id: `img-${Date.now()}`, preview: "", fileName: "", altText: "" }]);
   const removeGalleryImage = (id: string) => setGalleryImages(prev => prev.filter(img => img.id !== id));
   const updateGalleryImage = (id: string, field: string, value: string) => setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, [field]: value } : img));
 
-  // --- PARTNERS LOGIC WITH SORTING ---
-  const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
+  const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "", altText: "" }]);
   const removePartner = (id: string) => setPartners(prev => prev.filter(p => p.id !== id));
   const updatePartner = (id: string, field: string, value: string) => setPartners(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
   
-  // NEW: Move Partner Left/Right
   const movePartner = (index: number, direction: 'left' | 'right') => {
     setPartners(prev => {
       const newPartners = [...prev];
       if (direction === 'left' && index > 0) {
-        // Swap with previous
         [newPartners[index - 1], newPartners[index]] = [newPartners[index], newPartners[index - 1]];
       } else if (direction === 'right' && index < newPartners.length - 1) {
-        // Swap with next
         [newPartners[index + 1], newPartners[index]] = [newPartners[index], newPartners[index + 1]];
       }
       return newPartners;
@@ -228,8 +224,9 @@ export default function AdminHome() {
                         <Trash2 size={18} />
                       </button>
                     </div>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                      <div className="md:col-span-4 space-y-2">
+                      <div className="md:col-span-4 space-y-2 flex flex-col">
                         <label className="block text-sm font-bold text-gray-700">Background Image</label>
                         <ImageUploader 
                           preview={slide.imagePreview} 
@@ -237,6 +234,17 @@ export default function AdminHome() {
                         />
                       </div>
                       <div className="md:col-span-8 space-y-4">
+                        {/* ✅ MOVED: Image Alt Text is now safely in the right column */}
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Image Alt Text (SEO)</label>
+                          <input 
+                            type="text" 
+                            value={slide.altText || ''} 
+                            onChange={(e) => updateHeroSlide(slide.id, 'altText', e.target.value)} 
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-medium" 
+                            placeholder="e.g. RecyGlo Team collecting waste" 
+                          />
+                        </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
                           <input type="text" value={slide.subtitle} onChange={(e) => updateHeroSlide(slide.id, 'subtitle', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Zero Waste to Landfill" />
@@ -410,20 +418,19 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 4: PARTNERS WITH NEW SORTING ARROWS */}
+          {/* TAB 4: PARTNERS WITH ALT TEXT */}
           {activeTab === 'partners' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Trusted Partners & Brands</h2>
-                  <p className="text-sm text-gray-500 mt-1">Upload logos of the brands and organizations you work with. Use arrows to reorder.</p>
+                  <p className="text-sm text-gray-500 mt-1">Upload logos and specify SEO Alt text for each brand.</p>
                 </div>
                 <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add Logo
                 </Button>
               </div>
 
-              {/* SECTION HEADERS FOR PARTNERS */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 gap-4">
@@ -438,7 +445,6 @@ export default function AdminHome() {
                 </div>
               </div>
 
-              {/* PARTNERS GRID WITH SORTING */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {partners.map((partner, index) => (
                   <div key={partner.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
@@ -451,53 +457,35 @@ export default function AdminHome() {
                         }}
                       />
                       
-                      {/* NEW: Hover Action Bar for Sorting and Deleting */}
                       <div className="absolute top-0 right-0 left-0 p-1 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                        {/* Sort Left/Right */}
                         <div className="flex gap-1">
-                          <button 
-                            onClick={() => movePartner(index, 'left')}
-                            disabled={index === 0}
-                            className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"
-                            title="Move Left"
-                          >
-                            <ArrowLeft size={14} />
-                          </button>
-                          <button 
-                            onClick={() => movePartner(index, 'right')}
-                            disabled={index === partners.length - 1}
-                            className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"
-                            title="Move Right"
-                          >
-                            <ArrowRight size={14} />
-                          </button>
+                          <button onClick={() => movePartner(index, 'left')} disabled={index === 0} className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"><ArrowLeft size={14} /></button>
+                          <button onClick={() => movePartner(index, 'right')} disabled={index === partners.length - 1} className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"><ArrowRight size={14} /></button>
                         </div>
-                        
-                        {/* Delete */}
-                        <button 
-                          onClick={() => removePartner(partner.id)}
-                          className="bg-white/90 backdrop-blur text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all"
-                          title="Delete Logo"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <button onClick={() => removePartner(partner.id)} className="bg-white/90 backdrop-blur text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all"><Trash2 size={14} /></button>
                       </div>
                     </div>
+                    
+                    {/* ✅ NEW: SEO ALT TEXT INPUT */}
+                    <input 
+                      type="text" 
+                      value={partner.altText || ''} 
+                      onChange={(e) => updatePartner(partner.id, 'altText', e.target.value)} 
+                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-900 font-medium" 
+                      placeholder="Alt Text (SEO)" 
+                    />
                     
                     <input 
                       type="text" 
                       value={partner.fileName || ''} 
                       onChange={(e) => updatePartner(partner.id, 'fileName', e.target.value)} 
-                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-600" 
+                      className="w-full text-[10px] text-center px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-transparent text-gray-400" 
                       placeholder="Upload to see filename" 
                     />
                   </div>
                 ))}
                 
-                <div 
-                  onClick={addPartner}
-                  className="aspect-video border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"
-                >
+                <div onClick={addPartner} className="aspect-video border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]">
                   <Plus size={24} className="mb-2" />
                   <span className="text-xs font-medium">Add Logo</span>
                 </div>
@@ -512,8 +500,6 @@ export default function AdminHome() {
                 <h2 className="text-xl font-bold text-gray-900">Strategic Vision</h2>
                 <p className="text-sm text-gray-500">Edit the main title, description, and the three vision blocks.</p>
               </div>
-
-              {/* SECTION HEADERS FOR VISION */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 gap-4">
@@ -527,7 +513,6 @@ export default function AdminHome() {
                   </div>
                 </div>
               </div>
-
               <div className="space-y-4">
                 <label className="block text-sm font-bold text-gray-700">Our Mission Block</label>
                 <textarea rows={4} value={visionData.mission} onChange={(e) => setVisionData({...visionData, mission: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-gray-50 focus:bg-white transition-colors" />
@@ -555,8 +540,6 @@ export default function AdminHome() {
                   <Plus size={16} className="mr-2" /> Add Value
                 </Button>
               </div>
-
-              {/* SECTION HEADERS FOR VALUES */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 gap-4">
@@ -570,10 +553,8 @@ export default function AdminHome() {
                   </div>
                 </div>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {values.length === 0 && <p className="text-gray-400 py-8 col-span-2 text-center">No values added yet.</p>}
-                
                 {values.map((val) => (
                   <div key={val.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group">
                     <button onClick={() => removeValue(val.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition-colors">
@@ -581,12 +562,7 @@ export default function AdminHome() {
                     </button>
                     <div className="flex gap-4 mb-4">
                       <div className="w-16 h-16 flex-shrink-0">
-                        <ImageUploader 
-                          preview={val.iconPreview} 
-                          circle 
-                          small 
-                          onUploadSuccess={(url: string) => updateValue(val.id, 'iconPreview', url)}
-                        />
+                        <ImageUploader preview={val.iconPreview} circle small onUploadSuccess={(url: string) => updateValue(val.id, 'iconPreview', url)}/>
                       </div>
                       <div className="flex-1 mt-1">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Value Title</label>
@@ -615,8 +591,6 @@ export default function AdminHome() {
                   <Plus size={16} className="mr-2" /> Add Testimonial
                 </Button>
               </div>
-
-              {/* TESTIMONIAL HEADER INPUTS */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 gap-4">
@@ -642,18 +616,12 @@ export default function AdminHome() {
                   </div>
                 </div>
               </div>
-
               <div className="space-y-6">
                 {testimonials.length === 0 && <p className="text-gray-400 py-8 text-center">No testimonials added yet.</p>}
-
                 {testimonials.map((test) => (
                   <div key={test.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group flex flex-col md:flex-row gap-6">
                     <div className="w-24 h-24 flex-shrink-0 mx-auto md:mx-0">
-                      <ImageUploader 
-                        preview={test.imagePreview} 
-                        circle 
-                        onUploadSuccess={(url: string) => updateTestimonial(test.id, 'imagePreview', url)}
-                      />
+                      <ImageUploader preview={test.imagePreview} circle onUploadSuccess={(url: string) => updateTestimonial(test.id, 'imagePreview', url)} />
                     </div>
                     <div className="flex-1 space-y-4">
                       <div className="flex justify-between items-start">
@@ -682,20 +650,19 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 8: IMPACT GALLERY */}
+          {/* TAB 8: IMPACT GALLERY WITH ALT TEXT */}
           {activeTab === 'gallery' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Impact Gallery</h2>
-                  <p className="text-sm text-gray-500 mt-1">Manage the grid of images and the section title.</p>
+                  <p className="text-sm text-gray-500 mt-1">Manage the grid of images, section title, and SEO Alt text.</p>
                 </div>
                 <Button onClick={addGalleryImage} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
                   <Plus size={16} className="mr-2" /> Add Image Box
                 </Button>
               </div>
 
-              {/* SECTION HEADERS FOR GALLERY */}
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
                 <div className="grid grid-cols-1 gap-4">
@@ -713,7 +680,7 @@ export default function AdminHome() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {galleryImages.map((img) => (
                   <div key={img.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
-                    <div className="aspect-square relative">
+                    <div className="aspect-square relative overflow-hidden rounded-lg">
                       <ImageUploader 
                         preview={img.preview} 
                         onUploadSuccess={(url: string, fileName: string) => {
@@ -728,21 +695,27 @@ export default function AdminHome() {
                         <Trash2 size={16} />
                       </button>
                     </div>
-                    {/* Editable Extracted File Name Field */}
+
+                    {/* ✅ NEW: SEO ALT TEXT INPUT */}
+                    <input 
+                      type="text" 
+                      value={img.altText || ''} 
+                      onChange={(e) => updateGalleryImage(img.id, 'altText', e.target.value)} 
+                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-900 font-medium" 
+                      placeholder="Alt Text (SEO)" 
+                    />
+
                     <input 
                       type="text" 
                       value={img.fileName || ''} 
                       onChange={(e) => updateGalleryImage(img.id, 'fileName', e.target.value)} 
-                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-600" 
+                      className="w-full text-[10px] text-center px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-transparent text-gray-400" 
                       placeholder="Upload to see filename" 
                     />
                   </div>
                 ))}
                 
-                <div 
-                  onClick={addGalleryImage}
-                  className="aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"
-                >
+                <div onClick={addGalleryImage} className="aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]">
                   <Plus size={32} className="mb-2" />
                   <span className="text-sm font-medium">Add Image Box</span>
                 </div>
