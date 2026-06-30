@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Users, BookOpen, Trophy, Plus, Trash2, UploadCloud, Loader2, Target, Briefcase, ArrowLeft, ArrowRight } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Users, BookOpen, Trophy, Plus, Trash2, UploadCloud, Loader2, Target, Briefcase, ArrowLeft, ArrowRight, Languages, Wand2 } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -21,56 +21,43 @@ export default function AdminAbout() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [heroData, setHeroData] = useState({
-    subtitle: "Empowering businesses in Myanmar, Vietnam, Thailand, Malaysia, Singapore, and Korea with circular economy strategies and ISO-compliant reporting.",
-    title: "Welcome to RecyGlo",
-    description: "At RecyGlo, our mission is to foster a more sustainable future through innovative waste, energy, and carbon management and ESG data analytics solutions. We are dedicated to assisting businesses in minimizing their environmental footprint and reaching their sustainability objectives.",
+  // --- LIVE DATABASE STATE WITH ALL TRANSLATION KEYS ---
+  const [heroData, setHeroData] = useState<any>({
+    subtitle_en: "Empowering businesses across Asia-Pacific.",
+    title_en: "Welcome to RecyGlo",
+    description_en: "At RecyGlo, our mission is to foster a more sustainable future...",
     imagePreview: aboutHero,
-    button1Text: "",
-    button1Link: "",
-    button2Text: "",
-    button2Link: ""
+    button1Text: "", button1Link: "", button2Text: "", button2Link: ""
   });
 
-  const [introData, setIntroData] = useState({
-    title: "Introducing To Best Waste Management.",
-    description: "RecyGlo is a pioneering sustainability solutions provider dedicated to helping businesses across Asia-Pacific achieve their environmental and ESG goals. With a team of passionate experts and a commitment to innovation, we deliver comprehensive waste management, circular economy, and ESG data analytics solutions.",
-    address: "190 Middle Road #19-05 Fortune Centre Singapore 188979",
-    email: "Contact@recyglo.com",
-    phone: "(+66) 81 412 6842",
-    lineId: "@RecyGlo",
+  const [introData, setIntroData] = useState<any>({
+    title_en: "Introducing To Best Waste Management.",
+    description_en: "RecyGlo is a pioneering sustainability solutions provider...",
+    address_en: "190 Middle Road #19-05 Fortune Centre Singapore",
+    email: "Contact@recyglo.com", phone: "(+66) 81 412 6842", lineId: "@RecyGlo",
     imagePreview: teamGroup
   });
 
-  const [storyData, setStoryData] = useState({
-    title: "Our Story: From a Local Problem to a Global Vision",
-    paragraph1: "RecyGlo was born out of a stark realization. Witnessing the mounting environmental challenges and inefficient waste management systems in our local communities, we knew a systemic change was urgently needed. What started as a focused effort to tackle localized waste issues quickly revealed a much larger, systemic gap across the Asia-Pacific region.",
-    paragraph2: "We saw businesses struggling to balance operational growth with environmental responsibility. The lack of transparent data, reliable recycling infrastructure, and clear compliance pathways meant that even well-intentioned companies couldn't execute effective sustainability strategies.",
-    paragraph3: "Today, RecyGlo has evolved into a comprehensive ESG and waste management platform. We bridge the gap between intent and impact, empowering organizations not just to manage their waste, but to completely transform their environmental footprint through data-driven, circular economy solutions.",
-    ceoName: "Ms. Shwe Yamin Oo",
-    ceoTitle: "CEO & Co-founder",
+  const [storyData, setStoryData] = useState<any>({
+    title_en: "Our Story: From a Local Problem to a Global Vision",
+    paragraph1_en: "RecyGlo was born out of a stark realization...",
+    paragraph2_en: "We saw businesses struggling to balance operational growth...",
+    paragraph3_en: "Today, RecyGlo has evolved into a comprehensive ESG platform...",
+    ceoName_en: "Ms. Shwe Yamin Oo", ceoTitle_en: "CEO & Co-founder",
     ceoImagePreview: ceoPhoto
   });
 
-  // NEW: Section Headers for Array Data
-  const [teamHeader, setTeamHeader] = useState({ title: "Our Team", description: "" });
-  const [awardsHeader, setAwardsHeader] = useState({ title: "Award-Winning Excellence & Global Recognition", description: "" });
-  const [partnersHeader, setPartnersHeader] = useState({ title: "Strategic Partnerships & Industry Memberships", description: "" });
+  const [teamHeader, setTeamHeader] = useState<any>({ title_en: "Our Team", description_en: "" });
+  const [awardsHeader, setAwardsHeader] = useState<any>({ title_en: "Award-Winning Excellence", description_en: "" });
+  const [partnersHeader, setPartnersHeader] = useState<any>({ title_en: "Strategic Partnerships", description_en: "" });
 
-  const [teamMembers, setTeamMembers] = useState([
-    { id: 'team-1', name: "Ms. Shwe Yamin Oo", title: "CEO & Co-founder", imagePreview: team1 },
-    { id: 'team-2', name: "Mr. Okka Phyo Maung", title: "CMO & Co-founder", imagePreview: team2 },
-    { id: 'team-3', name: "Mr. Leon", title: "Chief Technology Officer", imagePreview: team3 },
-    { id: 'team-4', name: "Mr. John Doe", title: "Senior Project Manager", imagePreview: team4 },
-    { id: 'team-5', name: "Ms. Jane Smith", title: "Lead ESG Analyst", imagePreview: team5 },
-    { id: 'team-6', name: "Ms. Sarah Lee", title: "Marketing Director", imagePreview: team6 },
+  const [teamMembers, setTeamMembers] = useState<any[]>([
+    { id: 'team-1', name_en: "Ms. Shwe Yamin Oo", title_en: "CEO & Co-founder", imagePreview: team1 },
+    { id: 'team-2', name_en: "Mr. Okka Phyo Maung", title_en: "CMO & Co-founder", imagePreview: team2 },
   ]);
 
-  const [awards, setAwards] = useState([
-    { id: 'award-1', title: "Sustainability Excellence", year: "2024", description: "", imagePreview: "" },
-    { id: 'award-2', title: "Green Tech Innovator", year: "2023", description: "", imagePreview: "" },
-    { id: 'award-3', title: "Best ESG Platform", year: "2023", description: "", imagePreview: "" },
-    { id: 'award-4', title: "Circular Economy Leader", year: "2022", description: "", imagePreview: "" },
+  const [awards, setAwards] = useState<any[]>([
+    { id: 'award-1', title_en: "Sustainability Excellence", year: "2024", description_en: "", imagePreview: "" },
   ]);
 
   const [partners, setPartners] = useState<any[]>([]);
@@ -92,12 +79,7 @@ export default function AdminAbout() {
           if (data.partnersHeader) setPartnersHeader(data.partnersHeader);
 
           if (data.teamMembers && data.teamMembers.length > 0) setTeamMembers(data.teamMembers);
-          
-          // Ensure old awards get a description field if they didn't have one
-          if (data.awards && data.awards.length > 0) {
-            setAwards(data.awards.map((a: any) => ({...a, description: a.description || ""})));
-          }
-          
+          if (data.awards && data.awards.length > 0) setAwards(data.awards);
           if (data.partners && data.partners.length > 0) setPartners(data.partners); 
         }
       } catch (error) {
@@ -106,7 +88,6 @@ export default function AdminAbout() {
         setIsLoading(false);
       }
     };
-
     fetchAboutData();
   }, []);
 
@@ -115,16 +96,8 @@ export default function AdminAbout() {
     try {
       const docRef = doc(db, "website_content", "about_page");
       await setDoc(docRef, {
-        heroData,
-        introData,
-        storyData,
-        teamHeader,
-        awardsHeader,
-        partnersHeader,
-        teamMembers,
-        awards,
-        partners,
-        lastUpdated: new Date()
+        heroData, introData, storyData, teamHeader, awardsHeader, partnersHeader,
+        teamMembers, awards, partners, lastUpdated: new Date()
       }, { merge: true });
 
       alert("About Us Page successfully updated in the database!");
@@ -136,47 +109,37 @@ export default function AdminAbout() {
     }
   };
 
-  // --- HANDLERS FOR UPDATING LOCAL STATE ---
-  const addTeamMember = () => setTeamMembers(prev => [...prev, { id: `team-${Date.now()}`, name: "", title: "", imagePreview: "" }]);
+  // --- HANDLERS FOR UPDATING LOCAL STATE ARRAYS ---
+  const addTeamMember = () => setTeamMembers(prev => [...prev, { id: `team-${Date.now()}` }]);
   const removeTeamMember = (id: string) => setTeamMembers(prev => prev.filter(m => m.id !== id));
+  // Already safe because it uses `prev => prev.map`
   const updateTeamMember = (id: string, field: string, value: string) => setTeamMembers(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
 
-  const addAward = () => setAwards(prev => [...prev, { id: `award-${Date.now()}`, title: "", year: "", description: "", imagePreview: "" }]);
+  const addAward = () => setAwards(prev => [...prev, { id: `award-${Date.now()}` }]);
   const removeAward = (id: string) => setAwards(prev => prev.filter(a => a.id !== id));
   const updateAward = (id: string, field: string, value: string) => setAwards(prev => prev.map(a => a.id === id ? { ...a, [field]: value } : a));
-  
-  // NEW: Move Award Left/Right
   const moveAward = (index: number, direction: 'left' | 'right') => {
     setAwards(prev => {
       const newAwards = [...prev];
-      if (direction === 'left' && index > 0) {
-        [newAwards[index - 1], newAwards[index]] = [newAwards[index], newAwards[index - 1]];
-      } else if (direction === 'right' && index < newAwards.length - 1) {
-        [newAwards[index + 1], newAwards[index]] = [newAwards[index], newAwards[index + 1]];
-      }
+      if (direction === 'left' && index > 0) [newAwards[index - 1], newAwards[index]] = [newAwards[index], newAwards[index - 1]];
+      else if (direction === 'right' && index < newAwards.length - 1) [newAwards[index + 1], newAwards[index]] = [newAwards[index], newAwards[index + 1]];
       return newAwards;
     });
   };
 
-  const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "" }]);
+  const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}` }]);
   const removePartner = (id: string) => setPartners(prev => prev.filter(p => p.id !== id));
   const updatePartner = (id: string, field: string, value: string) => setPartners(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
-  
   const movePartner = (index: number, direction: 'left' | 'right') => {
     setPartners(prev => {
       const newPartners = [...prev];
-      if (direction === 'left' && index > 0) {
-        [newPartners[index - 1], newPartners[index]] = [newPartners[index], newPartners[index - 1]];
-      } else if (direction === 'right' && index < newPartners.length - 1) {
-        [newPartners[index + 1], newPartners[index]] = [newPartners[index], newPartners[index + 1]];
-      }
+      if (direction === 'left' && index > 0) [newPartners[index - 1], newPartners[index]] = [newPartners[index], newPartners[index - 1]];
+      else if (direction === 'right' && index < newPartners.length - 1) [newPartners[index + 1], newPartners[index]] = [newPartners[index], newPartners[index + 1]];
       return newPartners;
     });
   };
 
-  if (isLoading) {
-    return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
-  }
+  if (isLoading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-500 pb-12">
@@ -187,13 +150,11 @@ export default function AdminAbout() {
           <p className="text-gray-500 text-sm">Update company history, leadership profiles, and contact info.</p>
         </div>
         <Button onClick={handleSave} disabled={isSaving} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white flex items-center gap-2 px-6">
-          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save size={18} />}
-          {isSaving ? 'Saving to Database...' : 'Save All Changes'}
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save size={18} />} Save All Changes
         </Button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        
         {/* LEFT SIDE: Tab Navigation */}
         <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
           <TabButton id="hero" label="Hero Banner" icon={<Layout size={18} />} activeTab={activeTab} onClick={setActiveTab} />
@@ -207,92 +168,109 @@ export default function AdminAbout() {
         {/* RIGHT SIDE: Editor Area */}
         <div className="flex-1 bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-8 min-h-[500px]">
           
+          {/* TAB 1: HERO BANNER */}
           {activeTab === 'hero' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="mb-6 border-b pb-4">
                 <h2 className="text-xl font-bold text-gray-900">Hero Banner</h2>
                 <p className="text-sm text-gray-500">Edit the main introductory banner at the top of the page.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div className="md:col-span-4 space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div className="md:col-span-4 space-y-4">
                   <label className="block text-sm font-bold text-gray-700">Background Image</label>
-                  <ImageUploader preview={heroData.imagePreview} onUploadSuccess={(url: string) => setHeroData({...heroData, imagePreview: url})} />
+                  <div className="h-[250px] w-full rounded-xl overflow-hidden shadow-sm">
+                    <ImageUploader preview={heroData.imagePreview} onUploadSuccess={(url: string) => setHeroData(prev => ({...prev, imagePreview: url}))} />
+                  </div>
                 </div>
-                <div className="md:col-span-8 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
-                    <input type="text" value={heroData.subtitle} onChange={(e) => setHeroData({...heroData, subtitle: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={heroData.title} onChange={(e) => setHeroData({...heroData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                    <textarea rows={4} value={heroData.description} onChange={(e) => setHeroData({...heroData, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-4">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Text (Left)</label>
-                      <input type="text" value={heroData.button1Text || ''} onChange={(e) => setHeroData({...heroData, button1Text: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Calculate Carbon Footprint" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Link / Path</label>
-                      <input type="text" value={heroData.button1Link || ''} onChange={(e) => setHeroData({...heroData, button1Link: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/carbon-calculator" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Text (Right)</label>
-                      <input type="text" value={heroData.button2Text || ''} onChange={(e) => setHeroData({...heroData, button2Text: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Our Solutions" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Link / Path</label>
-                      <input type="text" value={heroData.button2Link || ''} onChange={(e) => setHeroData({...heroData, button2Link: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/solutions" />
-                    </div>
-                  </div>
+                <div className="md:col-span-8 space-y-5">
+                  {/* ✅ FIX: ALL `setX` calls now safely use `prev => ({...prev, ...})` */}
+                  <TranslatableField 
+                    label="Small Subtitle"
+                    baseValue={{ en: heroData.subtitle_en || heroData.subtitle, th: heroData.subtitle_th, my: heroData.subtitle_my, vi: heroData.subtitle_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setHeroData(prev => ({...prev, [`subtitle_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Main Title"
+                    baseValue={{ en: heroData.title_en || heroData.title, th: heroData.title_th, my: heroData.title_my, vi: heroData.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setHeroData(prev => ({...prev, [`title_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Description"
+                    isTextArea={true}
+                    baseValue={{ en: heroData.description_en || heroData.description, th: heroData.description_th, my: heroData.description_my, vi: heroData.description_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setHeroData(prev => ({...prev, [`description_${lang}`]: val}))}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Text (Left)</label>
+                  <input type="text" value={heroData.button1Text || ''} onChange={(e) => setHeroData(prev => ({...prev, button1Text: e.target.value}))} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Calculate Carbon Footprint" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Link / Path</label>
+                  <input type="text" value={heroData.button1Link || ''} onChange={(e) => setHeroData(prev => ({...prev, button1Link: e.target.value}))} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/carbon-calculator" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Text (Right)</label>
+                  <input type="text" value={heroData.button2Text || ''} onChange={(e) => setHeroData(prev => ({...prev, button2Text: e.target.value}))} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Our Solutions" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Link / Path</label>
+                  <input type="text" value={heroData.button2Link || ''} onChange={(e) => setHeroData(prev => ({...prev, button2Link: e.target.value}))} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/solutions" />
                 </div>
               </div>
             </div>
           )}
 
+          {/* TAB 2: WHO WE ARE */}
           {activeTab === 'intro' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="mb-6 border-b pb-4">
                 <h2 className="text-xl font-bold text-gray-900">Who We Are</h2>
                 <p className="text-sm text-gray-500">Edit the company introduction and contact information.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div className="md:col-span-4 space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div className="md:col-span-4 space-y-4">
                   <label className="block text-sm font-bold text-gray-700">Side Image</label>
-                  <ImageUploader preview={introData.imagePreview} onUploadSuccess={(url: string) => setIntroData({...introData, imagePreview: url})} />
+                  <div className="aspect-[4/3] w-full rounded-xl overflow-hidden shadow-sm">
+                    <ImageUploader preview={introData.imagePreview} onUploadSuccess={(url: string) => setIntroData(prev => ({...prev, imagePreview: url}))} />
+                  </div>
                 </div>
-                <div className="md:col-span-8 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Heading</label>
-                    <input type="text" value={introData.title} onChange={(e) => setIntroData({...introData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" placeholder="e.g. Introducing To Best Waste Management." />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Company Description</label>
-                    <textarea rows={4} value={introData.description} onChange={(e) => setIntroData({...introData, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
-                  </div>
+                <div className="md:col-span-8 space-y-5">
+                  <TranslatableField 
+                    label="Heading"
+                    baseValue={{ en: introData.title_en || introData.title, th: introData.title_th, my: introData.title_my, vi: introData.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setIntroData(prev => ({...prev, [`title_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Company Description"
+                    isTextArea={true}
+                    baseValue={{ en: introData.description_en || introData.description, th: introData.description_th, my: introData.description_my, vi: introData.description_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setIntroData(prev => ({...prev, [`description_${lang}`]: val}))}
+                  />
                   
-                  <div className="pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
+                  <div className="pt-6 border-t border-gray-100 grid grid-cols-2 gap-4">
                     <div className="col-span-2"><h3 className="font-bold text-sm">Contact Info Box</h3></div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Address</label>
-                      <input type="text" value={introData.address} onChange={(e) => setIntroData({...introData, address: e.target.value})} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none text-sm" />
+                    <div className="col-span-2">
+                      <TranslatableField 
+                        label="Address"
+                        baseValue={{ en: introData.address_en || introData.address, th: introData.address_th, my: introData.address_my, vi: introData.address_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => setIntroData(prev => ({...prev, [`address_${lang}`]: val}))}
+                      />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1">Email</label>
-                      <input type="email" value={introData.email} onChange={(e) => setIntroData({...introData, email: e.target.value})} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none text-sm" />
+                      <input type="email" value={introData.email || ''} onChange={(e) => setIntroData(prev => ({...prev, email: e.target.value}))} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none text-sm bg-white focus:border-[#1B5E20]" />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1">Phone</label>
-                      <input type="text" value={introData.phone} onChange={(e) => setIntroData({...introData, phone: e.target.value})} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none text-sm" />
+                      <input type="text" value={introData.phone || ''} onChange={(e) => setIntroData(prev => ({...prev, phone: e.target.value}))} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none text-sm bg-white focus:border-[#1B5E20]" />
                     </div>
-                    <div>
+                    <div className="col-span-2">
                       <label className="block text-xs font-bold text-gray-700 mb-1">Line Official</label>
-                      <input type="text" value={introData.lineId} onChange={(e) => setIntroData({...introData, lineId: e.target.value})} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none text-sm" />
+                      <input type="text" value={introData.lineId || ''} onChange={(e) => setIntroData(prev => ({...prev, lineId: e.target.value}))} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none text-sm bg-white focus:border-[#1B5E20]" />
                     </div>
                   </div>
                 </div>
@@ -300,6 +278,7 @@ export default function AdminAbout() {
             </div>
           )}
 
+          {/* TAB 3: OUR STORY */}
           {activeTab === 'story' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="mb-6 border-b pb-4">
@@ -310,39 +289,49 @@ export default function AdminAbout() {
                 <div className="md:col-span-4 space-y-4">
                   <div className="aspect-square">
                     <label className="block text-sm font-bold text-gray-700 mb-2">CEO Image</label>
-                    <ImageUploader circle preview={storyData.ceoImagePreview} onUploadSuccess={(url: string) => setStoryData({...storyData, ceoImagePreview: url})} />
+                    <ImageUploader circle preview={storyData.ceoImagePreview} onUploadSuccess={(url: string) => setStoryData(prev => ({...prev, ceoImagePreview: url}))} />
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Name</label>
-                    <input type="text" value={storyData.ceoName} onChange={(e) => setStoryData({...storyData, ceoName: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Title</label>
-                    <input type="text" value={storyData.ceoTitle} onChange={(e) => setStoryData({...storyData, ceoTitle: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
+                  <TranslatableField 
+                    label="CEO Name"
+                    baseValue={{ en: storyData.ceoName_en || storyData.ceoName, th: storyData.ceoName_th, my: storyData.ceoName_my, vi: storyData.ceoName_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setStoryData(prev => ({...prev, [`ceoName_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="CEO Title"
+                    baseValue={{ en: storyData.ceoTitle_en || storyData.ceoTitle, th: storyData.ceoTitle_th, my: storyData.ceoTitle_my, vi: storyData.ceoTitle_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setStoryData(prev => ({...prev, [`ceoTitle_${lang}`]: val}))}
+                  />
                 </div>
-                <div className="md:col-span-8 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Story Heading</label>
-                    <input type="text" value={storyData.title} onChange={(e) => setStoryData({...storyData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Paragraph 1</label>
-                    <textarea rows={3} value={storyData.paragraph1} onChange={(e) => setStoryData({...storyData, paragraph1: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Paragraph 2</label>
-                    <textarea rows={3} value={storyData.paragraph2} onChange={(e) => setStoryData({...storyData, paragraph2: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Paragraph 3</label>
-                    <textarea rows={3} value={storyData.paragraph3} onChange={(e) => setStoryData({...storyData, paragraph3: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
+                <div className="md:col-span-8 space-y-5">
+                  <TranslatableField 
+                    label="Story Heading"
+                    baseValue={{ en: storyData.title_en || storyData.title, th: storyData.title_th, my: storyData.title_my, vi: storyData.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setStoryData(prev => ({...prev, [`title_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Paragraph 1"
+                    isTextArea={true}
+                    baseValue={{ en: storyData.paragraph1_en || storyData.paragraph1, th: storyData.paragraph1_th, my: storyData.paragraph1_my, vi: storyData.paragraph1_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setStoryData(prev => ({...prev, [`paragraph1_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Paragraph 2"
+                    isTextArea={true}
+                    baseValue={{ en: storyData.paragraph2_en || storyData.paragraph2, th: storyData.paragraph2_th, my: storyData.paragraph2_my, vi: storyData.paragraph2_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setStoryData(prev => ({...prev, [`paragraph2_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Paragraph 3"
+                    isTextArea={true}
+                    baseValue={{ en: storyData.paragraph3_en || storyData.paragraph3, th: storyData.paragraph3_th, my: storyData.paragraph3_my, vi: storyData.paragraph3_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setStoryData(prev => ({...prev, [`paragraph3_${lang}`]: val}))}
+                  />
                 </div>
               </div>
             </div>
           )}
 
+          {/* TAB 4: OUR TEAM */}
           {activeTab === 'team' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -357,38 +346,41 @@ export default function AdminAbout() {
 
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={teamHeader.title} onChange={(e) => setTeamHeader({...teamHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Our Team" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
-                    <textarea rows={2} value={teamHeader.description} onChange={(e) => setTeamHeader({...teamHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: teamHeader.title_en || teamHeader.title, th: teamHeader.title_th, my: teamHeader.title_my, vi: teamHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setTeamHeader(prev => ({...prev, [`title_${lang}`]: val}))}
+                />
+                <TranslatableField 
+                  label="Description"
+                  isTextArea={true}
+                  baseValue={{ en: teamHeader.description_en || teamHeader.description, th: teamHeader.description_th, my: teamHeader.description_my, vi: teamHeader.description_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setTeamHeader(prev => ({...prev, [`description_${lang}`]: val}))}
+                />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {teamMembers.length === 0 && <p className="text-gray-400 py-8 col-span-2 text-center">No team members added yet.</p>}
                 
                 {teamMembers.map((member) => (
-                  <div key={member.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group flex gap-4 items-center">
-                    <button onClick={() => removeTeamMember(member.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition-colors">
+                  <div key={member.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group flex gap-6 items-center">
+                    <button onClick={() => removeTeamMember(member.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition-colors z-10">
                       <Trash2 size={16} />
                     </button>
                     <div className="w-24 h-24 flex-shrink-0">
                       <ImageUploader preview={member.imagePreview} circle small onUploadSuccess={(url: string) => updateTeamMember(member.id, 'imagePreview', url)} />
                     </div>
-                    <div className="flex-1 space-y-2">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Name</label>
-                        <input type="text" value={member.name} onChange={(e) => updateTeamMember(member.id, 'name', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20]" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Job Title</label>
-                        <input type="text" value={member.title} onChange={(e) => updateTeamMember(member.id, 'title', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20]" />
-                      </div>
+                    <div className="flex-1 space-y-4 pr-4">
+                      <TranslatableField 
+                        label="Name"
+                        baseValue={{ en: member.name_en || member.name, th: member.name_th, my: member.name_my, vi: member.name_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => updateTeamMember(member.id, `name_${lang}`, val)}
+                      />
+                      <TranslatableField 
+                        label="Job Title"
+                        baseValue={{ en: member.title_en || member.title, th: member.title_th, my: member.title_my, vi: member.title_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => updateTeamMember(member.id, `title_${lang}`, val)}
+                      />
                     </div>
                   </div>
                 ))}
@@ -396,6 +388,7 @@ export default function AdminAbout() {
             </div>
           )}
 
+          {/* TAB 5: AWARDS */}
           {activeTab === 'awards' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -410,65 +403,53 @@ export default function AdminAbout() {
 
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={awardsHeader.title} onChange={(e) => setAwardsHeader({...awardsHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Award-Winning Excellence" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
-                    <textarea rows={2} value={awardsHeader.description} onChange={(e) => setAwardsHeader({...awardsHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: awardsHeader.title_en || awardsHeader.title, th: awardsHeader.title_th, my: awardsHeader.title_my, vi: awardsHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setAwardsHeader(prev => ({...prev, [`title_${lang}`]: val}))}
+                />
+                <TranslatableField 
+                  label="Description"
+                  isTextArea={true}
+                  baseValue={{ en: awardsHeader.description_en || awardsHeader.description, th: awardsHeader.description_th, my: awardsHeader.description_my, vi: awardsHeader.description_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setAwardsHeader(prev => ({...prev, [`description_${lang}`]: val}))}
+                />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {awards.length === 0 && <p className="text-gray-400 py-8 col-span-3 text-center">No awards added yet.</p>}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {awards.length === 0 && <p className="text-gray-400 py-8 col-span-2 text-center">No awards added yet.</p>}
                 
                 {awards.map((award, index) => (
-                  <div key={award.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group flex flex-col gap-3">
+                  <div key={award.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group flex flex-col sm:flex-row gap-6">
                     
-                    {/* Hover Action Bar for Sorting and Deleting */}
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                      <button 
-                        onClick={() => moveAward(index, 'left')}
-                        disabled={index === 0}
-                        className="bg-white text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all border border-gray-100"
-                      >
-                        <ArrowLeft size={14} />
-                      </button>
-                      <button 
-                        onClick={() => moveAward(index, 'right')}
-                        disabled={index === awards.length - 1}
-                        className="bg-white text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all border border-gray-100"
-                      >
-                        <ArrowRight size={14} />
-                      </button>
-                      <button 
-                        onClick={() => removeAward(award.id)}
-                        className="bg-white text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all border border-gray-100"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <button onClick={() => moveAward(index, 'left')} disabled={index === 0} className="bg-white text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all border border-gray-100"><ArrowLeft size={14} /></button>
+                      <button onClick={() => moveAward(index, 'right')} disabled={index === awards.length - 1} className="bg-white text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all border border-gray-100"><ArrowRight size={14} /></button>
+                      <button onClick={() => removeAward(award.id)} className="bg-white text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all border border-gray-100"><Trash2 size={14} /></button>
                     </div>
 
-                    <div className="w-full aspect-video rounded-lg overflow-hidden border border-gray-200">
-                      <ImageUploader preview={award.imagePreview} onUploadSuccess={(url: string) => updateAward(award.id, 'imagePreview', url)} />
-                    </div>
-                    
-                    <div className="space-y-2 mt-2">
-                      <div>
-                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Award Title</label>
-                        <input type="text" value={award.title} onChange={(e) => updateAward(award.id, 'title', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-md focus:outline-none text-sm font-bold bg-white focus:border-[#1B5E20]" placeholder="e.g. Best ESG Platform" />
+                    <div className="w-full sm:w-1/3 flex flex-col gap-4">
+                      <div className="w-full aspect-square rounded-lg overflow-hidden border border-gray-200">
+                        <ImageUploader preview={award.imagePreview} onUploadSuccess={(url: string) => updateAward(award.id, 'imagePreview', url)} />
                       </div>
                       <div>
                         <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Year</label>
-                        <input type="text" value={award.year} onChange={(e) => updateAward(award.id, 'year', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-md focus:outline-none text-sm bg-white focus:border-[#1B5E20]" placeholder="e.g. 2024" />
+                        <input type="text" value={award.year || ''} onChange={(e) => updateAward(award.id, 'year', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-md focus:outline-none text-sm bg-white focus:border-[#1B5E20]" placeholder="e.g. 2024" />
                       </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Description</label>
-                        <textarea rows={2} value={award.description} onChange={(e) => updateAward(award.id, 'description', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-md focus:outline-none text-sm bg-white focus:border-[#1B5E20]" placeholder="Short description..." />
-                      </div>
+                    </div>
+                    
+                    <div className="w-full sm:w-2/3 space-y-4 pt-4 sm:pt-0">
+                      <TranslatableField 
+                        label="Award Title"
+                        baseValue={{ en: award.title_en || award.title, th: award.title_th, my: award.title_my, vi: award.title_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => updateAward(award.id, `title_${lang}`, val)}
+                      />
+                      <TranslatableField 
+                        label="Description"
+                        isTextArea={true}
+                        baseValue={{ en: award.description_en || award.description, th: award.description_th, my: award.description_my, vi: award.description_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => updateAward(award.id, `description_${lang}`, val)}
+                      />
                     </div>
                   </div>
                 ))}
@@ -476,7 +457,7 @@ export default function AdminAbout() {
             </div>
           )}
 
-          {/* TAB 6: PARTNERSHIPS WITH NEW SORTING ARROWS */}
+          {/* TAB 6: PARTNERSHIPS */}
           {activeTab === 'partners' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -491,81 +472,37 @@ export default function AdminAbout() {
 
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={partnersHeader.title} onChange={(e) => setPartnersHeader({...partnersHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Strategic Partnerships" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
-                    <textarea rows={2} value={partnersHeader.description} onChange={(e) => setPartnersHeader({...partnersHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: partnersHeader.title_en || partnersHeader.title, th: partnersHeader.title_th, my: partnersHeader.title_my, vi: partnersHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setPartnersHeader(prev => ({...prev, [`title_${lang}`]: val}))}
+                />
+                <TranslatableField 
+                  label="Description"
+                  isTextArea={true}
+                  baseValue={{ en: partnersHeader.description_en || partnersHeader.description, th: partnersHeader.description_th, my: partnersHeader.description_my, vi: partnersHeader.description_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setPartnersHeader(prev => ({...prev, [`description_${lang}`]: val}))}
+                />
               </div>
 
-              {/* PARTNERS GRID WITH SORTING */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {partners.map((partner, index) => (
                   <div key={partner.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
                     <div className="aspect-video relative overflow-hidden rounded-lg">
-                      <ImageUploader 
-                        preview={partner.imagePreview} 
-                        onUploadSuccess={(url: string, fileName: string) => {
-                          updatePartner(partner.id, 'imagePreview', url);
-                          if(fileName) updatePartner(partner.id, 'fileName', fileName);
-                        }}
-                      />
-                      
-                      {/* Hover Action Bar for Sorting and Deleting */}
+                      <ImageUploader preview={partner.imagePreview} onUploadSuccess={(url: string, fileName: string) => { updatePartner(partner.id, 'imagePreview', url); if(fileName) updatePartner(partner.id, 'fileName', fileName); }} />
                       <div className="absolute top-0 right-0 left-0 p-1 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                        {/* Sort Left/Right */}
                         <div className="flex gap-1">
-                          <button 
-                            onClick={() => movePartner(index, 'left')}
-                            disabled={index === 0}
-                            className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"
-                            title="Move Left"
-                          >
-                            <ArrowLeft size={14} />
-                          </button>
-                          <button 
-                            onClick={() => movePartner(index, 'right')}
-                            disabled={index === partners.length - 1}
-                            className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"
-                            title="Move Right"
-                          >
-                            <ArrowRight size={14} />
-                          </button>
+                          <button onClick={() => movePartner(index, 'left')} disabled={index === 0} className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"><ArrowLeft size={14} /></button>
+                          <button onClick={() => movePartner(index, 'right')} disabled={index === partners.length - 1} className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"><ArrowRight size={14} /></button>
                         </div>
-                        
-                        {/* Delete */}
-                        <button 
-                          onClick={() => removePartner(partner.id)}
-                          className="bg-white/90 backdrop-blur text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all"
-                          title="Delete Logo"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <button onClick={() => removePartner(partner.id)} className="bg-white/90 backdrop-blur text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all"><Trash2 size={14} /></button>
                       </div>
                     </div>
-                    
-                    <input 
-                      type="text" 
-                      value={partner.fileName || ''} 
-                      onChange={(e) => updatePartner(partner.id, 'fileName', e.target.value)} 
-                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-600" 
-                      placeholder="Upload to see filename" 
-                    />
+                    <input type="text" value={partner.altText || ''} onChange={(e) => updatePartner(partner.id, 'altText', e.target.value)} className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-900 font-medium" placeholder="Alt Text (SEO)" />
+                    <input type="text" value={partner.fileName || ''} onChange={(e) => updatePartner(partner.id, 'fileName', e.target.value)} className="w-full text-[10px] text-center px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-transparent text-gray-400" placeholder="Upload to see filename" />
                   </div>
                 ))}
-                
-                <div 
-                  onClick={addPartner}
-                  className="aspect-video border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"
-                >
-                  <Plus size={24} className="mb-2" />
-                  <span className="text-xs font-medium">Add Logo</span>
-                </div>
+                <div onClick={addPartner} className="aspect-video border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"><Plus size={24} className="mb-2" /><span className="text-xs font-medium">Add Logo</span></div>
               </div>
             </div>
           )}
@@ -625,6 +562,126 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
       ) : (
         <div className="flex flex-col items-center justify-center p-2 text-center text-gray-400">
           <ImageIcon size={small ? 20 : 32} className="mb-1" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- REUSABLE AUTO-TRANSLATE FIELD (REAL GOOGLE AI TRANSLATION) ---
+function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea = false }: any) {
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showLanguages, setShowLanguages] = useState(false);
+
+  const handleAutoTranslate = async () => {
+    if (!baseValue.en) return alert("Please enter English text first!");
+    
+    setIsTranslating(true);
+    
+    // PULL THE API KEY FROM YOUR .env FILE
+    const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY; 
+
+    if (!GOOGLE_API_KEY) {
+      alert("Missing Google Translate API Key in .env file! \n(e.g., VITE_GOOGLE_TRANSLATE_API_KEY=AIzaSy...)");
+      setIsTranslating(false);
+      return;
+    }
+    
+    try {
+      const translateText = async (text: string, targetLang: string) => {
+        const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            q: text,
+            source: 'en',
+            target: targetLang,
+            format: 'text' 
+          })
+        });
+        
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        // Decode HTML entities automatically
+        const translated = data.data.translations[0].translatedText;
+        const txt = document.createElement("textarea");
+        txt.innerHTML = translated;
+        return txt.value;
+      };
+
+      // Translate all three languages simultaneously
+      const [thText, myText, viText] = await Promise.all([
+        translateText(baseValue.en, 'th'),
+        translateText(baseValue.en, 'my'),
+        translateText(baseValue.en, 'vi')
+      ]);
+      
+      // Save the real translations
+      onUpdateTranslation('th', thText);
+      onUpdateTranslation('my', myText);
+      onUpdateTranslation('vi', viText);
+      
+      setShowLanguages(true); 
+    } catch (error) {
+      console.error("Translation failed", error);
+      alert("Auto-translation failed. Check console for details.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
+        <div className="flex-1 w-full">
+          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
+            🇬🇧 {label} (English base)
+          </label>
+          {isTextArea ? (
+            <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
+          ) : (
+            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
+          )}
+        </div>
+        
+        <div className="flex md:flex-col gap-2 shrink-0 md:pt-5 w-full md:w-auto">
+          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="flex-1 md:flex-none bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
+            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />}
+            Auto-Translate
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="flex-1 md:flex-none h-9 md:h-7 text-xs text-gray-500 bg-gray-200 md:bg-transparent">
+            <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
+          </Button>
+        </div>
+      </div>
+
+      {showLanguages && (
+        <div className="p-3 grid grid-cols-1 gap-3 bg-white">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">TH</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Thai translation..." />
+            ) : (
+               <input type="text" value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Thai translation..." />
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">MY</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Myanmar translation..." />
+            ) : (
+               <input type="text" value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Myanmar translation..." />
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">VN</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Vietnamese translation..." />
+            ) : (
+               <input type="text" value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Vietnamese translation..." />
+            )}
+          </div>
         </div>
       )}
     </div>

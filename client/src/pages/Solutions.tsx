@@ -1,20 +1,22 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Play, ChevronRight, ChevronDown, ChevronUp, Factory, Store, Hospital, School, MonitorSmartphone, Settings as SettingsIcon, CheckCircle } from 'lucide-react';
+import { Play, ChevronRight, ChevronDown, ChevronUp, Factory, Store, Hospital, School, MonitorSmartphone, Settings as SettingsIcon, CheckCircle, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter'; 
+import { useTranslation } from 'react-i18next'; // ✅ IMPORT TRANSLATION
 
 // --- FIREBASE IMPORTS ---
 import { doc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase"; 
 
 // --- HELPER COMPONENT FOR EXPANDABLE CARDS ---
-function SolutionCard({ title, desc, isDark }: { title: string, desc: string, isDark: boolean }) {
+// ✅ FIX: Passed the english rawTitle to this component so the icon matcher doesn't break on translation!
+function SolutionCard({ title, desc, rawTitle, isDark }: { title: string, desc: string, rawTitle: string, isDark: boolean }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getIcon = () => {
-    const t = title.toLowerCase();
+    const t = rawTitle.toLowerCase();
     if (t.includes('manufactur')) return Factory;
     if (t.includes('retail')) return Store;
     if (t.includes('health')) return Hospital;
@@ -51,6 +53,16 @@ function SolutionCard({ title, desc, isDark }: { title: string, desc: string, is
 export default function Solutions() {
   const [, setLocation] = useLocation(); 
 
+  // --- TRANSLATION SETUP ---
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+
+  // ✅ MAGIC HELPER FUNCTION: Automatically pulls the correct language field from Firebase!
+  const tDb = (obj: any, field: string, fallback: string = "") => {
+    if (!obj) return fallback;
+    return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
+  };
+
   // --- LIVE DATABASE STATE ---
   const [pageData, setPageData] = useState({
     heroData: { subtitle: "", title: "", description: "", imagePreview: "" },
@@ -72,6 +84,13 @@ export default function Solutions() {
     const unsubscribeServices = onSnapshot(collection(db, "services"), (snapshot) => {
       const loadedServices: any[] = [];
       snapshot.forEach((doc) => loadedServices.push({ id: doc.id, ...doc.data() }));
+      
+      // Keep it sorted just like the admin side
+      loadedServices.sort((a, b) => {
+        if (a.orderIndex !== undefined && b.orderIndex !== undefined) return a.orderIndex - b.orderIndex;
+        return ((a.title_en || a.title) || "").localeCompare((b.title_en || b.title) || "");
+      });
+      
       setServicesList(loadedServices);
       setIsLoading(false);
     });
@@ -82,7 +101,7 @@ export default function Solutions() {
     };
   }, []);
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]">Loading services...</div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
@@ -95,47 +114,46 @@ export default function Solutions() {
           style={pageData.heroData.imagePreview ? { backgroundImage: `url(${pageData.heroData.imagePreview})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
         />
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
-  <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-2xl border border-white/20">
-     
-     {/* Subtitle - Matched to Home: text-lg md:text-xl font-semibold */}
-     <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
-        {pageData.heroData.subtitle}
-     </h2>
-     
-     {/* Title - Matched to Home: text-3xl md:text-4xl lg:text-5xl font-extrabold */}
-     <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
-        {pageData.heroData.title}
-     </h1>
-     
-     {/* Description - Matched to Home: text-base md:text-lg font-light */}
-     <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
-        {pageData.heroData.description}
-     </p>
+          <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-2xl border border-white/20">
+             
+             {/* ✅ TRANSLATED SUBTITLE */}
+             <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
+               {tDb(pageData.heroData, 'subtitle')}
+             </h2>
+             
+             {/* ✅ TRANSLATED TITLE */}
+             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
+               {tDb(pageData.heroData, 'title')}
+             </h1>
+             
+             {/* ✅ TRANSLATED DESCRIPTION */}
+             <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
+               {tDb(pageData.heroData, 'description')}
+             </p>
 
-     {/* Buttons - Matched to Home (added hover:scale-105 and adjusted padding) */}
-     <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
-        <Button 
-          onClick={() => { setLocation('/carbon-calculator'); window.scrollTo(0, 0); }} 
-          className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
-        >
-          <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> Calculate Carbon Footprint
-        </Button>
-        <Button 
-          onClick={() => setLocation('/contact')}
-          className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" 
-        >
-          Contact Us
-        </Button>
-     </div>
-  </div>
-</div>
+             <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
+                <Button 
+                  onClick={() => { setLocation('/carbon-calculator'); window.scrollTo(0, 0); }} 
+                  className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
+                >
+                  <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> {t('home.calcButton', 'Calculate Carbon Footprint')}
+                </Button>
+                <Button 
+                  onClick={() => setLocation('/contact')}
+                  className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" 
+                >
+                  {t('nav.contact', 'Contact Us')}
+                </Button>
+             </div>
+          </div>
+        </div>
       </section>
 
       {/* 2. DYNAMIC SERVICES LIST (Pulled from database!) */}
       <section className="py-20 bg-[#F8F9F7]">
         <div className="container px-4 sm:px-8 lg:px-12">
            <div className="mb-16 text-sm font-medium text-gray-500 flex items-center gap-2">
-             <span>Services</span> <ChevronRight size={14} className="text-gray-300" /> <span className="text-gray-900 font-bold">All Services</span>
+             <span>{t('nav.services', 'Services')}</span> <ChevronRight size={14} className="text-gray-300" /> <span className="text-gray-900 font-bold">{t('nav.allServices', 'All Services')}</span>
            </div>
            
            <div className="space-y-24">
@@ -150,13 +168,15 @@ export default function Solutions() {
                       >
                          <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10" />
                          {service.imagePreview && (
-                           <img src={service.imagePreview} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                           <img src={service.imagePreview} alt={tDb(service, 'title')} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                          )}
                       </div>
                    </div>
                    <div className="w-full md:w-1/2 flex flex-col items-start">
-                      <h3 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-6">{service.title}</h3>
-                      <p className="text-gray-600 text-lg leading-relaxed mb-8">{service.desc}</p>
+                      {/* ✅ TRANSLATED TITLE & DESC */}
+                      <h3 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-6">{tDb(service, 'title')}</h3>
+                      <p className="text-gray-600 text-lg leading-relaxed mb-8">{tDb(service, 'desc')}</p>
+                      
                       <Button 
                         onClick={() => { setLocation(`/services/${service.slug}`); window.scrollTo(0,0); }}
                         className="bg-[#E2552B] hover:bg-[#E2552B]/90 text-white font-bold px-8 py-6 rounded-md shadow-md transition-transform hover:-translate-y-1"
@@ -192,7 +212,13 @@ export default function Solutions() {
                  <h3 className="text-2xl font-bold text-gray-800 mb-6">Industry-Specific Solutions</h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                     {pageData.industrySolutions.map((sol: any) => (
-                      <SolutionCard key={sol.id} title={sol.title} desc={sol.desc} isDark={true} />
+                      <SolutionCard 
+                        key={sol.id} 
+                        title={tDb(sol, 'title')} 
+                        desc={tDb(sol, 'desc')} 
+                        rawTitle={sol.title_en || sol.title || ""} 
+                        isDark={true} 
+                      />
                     ))}
                  </div>
               </div>
@@ -203,7 +229,13 @@ export default function Solutions() {
                  <h3 className="text-2xl font-bold text-gray-800 mb-6">Technology Solutions</h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                     {pageData.techSolutions.map((sol: any) => (
-                      <SolutionCard key={sol.id} title={sol.title} desc={sol.desc} isDark={false} />
+                      <SolutionCard 
+                        key={sol.id} 
+                        title={tDb(sol, 'title')} 
+                        desc={tDb(sol, 'desc')} 
+                        rawTitle={sol.title_en || sol.title || ""} 
+                        isDark={false} 
+                      />
                     ))}
                  </div>
               </div>

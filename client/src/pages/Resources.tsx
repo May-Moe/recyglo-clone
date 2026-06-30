@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Download, ChevronRight, Play, X, Loader2 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next'; // ✅ IMPORT TRANSLATION
 
 // --- FIREBASE IMPORTS ---
 import { doc, onSnapshot } from "firebase/firestore";
@@ -11,6 +12,16 @@ import { db } from "@/lib/firebase";
 
 export default function Resources() {
   const [, setLocation] = useLocation();
+
+  // --- TRANSLATION SETUP ---
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+
+  // ✅ MAGIC HELPER FUNCTION: Automatically pulls the correct language field from Firebase!
+  const tDb = (obj: any, field: string, fallback: string = "") => {
+    if (!obj) return fallback;
+    return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
+  };
 
   // --- LIVE DATABASE STATE ---
   const [pageData, setPageData] = useState({
@@ -47,8 +58,6 @@ export default function Resources() {
   }, []);
 
   // --- FORCE DOWNLOAD LOGIC ---
-  // This physically fetches the file so the browser is forced to download it
-  // instead of just opening it in a new tab.
   const handleForceDownload = async (url: string, title: string) => {
     setIsDownloading(true);
     try {
@@ -60,19 +69,16 @@ export default function Resources() {
       link.style.display = 'none';
       link.href = blobUrl;
       
-      // Clean up the title to make a nice filename
       const safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
       link.download = `${safeTitle}.pdf`;
       
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup
       window.URL.revokeObjectURL(blobUrl);
       document.body.removeChild(link);
     } catch (error) {
       console.error('Download fetch failed, falling back to new tab:', error);
-      // Fallback: If fetch fails (e.g. CORS issues), open it normally
       window.open(url, '_blank');
     } finally {
       setIsDownloading(false);
@@ -80,7 +86,7 @@ export default function Resources() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-white">Loading resources...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
   }
 
   return (
@@ -99,46 +105,44 @@ export default function Resources() {
         />
         
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
-  <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
-     
-     {/* Subtitle - Matched to Home: text-lg md:text-xl font-semibold */}
-     <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
-        {pageData.heroData.subtitle}
-     </h2>
-     
-     {/* Title - Matched to Home: text-3xl md:text-4xl lg:text-5xl font-extrabold */}
-     <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
-        {pageData.heroData.title}
-     </h1>
-     
-     {/* Description - Matched to Home: text-base md:text-lg font-light */}
-     <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
-        {pageData.heroData.description}
-     </p>
+          <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
+             
+             {/* ✅ TRANSLATED SUBTITLE */}
+             <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
+                {tDb(pageData.heroData, 'subtitle')}
+             </h2>
+             
+             {/* ✅ TRANSLATED TITLE */}
+             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
+                {tDb(pageData.heroData, 'title')}
+             </h1>
+             
+             {/* ✅ TRANSLATED DESCRIPTION */}
+             <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
+                {tDb(pageData.heroData, 'description')}
+             </p>
 
-     {/* Buttons - Matched to Home (added hover:scale-105 and adjusted padding) */}
-     <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
-        <Button 
-          onClick={() => {
-            setLocation('/carbon-calculator');
-            window.scrollTo(0, 0);
-          }}
-          className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
-        >
-          <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
-          Calculate Carbon Footprint
-        </Button>
-        
-        {/* Note: I updated this link to '/services' to match your recent route changes! */}
-        <Button 
-          className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105"
-          onClick={() => setLocation('/services')}
-        >
-          Our Solutions
-        </Button>
-     </div>
-  </div>
-</div>
+             <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
+                <Button 
+                  onClick={() => {
+                    setLocation('/carbon-calculator');
+                    window.scrollTo(0, 0);
+                  }}
+                  className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
+                >
+                  <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
+                  {t('home.calcButton', 'Calculate Carbon Footprint')}
+                </Button>
+                
+                <Button 
+                  className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105"
+                  onClick={() => setLocation('/services')}
+                >
+                  {t('home.solutionsButton', 'Our Solutions')}
+                </Button>
+             </div>
+          </div>
+        </div>
       </section>
 
       {/* 2. MAIN RESOURCES LISTS */}
@@ -147,17 +151,17 @@ export default function Resources() {
            
            {/* Breadcrumb */}
            <div className="mb-8 text-sm font-medium text-gray-500 flex items-center gap-2">
-             <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">Home</Link>
+             <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.home', 'Home')}</Link>
              <ChevronRight size={14} className="text-gray-300" />
-             <span className="text-gray-900 font-bold">Resources</span>
+             <span className="text-gray-900 font-bold">{t('nav.research', 'Resources')}</span>
            </div>
 
-           <h2 className="text-4xl font-bold text-[#1B5E20] mb-12">Resources</h2>
+           <h2 className="text-4xl font-bold text-[#1B5E20] mb-12">{t('nav.research', 'Resources')}</h2>
 
            {/* Case Studies Section */}
            {pageData.caseStudies.length > 0 && (
              <div className="mb-20">
-                <h3 className="text-2xl font-bold text-[#1C3B2B] mb-6">Case studies and Research Papers</h3>
+                <h3 className="text-2xl font-bold text-[#1C3B2B] mb-6">{t('resources.caseStudies', 'Case studies and Research Papers')}</h3>
                 <div className="flex flex-col border-t border-gray-200">
                    {pageData.caseStudies.map((item: any, idx: number) => (
                       <div 
@@ -166,17 +170,21 @@ export default function Resources() {
                       >
                         {item.fileUrl ? (
                           <button 
-                            onClick={() => setPreviewFile({ url: item.fileUrl, title: item.title })}
+                            onClick={() => setPreviewFile({ url: item.fileUrl, title: tDb(item, 'title') })}
                             className="w-full flex items-center justify-between gap-4 py-5 text-left group"
                           >
                             <span className="text-[15px] font-medium text-gray-800 group-hover:text-[#E2552B] transition-colors">
-                              {item.title}
+                              {/* ✅ TRANSLATED TITLE */}
+                              {tDb(item, 'title')}
                             </span>
                             <ChevronRight size={18} className="text-gray-300 group-hover:text-[#E2552B] transition-colors shrink-0" />
                           </button>
                         ) : (
                           <div className="w-full flex items-center justify-between gap-4 py-5">
-                            <span className="text-[15px] font-medium text-gray-500">{item.title}</span>
+                            <span className="text-[15px] font-medium text-gray-500">
+                              {/* ✅ TRANSLATED TITLE */}
+                              {tDb(item, 'title')}
+                            </span>
                             <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded shrink-0">Missing PDF</span>
                           </div>
                         )}
@@ -189,7 +197,7 @@ export default function Resources() {
            {/* Annual Reports Section */}
            {pageData.annualReports.length > 0 && (
              <div className="mb-12">
-                <h3 className="text-2xl font-bold text-[#1C3B2B] mb-6">Annual Reports</h3>
+                <h3 className="text-2xl font-bold text-[#1C3B2B] mb-6">{t('resources.annualReports', 'Annual Reports')}</h3>
                 <div className="flex flex-col border-t border-gray-200">
                    {pageData.annualReports.map((item: any, idx: number) => (
                       <div 
@@ -198,17 +206,21 @@ export default function Resources() {
                       >
                         {item.fileUrl ? (
                           <button 
-                            onClick={() => setPreviewFile({ url: item.fileUrl, title: item.title })}
+                            onClick={() => setPreviewFile({ url: item.fileUrl, title: tDb(item, 'title') })}
                             className="w-full flex items-center justify-between gap-4 py-5 text-left group"
                           >
                             <span className="text-[15px] font-medium text-gray-800 group-hover:text-[#E2552B] transition-colors">
-                              {item.title}
+                              {/* ✅ TRANSLATED TITLE */}
+                              {tDb(item, 'title')}
                             </span>
                             <ChevronRight size={18} className="text-gray-300 group-hover:text-[#E2552B] transition-colors shrink-0" />
                           </button>
                         ) : (
                           <div className="w-full flex items-center justify-between gap-4 py-5">
-                            <span className="text-[15px] font-medium text-gray-500">{item.title}</span>
+                            <span className="text-[15px] font-medium text-gray-500">
+                              {/* ✅ TRANSLATED TITLE */}
+                              {tDb(item, 'title')}
+                            </span>
                             <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded shrink-0">Missing PDF</span>
                           </div>
                         )}

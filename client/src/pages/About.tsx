@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Play, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter'; 
+import { useTranslation } from 'react-i18next'; // ✅ IMPORT TRANSLATION
 
 // --- FIREBASE IMPORTS ---
 import { doc, onSnapshot } from "firebase/firestore";
@@ -11,6 +12,16 @@ import { db } from "@/lib/firebase";
 
 export default function About() {
   const [, setLocation] = useLocation();
+
+  // --- TRANSLATION SETUP ---
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+
+  // ✅ MAGIC HELPER FUNCTION: Automatically pulls the correct language field from Firebase!
+  const tDb = (obj: any, field: string, fallback: string = "") => {
+    if (!obj) return fallback;
+    return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
+  };
 
   // --- LIVE DATABASE STATE ---
   const [pageData, setPageData] = useState({
@@ -68,7 +79,7 @@ export default function About() {
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
       <Header />
 
-      {/* 1. HERO SECTION - UPDATED TO MATCH HOME PAGE FONT SIZES */}
+      {/* 1. HERO SECTION */}
       <section className="relative py-12 md:py-20 overflow-hidden bg-[#1B5E20]">
         <div 
           className="absolute inset-0 z-0 opacity-80 bg-black/30" 
@@ -81,17 +92,20 @@ export default function About() {
         
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
           <div className="max-w-xl bg-white/90 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
-             {/* Subtitle - Matched to Home: text-lg md:text-xl font-semibold */}
+             
+             {/* ✅ TRANSLATED SUBTITLE */}
              <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
-               {pageData.heroData.subtitle}
+               {tDb(pageData.heroData, 'subtitle')}
              </h2>
-             {/* Title - Matched to Home: text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight */}
+             
+             {/* ✅ TRANSLATED TITLE */}
              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
-               {pageData.heroData.title}
+               {tDb(pageData.heroData, 'title')}
              </h1>
-             {/* Description - Matched to Home: text-base md:text-lg font-light */}
+             
+             {/* ✅ TRANSLATED DESCRIPTION */}
              <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
-               {pageData.heroData.description}
+               {tDb(pageData.heroData, 'description')}
              </p>
 
              <div className="flex flex-col sm:flex-row gap-4">
@@ -104,18 +118,18 @@ export default function About() {
                   className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-6 py-6 rounded-md shadow-sm flex items-center gap-2 transition-all hover:scale-105"
                 >
                   <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
-                  {pageData.heroData.button1Text || 'Calculate Carbon Footprint'}
+                  {pageData.heroData.button1Text || t('home.calcButton', 'Calculate Carbon Footprint')}
                 </Button>
                 
                 <Button 
                   onClick={() => {
-                    const link = pageData.heroData.button2Link || '/solutions';
+                    const link = pageData.heroData.button2Link || '/services';
                     if (link.startsWith('http')) window.open(link, '_blank');
                     else { setLocation(link); window.scrollTo(0, 0); }
                   }}
                   className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-8 py-6 rounded-md shadow-md transition-all hover:scale-105"
                 >
-                  {pageData.heroData.button2Text || 'Our Solutions'}
+                  {pageData.heroData.button2Text || t('home.solutionsButton', 'Our Solutions')}
                 </Button>
              </div>
           </div>
@@ -129,30 +143,35 @@ export default function About() {
             
             {/* Left Content */}
             <div>
-               <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 block">About Us</span>
+               <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 block">
+                 {t('about.aboutUs', 'About Us')}
+               </span>
                <h2 className="text-4xl md:text-5xl font-bold text-[#1B5E20] mb-8 leading-tight">
-                 {pageData.introData.title}
+                 {/* ✅ TRANSLATED */}
+                 {tDb(pageData.introData, 'title')}
                </h2>
                
-               <h3 className="text-2xl font-bold text-gray-900 mb-4">Who We Are</h3>
+               <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('about.whoWeAre', 'Who We Are')}</h3>
                <p className="text-gray-600 mb-8 leading-relaxed text-sm md:text-base whitespace-pre-line">
-                 {pageData.introData.description}
+                 {/* ✅ TRANSLATED */}
+                 {tDb(pageData.introData, 'description')}
                </p>
                
-               <h4 className="font-bold text-lg text-gray-900 mb-4">Our Coverage</h4>
+               <h4 className="font-bold text-lg text-gray-900 mb-4">{t('about.ourCoverage', 'Our Coverage')}</h4>
                <ul className="grid grid-cols-2 gap-y-3 mb-10 text-sm text-gray-700">
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> Myanmar</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-600"></span> Thailand</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> Malaysia</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-600"></span> Singapore</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> Vietnam</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-800"></span> South Korea</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-700"></span> Indonesia</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> {t('countries.myanmar', 'Myanmar')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-600"></span> {t('countries.thailand', 'Thailand')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> {t('countries.malaysia', 'Malaysia')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-600"></span> {t('countries.singapore', 'Singapore')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> {t('countries.vietnam', 'Vietnam')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-800"></span> {t('countries.southKorea', 'South Korea')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-700"></span> {t('countries.indonesia', 'Indonesia')}</li>
                </ul>
 
                <div className="text-sm text-gray-600 space-y-1 bg-gray-50 p-6 rounded-xl border border-gray-100">
-                 <p className="font-bold text-gray-900 mb-2">Get in touch:</p>
-                 <p>{pageData.introData.address}</p>
+                 <p className="font-bold text-gray-900 mb-2">{t('about.getInTouch', 'Get in touch:')}</p>
+                 {/* ✅ TRANSLATED ADDRESS */}
+                 <p>{tDb(pageData.introData, 'address')}</p>
                  <p>Email: {pageData.introData.email}</p>
                  <p>Phone: {pageData.introData.phone}</p>
                  <p>Line Official: {pageData.introData.lineId}</p>
@@ -192,28 +211,31 @@ export default function About() {
                    {pageData.storyData.ceoImagePreview ? (
                      <img 
                        src={pageData.storyData.ceoImagePreview} 
-                       alt={pageData.storyData.ceoName} 
+                       alt={tDb(pageData.storyData, 'ceoName')} 
                        className="w-56 h-56 rounded-full object-cover border-8 border-white shadow-md bg-white" 
                      />
                    ) : (
                      <div className="w-56 h-56 rounded-full border-8 border-white shadow-md bg-gray-200"></div>
                    )}
                 </div>
-                <h4 className="font-bold text-xl text-gray-900 mb-1">{pageData.storyData.ceoName}</h4>
-                <p className="text-sm font-semibold text-[#E2552B] uppercase tracking-wide">{pageData.storyData.ceoTitle}</p>
+                {/* ✅ TRANSLATED NAME AND TITLE */}
+                <h4 className="font-bold text-xl text-gray-900 mb-1">{tDb(pageData.storyData, 'ceoName')}</h4>
+                <p className="text-sm font-semibold text-[#E2552B] uppercase tracking-wide">{tDb(pageData.storyData, 'ceoTitle')}</p>
              </div>
              
              {/* Story Text */}
              <div className="lg:col-span-8">
                 <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-8 relative">
                   <span className="text-[#76FF03] text-6xl font-serif absolute -top-4 -left-6 opacity-50">"</span>
-                  {pageData.storyData.title}
+                  {/* ✅ TRANSLATED HEADING */}
+                  {tDb(pageData.storyData, 'title')}
                   <span className="text-[#76FF03] text-6xl font-serif absolute -top-4 -ml-2 opacity-50">"</span>
                 </h2>
                 <div className="space-y-6 text-gray-600 leading-relaxed">
-                  {pageData.storyData.paragraph1 && <p>{pageData.storyData.paragraph1}</p>}
-                  {pageData.storyData.paragraph2 && <p>{pageData.storyData.paragraph2}</p>}
-                  {pageData.storyData.paragraph3 && <p>{pageData.storyData.paragraph3}</p>}
+                  {/* ✅ TRANSLATED PARAGRAPHS */}
+                  {tDb(pageData.storyData, 'paragraph1') && <p>{tDb(pageData.storyData, 'paragraph1')}</p>}
+                  {tDb(pageData.storyData, 'paragraph2') && <p>{tDb(pageData.storyData, 'paragraph2')}</p>}
+                  {tDb(pageData.storyData, 'paragraph3') && <p>{tDb(pageData.storyData, 'paragraph3')}</p>}
                 </div>
              </div>
 
@@ -226,21 +248,21 @@ export default function About() {
          <div className="container px-4 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-20">
                <div className="bg-[#173F26] text-white p-10 rounded-3xl shadow-xl hover:-translate-y-2 transition-transform duration-300">
-                  <h3 className="text-2xl font-bold mb-6 text-[#76FF03]">Our Mission</h3>
+                  <h3 className="text-2xl font-bold mb-6 text-[#76FF03]">{t('about.ourMission', 'Our Mission')}</h3>
                   <p className="text-sm text-white/80 leading-relaxed">
-                    At RecyGlo, our mission is to foster a more sustainable future through innovative waste, energy, and carbon management and ESG data analytics solutions. We are dedicated to assisting businesses in minimizing their environmental footprint.
+                    {t('about.missionText', 'At RecyGlo, our mission is to foster a more sustainable future through innovative waste, energy, and carbon management and ESG data analytics solutions. We are dedicated to assisting businesses in minimizing their environmental footprint.')}
                   </p>
                </div>
                <div className="bg-[#173F26] text-white p-10 rounded-3xl shadow-xl hover:-translate-y-2 transition-transform duration-300">
-                  <h3 className="text-2xl font-bold mb-6 text-[#76FF03]">Our Vision</h3>
+                  <h3 className="text-2xl font-bold mb-6 text-[#76FF03]">{t('about.ourVision', 'Our Vision')}</h3>
                   <p className="text-sm text-white/80 leading-relaxed">
-                    We aspire to be the leading provider of zero-waste and zero-carbon energy efficient management solutions, paired with a comprehensive ESG data analytics platform, across the Asia Pacific region. We are committed to supporting businesses in achieving their sustainability targets.
+                    {t('about.visionText', 'We aspire to be the leading provider of zero-waste and zero-carbon energy efficient management solutions, paired with a comprehensive ESG data analytics platform, across the Asia Pacific region. We are committed to supporting businesses in achieving their sustainability targets.')}
                   </p>
                </div>
                <div className="bg-[#173F26] text-white p-10 rounded-3xl shadow-xl hover:-translate-y-2 transition-transform duration-300">
-                  <h3 className="text-2xl font-bold mb-6 text-[#76FF03]">Our Goal</h3>
+                  <h3 className="text-2xl font-bold mb-6 text-[#76FF03]">{t('about.ourGoal', 'Our Goal')}</h3>
                   <p className="text-sm text-white/80 leading-relaxed">
-                    Our goal is to implement ESG-driven waste management systems throughout the Asia Pacific, cultivating a robust waste management and recycling culture. Our focus areas include Sustainability, Circular Economy, Waste and Energy Management, and Green Financing.
+                    {t('about.goalText', 'Our goal is to implement ESG-driven waste management systems throughout the Asia Pacific, cultivating a robust waste management and recycling culture. Our focus areas include Sustainability, Circular Economy, Waste and Energy Management, and Green Financing.')}
                   </p>
                </div>
             </div>
@@ -253,10 +275,11 @@ export default function About() {
            <div className="container px-4 sm:px-8 lg:px-12">
               <div className="text-center mb-20">
                 <h2 className="text-4xl font-bold text-[#1B5E20] mb-4">
-                  {pageData.teamHeader?.title || 'Our Team'}
+                  {/* ✅ TRANSLATED HEADING */}
+                  {tDb(pageData.teamHeader, 'title', t('about.ourTeam', 'Our Team'))}
                 </h2>
-                {pageData.teamHeader?.description && (
-                  <p className="text-gray-600 max-w-2xl mx-auto">{pageData.teamHeader.description}</p>
+                {tDb(pageData.teamHeader, 'description') && (
+                  <p className="text-gray-600 max-w-2xl mx-auto">{tDb(pageData.teamHeader, 'description')}</p>
                 )}
               </div>
               
@@ -271,15 +294,16 @@ export default function About() {
                          {member.imagePreview ? (
                            <img 
                              src={member.imagePreview} 
-                             alt={member.name}
+                             alt={tDb(member, 'name')}
                              className="w-44 h-44 rounded-full object-cover border-4 border-white shadow-md group-hover:shadow-xl transition-shadow bg-white" 
                            />
                          ) : (
                            <div className="w-44 h-44 rounded-full border-4 border-white shadow-md bg-gray-200"></div>
                          )}
                        </div>
-                       <h4 className="font-bold text-xl text-gray-900 mb-1">{member.name}</h4>
-                       <p className="text-sm font-medium text-gray-500">{member.title}</p>
+                       {/* ✅ TRANSLATED MEMBER INFO */}
+                       <h4 className="font-bold text-xl text-gray-900 mb-1">{tDb(member, 'name')}</h4>
+                       <p className="text-sm font-medium text-gray-500">{tDb(member, 'title')}</p>
                     </div>
                  ))}
               </div>
@@ -291,7 +315,7 @@ export default function About() {
       <section id="impact" className="py-24 bg-[#F8F9F7] scroll-mt-24">
         <div className="container px-4 sm:px-8 lg:px-12 text-center">
            <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-12">
-             See Our Impact: Pioneering Sustainability In Action
+             {t('about.impactVideoTitle', 'See Our Impact: Pioneering Sustainability In Action')}
            </h2>
            <div className="w-full max-w-5xl mx-auto rounded-3xl aspect-video shadow-2xl flex items-center justify-center relative overflow-hidden bg-black">
               <iframe 
@@ -313,10 +337,11 @@ export default function About() {
           <div className="container px-4 sm:px-8 lg:px-12">
              <div className="text-center md:text-left mb-12">
                <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-4">
-                 {pageData.awardsHeader?.title || 'Award-Winning Excellence & Global Recognition'}
+                 {/* ✅ TRANSLATED HEADING */}
+                 {tDb(pageData.awardsHeader, 'title', t('about.awardsTitle', 'Award-Winning Excellence & Global Recognition'))}
                </h2>
-               {pageData.awardsHeader?.description && (
-                 <p className="text-gray-600 max-w-3xl">{pageData.awardsHeader.description}</p>
+               {tDb(pageData.awardsHeader, 'description') && (
+                 <p className="text-gray-600 max-w-3xl">{tDb(pageData.awardsHeader, 'description')}</p>
                )}
              </div>
              
@@ -352,7 +377,7 @@ export default function About() {
                                  
                                  {/* Image */}
                                  {award.imagePreview ? (
-                                   <img src={award.imagePreview} alt={award.title} className="max-w-full max-h-full object-contain relative z-10 drop-shadow-md group-hover:scale-110 transition-transform duration-500" />
+                                   <img src={award.imagePreview} alt={tDb(award, 'title')} className="max-w-full max-h-full object-contain relative z-10 drop-shadow-md group-hover:scale-110 transition-transform duration-500" />
                                  ) : (
                                    <div className="w-16 h-16 bg-gray-200 rounded-full border-2 border-dashed border-gray-300 relative z-10"></div>
                                  )}
@@ -361,11 +386,12 @@ export default function About() {
                               {/* BOTTOM: Structured Typography */}
                               <div className="p-5 flex flex-col flex-grow bg-white justify-between">
                                  <h3 className="font-bold text-gray-900 group-hover:text-[#1B5E20] transition-colors leading-snug line-clamp-3 text-sm md:text-base">
-                                     {award.title}
+                                     {/* ✅ TRANSLATED AWARD INFO */}
+                                     {tDb(award, 'title')}
                                  </h3>
-                                  {award.description && (
+                                  {tDb(award, 'description') && (
                                   <p className="text-gray-500 text-xs mt-2 line-clamp-3 leading-relaxed flex-grow">
-                                    {award.description}
+                                    {tDb(award, 'description')}
                                   </p>
                                 )}
                                  <div className="w-8 h-1 bg-[#1B5E20]/20 mt-4 rounded-full group-hover:bg-[#76FF03] group-hover:w-12 transition-all duration-300"></div>
@@ -395,10 +421,11 @@ export default function About() {
           <div className="container px-4 sm:px-8 lg:px-12 text-center">
              <div className="mb-12">
                <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-4">
-                 {pageData.partnersHeader?.title || 'Strategic Partnerships & Industry Memberships'}
+                 {/* ✅ TRANSLATED HEADING */}
+                 {tDb(pageData.partnersHeader, 'title', t('about.partnersTitle', 'Strategic Partnerships & Industry Memberships'))}
                </h2>
-               {pageData.partnersHeader?.description && (
-                 <p className="text-gray-600 max-w-2xl mx-auto">{pageData.partnersHeader.description}</p>
+               {tDb(pageData.partnersHeader, 'description') && (
+                 <p className="text-gray-600 max-w-2xl mx-auto">{tDb(pageData.partnersHeader, 'description')}</p>
                )}
              </div>
              

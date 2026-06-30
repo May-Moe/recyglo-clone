@@ -29,6 +29,12 @@ export default function Home() {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language || 'en';
 
+  // ✅ MAGIC HELPER FUNCTION: Automatically pulls the correct language field from Firebase!
+  const tDb = (obj: any, field: string, fallback: string = "") => {
+    if (!obj) return fallback;
+    return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
+  };
+
   // --- LIVE DATABASE STATE ---
   const [pageData, setPageData] = useState({
     heroSlides: [],
@@ -62,7 +68,6 @@ export default function Home() {
           visionData: data.visionData || { mission: "", vision: "", goal: "" },
           values: data.values || [],
           testimonials: data.testimonials || [],
-          // ✅ FIX: Saving the whole gallery object instead of just the URL so we can access the altText!
           galleryImages: data.galleryImages || [],
           partners: data.partners || [],
           servicesHeader: data.servicesHeader || { title: "", subtitle: "" },
@@ -135,13 +140,11 @@ export default function Home() {
     setGalleryIndex((prev) => (prev - 1 + pageData.galleryImages.length) % pageData.galleryImages.length);
   };
 
-  // Helper for Gallery Image SRC
   const getGalleryImg = (index: number) => {
     if (pageData.galleryImages.length === 0) return ""; 
     return pageData.galleryImages[index % pageData.galleryImages.length]?.preview || "";
   };
 
-  // Helper for Gallery Image ALT Text
   const getGalleryAlt = (index: number) => {
     if (pageData.galleryImages.length === 0) return "Impact Gallery Image"; 
     return pageData.galleryImages[index % pageData.galleryImages.length]?.altText || "Impact Gallery Image";
@@ -172,8 +175,6 @@ export default function Home() {
               const isActive = index === currentSlide;
               return (
                 <div key={index} className="w-full h-full flex-shrink-0 relative overflow-hidden">
-                  
-                  {/* ✅ ADDED: Visually hidden img tag for SEO Alt Text extraction */}
                   {slide.altText && slide.imagePreview && (
                     <img src={slide.imagePreview} alt={slide.altText} className="sr-only" />
                   )}
@@ -186,19 +187,22 @@ export default function Home() {
                   <div className="container px-4 sm:px-8 lg:px-12 relative z-20 h-full flex items-center">
                     <div className="w-full max-w-4xl">
                        <h2 className={`text-lg md:text-xl font-semibold mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] leading-snug text-[#76FF03] transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-8'}`}>
-                          {slide[`subtitle_${currentLang}`] || slide.subtitle_en || slide.subtitle}
+                          {/* ✅ APPLIED TRANSLATION HELPER */}
+                          {tDb(slide, 'subtitle')}
                        </h2>
                        <h1 className={`text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] leading-tight tracking-tight transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-500' : 'opacity-0 translate-y-8'}`}>
-                          {slide[`title_${currentLang}`] || slide.title_en || slide.title}
+                          {/* ✅ APPLIED TRANSLATION HELPER */}
+                          {tDb(slide, 'title')}
                        </h1>
                        <p className={`text-base md:text-lg text-white/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] mb-10 leading-relaxed max-w-2xl font-light transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-700' : 'opacity-0 translate-y-8'}`}>
-                          {slide[`description_${currentLang}`] || slide.description_en || slide.description}
+                          {/* ✅ APPLIED TRANSLATION HELPER */}
+                          {tDb(slide, 'description')}
                        </p>
                        <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-1000' : 'opacity-0 translate-y-8'}`}>
                           <Button onClick={() => { window.open(slide.button1Link || '/carbon-calculator', '_blank'); }} className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105">
                             <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> {slide.button1Text || t('home.calcButton', 'Calculate Carbon Footprint')}
                           </Button>
-                          <Button className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" onClick={() => { setLocation(slide.button2Link || '/services'); window.scrollTo(0, 0); }}>
+                          <Button className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" onClick={() => { setLocation(slide.button2Link || '/solutions'); window.scrollTo(0, 0); }}>
                             {slide.button2Text || t('home.solutionsButton', 'Our Solutions')}
                           </Button>
                        </div>
@@ -216,15 +220,16 @@ export default function Home() {
         </section>
       )}
 
-      {/* Trusted By Section WITH SEO ALT TEXT & RESTORED PAGINATION DOTS */}
+      {/* Trusted By Section */}
       {partners.length > 0 && (
         <section className="py-16 bg-white border-b border-gray-100 relative">
           <div className="container px-4 sm:px-8 lg:px-12">
             <h3 className="text-2xl font-bold text-[#1B5E20] mb-2 text-center lg:text-left">
-              {pageData.partnersHeader?.title || t('home.trustedBrands', 'Trusted by Global Brands & International Organizations')}
+              {/* ✅ APPLIED TRANSLATION HELPER */}
+              {tDb(pageData.partnersHeader, 'title', t('home.trustedBrands', 'Trusted by Global Brands & International Organizations'))}
             </h3>
-            {pageData.partnersHeader?.description && (
-              <p className="text-gray-600 mb-10 text-center lg:text-left">{pageData.partnersHeader.description}</p>
+            {tDb(pageData.partnersHeader, 'description') && (
+              <p className="text-gray-600 mb-10 text-center lg:text-left">{tDb(pageData.partnersHeader, 'description')}</p>
             )}
             <div className="flex items-center justify-between gap-2 md:gap-6 relative mt-6">
                <button onClick={prevPartnerPage} className="p-3 text-gray-400 hover:text-[#1B5E20] z-10 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0"><ChevronLeft size={24} /></button>
@@ -253,7 +258,6 @@ export default function Home() {
                <button onClick={nextPartnerPage} className="p-3 text-gray-400 hover:text-[#1B5E20] z-10 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all flex-shrink-0"><ChevronRight size={24} /></button>
             </div>
             
-            {/* ✅ RESTORED: DOT PAGINATION FOR PARTNERS SECTION */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-8 relative">
                  <div className="w-8"></div> 
@@ -265,7 +269,6 @@ export default function Home() {
                  <div className="text-sm font-medium text-gray-500">{partnerPageIndex + 1} / {totalPages}</div>
               </div>
             )}
-            
           </div>
         </section>
       )}
@@ -278,10 +281,12 @@ export default function Home() {
              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 <div className="lg:col-span-5 pr-8">
                    <h2 className="text-4xl font-bold text-[#1B5E20] mb-6 leading-tight">
-                     {pageData.testimonialsHeader?.title || t('home.testimonialsTitle', 'What Our Clients Say')}
+                     {/* ✅ APPLIED TRANSLATION HELPER */}
+                     {tDb(pageData.testimonialsHeader, 'title', t('home.testimonialsTitle', 'What Our Clients Say'))}
                    </h2>
                    <p className="text-gray-600 mb-8 text-lg">
-                     {pageData.testimonialsHeader?.description || t('home.testimonialsDesc', '')}
+                     {/* ✅ APPLIED TRANSLATION HELPER */}
+                     {tDb(pageData.testimonialsHeader, 'description', t('home.testimonialsDesc', ''))}
                    </p>
                    <div className="inline-block p-4 border border-gray-200 rounded-2xl relative">
                       <Quote className="text-gray-300 w-12 h-12" />
@@ -299,19 +304,22 @@ export default function Home() {
                           <div className="mb-8">
                              <span className="text-[#76FF03] text-6xl font-serif leading-none">"</span>
                              <p className="text-xl leading-relaxed relative z-10 font-medium">
-                               {pageData.testimonials[testimonialIndex][`quote_${currentLang}`] || pageData.testimonials[testimonialIndex].quote_en || pageData.testimonials[testimonialIndex].quote}
+                               {/* ✅ APPLIED TRANSLATION HELPER */}
+                               {tDb(pageData.testimonials[testimonialIndex], 'quote')}
                              </p>
                           </div>
                           <div className="flex items-center gap-4 border-t border-white/20 pt-6">
                              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden border-2 border-white/10">
                                 {pageData.testimonials[testimonialIndex].imagePreview && (
-                                  <img src={pageData.testimonials[testimonialIndex].imagePreview} alt={pageData.testimonials[testimonialIndex].author} className="w-full h-full object-cover" />
+                                  <img src={pageData.testimonials[testimonialIndex].imagePreview} alt="Testimonial Author" className="w-full h-full object-cover" />
                                 )}
                              </div>
                              <div>
-                               <h4 className="font-bold text-[#76FF03] text-lg">{pageData.testimonials[testimonialIndex].author}</h4>
-                               {pageData.testimonials[testimonialIndex].organization && (
-                                 <p className="text-white/70 text-sm">{pageData.testimonials[testimonialIndex].organization}</p>
+                               <h4 className="font-bold text-[#76FF03] text-lg">
+                                 {tDb(pageData.testimonials[testimonialIndex], 'author')}
+                               </h4>
+                               {tDb(pageData.testimonials[testimonialIndex], 'organization') && (
+                                 <p className="text-white/70 text-sm">{tDb(pageData.testimonials[testimonialIndex], 'organization')}</p>
                                )}
                              </div>
                           </div>
@@ -334,17 +342,19 @@ export default function Home() {
         <div className="container px-4 sm:px-8 lg:px-12">
           <div className="max-w-3xl mb-16">
             <span className="text-[#E2552B] font-bold tracking-wider uppercase text-sm mb-3 block">
-              {pageData.servicesHeader?.subtitle || 'Services'}
+              {/* ✅ APPLIED TRANSLATION HELPER */}
+              {tDb(pageData.servicesHeader, 'subtitle', 'Services')}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1B5E20] leading-tight">
-              {pageData.servicesHeader?.title || 'Integrated Sustainability Services'}
+              {/* ✅ APPLIED TRANSLATION HELPER */}
+              {tDb(pageData.servicesHeader, 'title', 'Integrated Sustainability Services')}
             </h2>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {displayServices.map((service: any, idx: number) => {
-               const serviceTitle = service[`title_${currentLang}`] || service.title_en || service.title;
-               const serviceDesc = service[`desc_${currentLang}`] || service.desc_en || service.desc;
+               const serviceTitle = tDb(service, 'title');
+               const serviceDesc = tDb(service, 'desc');
                
                return (
                  <Card 
@@ -381,17 +391,19 @@ export default function Home() {
         <div className="container px-4 sm:px-8 lg:px-12">
           <div className="max-w-3xl mb-16">
             <span className="text-[#E2552B] font-bold tracking-wider uppercase text-sm mb-3 block">
-              {pageData.platformsHeader?.subtitle || t('home.platformsSubtitle', 'Technology')}
+              {/* ✅ APPLIED TRANSLATION HELPER */}
+              {tDb(pageData.platformsHeader, 'subtitle', t('home.platformsSubtitle', 'Technology'))}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1B5E20] leading-tight">
-              {pageData.platformsHeader?.title || t('home.platformsTitle', 'Digital Platforms')}
+              {/* ✅ APPLIED TRANSLATION HELPER */}
+              {tDb(pageData.platformsHeader, 'title', t('home.platformsTitle', 'Digital Platforms'))}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {displayPlatforms.map((plat: any, idx: number) => {
-              const platTitle = plat[`title_${currentLang}`] || plat.title_en || plat.title;
-              const platDesc = plat[`desc_${currentLang}`] || plat.desc_en || plat.desc;
+              const platTitle = tDb(plat, 'title');
+              const platDesc = tDb(plat, 'desc');
 
               return (
                 <Card 
@@ -429,18 +441,29 @@ export default function Home() {
         <section className="py-24 bg-white border-y border-gray-100">
           <div className="container px-4 sm:px-8 lg:px-12">
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">{pageData.valuesHeader?.title || t('home.valuesTitle', 'Our Values')}</h2>
-              {pageData.valuesHeader?.description && (<p className="text-gray-600 max-w-3xl">{pageData.valuesHeader.description}</p>)}
+              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
+                {/* ✅ APPLIED TRANSLATION HELPER */}
+                {tDb(pageData.valuesHeader, 'title', t('home.valuesTitle', 'Our Values'))}
+              </h2>
+              {tDb(pageData.valuesHeader, 'description') && (
+                <p className="text-gray-600 max-w-3xl">{tDb(pageData.valuesHeader, 'description')}</p>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {pageData.values.map((val: any, i: number) => (
                 <div key={i} className="bg-[#F8F9F7] p-8 rounded-xl border border-gray-100 shadow-sm text-center flex flex-col items-center hover:shadow-md transition-shadow">
                    <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-6 border border-gray-200 overflow-hidden p-3 shadow-sm">
-                      {val.iconPreview && <img src={val.iconPreview} alt={val.title} className="w-full h-full object-contain" />}
+                      {val.iconPreview && <img src={val.iconPreview} alt={tDb(val, 'title')} className="w-full h-full object-contain" />}
                    </div>
-                   <h4 className="font-bold text-[#1B5E20] mb-3">{val[`title_${currentLang}`] || val.title_en || val.title}</h4>
-                   <p className="text-sm text-gray-500">{val[`desc_${currentLang}`] || val.desc_en || val.desc}</p>
+                   <h4 className="font-bold text-[#1B5E20] mb-3">
+                     {/* ✅ APPLIED TRANSLATION HELPER */}
+                     {tDb(val, 'title')}
+                   </h4>
+                   <p className="text-sm text-gray-500">
+                     {/* ✅ APPLIED TRANSLATION HELPER */}
+                     {tDb(val, 'desc')}
+                   </p>
                 </div>
               ))}
             </div>
@@ -453,34 +476,47 @@ export default function Home() {
         <div className="absolute inset-0 z-0 opacity-60" style={{ backgroundImage: `url('https://d2xsxph8kpxj0f.cloudfront.net/310519663457630341/K6tBx7feaJeR6NiJRmj9rs/testimonial-bg-a4TBoBLbxws7biQWxPfE9Q.webp')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }} />
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
            <div className="mb-12">
-             <h2 className="text-3xl font-bold text-[#76FF03] mb-4">{pageData.visionHeader?.title || t('home.visionTitle', 'Our Strategic Vision for a Sustainable Asia-Pacific')}</h2>
-             {pageData.visionHeader?.description && (<p className="text-white/80 max-w-2xl">{pageData.visionHeader.description}</p>)}
+             <h2 className="text-3xl font-bold text-[#76FF03] mb-4">
+               {/* ✅ APPLIED TRANSLATION HELPER */}
+               {tDb(pageData.visionHeader, 'title', t('home.visionTitle', 'Our Strategic Vision for a Sustainable Asia-Pacific'))}
+             </h2>
+             {tDb(pageData.visionHeader, 'description') && (
+               <p className="text-white/80 max-w-2xl">{tDb(pageData.visionHeader, 'description')}</p>
+             )}
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-[#1B5E20]/80 backdrop-blur-md p-8 rounded-2xl border border-white/10 text-white">
                  <h3 className="text-2xl font-bold mb-4">{t('home.mission', 'Our Mission')}</h3>
-                 <p className="text-white/80 leading-relaxed text-sm">{pageData.visionData[`mission_${currentLang}`] || pageData.visionData.mission_en || pageData.visionData.mission}</p>
+                 {/* ✅ APPLIED TRANSLATION HELPER */}
+                 <p className="text-white/80 leading-relaxed text-sm">{tDb(pageData.visionData, 'mission')}</p>
               </div>
               <div className="bg-[#1B5E20]/80 backdrop-blur-md p-8 rounded-2xl border border-white/10 text-white">
                  <h3 className="text-2xl font-bold mb-4">{t('home.vision', 'Our Vision')}</h3>
-                 <p className="text-white/80 leading-relaxed text-sm">{pageData.visionData[`vision_${currentLang}`] || pageData.visionData.vision_en || pageData.visionData.vision}</p>
+                 {/* ✅ APPLIED TRANSLATION HELPER */}
+                 <p className="text-white/80 leading-relaxed text-sm">{tDb(pageData.visionData, 'vision')}</p>
               </div>
               <div className="bg-[#1B5E20]/80 backdrop-blur-md p-8 rounded-2xl border border-white/10 text-white">
                  <h3 className="text-2xl font-bold mb-4">{t('home.goal', 'Our Goal')}</h3>
-                 <p className="text-white/80 leading-relaxed text-sm whitespace-pre-line">{pageData.visionData[`goal_${currentLang}`] || pageData.visionData.goal_en || pageData.visionData.goal}</p>
+                 {/* ✅ APPLIED TRANSLATION HELPER */}
+                 <p className="text-white/80 leading-relaxed text-sm whitespace-pre-line">{tDb(pageData.visionData, 'goal')}</p>
               </div>
            </div>
         </div>
       </section>
 
-      {/* Impact in Action Masonry-like Grid WITH SEO ALT TEXT */}
+      {/* Impact in Action Masonry-like Grid */}
       {pageData.galleryImages.length > 4 && (
         <section className="py-24 bg-[#F8F9F7]">
           <div className="container px-4 sm:px-8 lg:px-12">
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">{pageData.galleryHeader?.title || t('home.impactGalleryTitle', 'Impact in Action')}</h2>
-              {pageData.galleryHeader?.description && (<p className="text-gray-600 max-w-3xl">{pageData.galleryHeader.description}</p>)}
+              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
+                {/* ✅ APPLIED TRANSLATION HELPER */}
+                {tDb(pageData.galleryHeader, 'title', t('home.impactGalleryTitle', 'Impact in Action'))}
+              </h2>
+              {tDb(pageData.galleryHeader, 'description') && (
+                <p className="text-gray-600 max-w-3xl">{tDb(pageData.galleryHeader, 'description')}</p>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-auto md:h-[600px]">
@@ -514,7 +550,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* FULL SCREEN GALLERY OVERLAY WITH SEO ALT TEXT */}
+      {/* FULL SCREEN GALLERY OVERLAY */}
       {isGalleryOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm">
           <button className="absolute left-4 md:left-8 text-white/70 hover:text-white transition-colors z-50 hidden sm:block" onClick={prevGalleryImage}><ChevronLeft size={48} /></button>

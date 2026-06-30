@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users, Briefcase, Monitor, ArrowLeft, ArrowRight } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users, Briefcase, Monitor, ArrowLeft, ArrowRight, Languages, Wand2 } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -11,38 +11,23 @@ export default function AdminHome() {
   const [isLoading, setIsLoading] = useState(true);
 
   // --- LIVE DATABASE STATE ---
-  const [visionData, setVisionData] = useState({
-    mission: "",
-    vision: "",
-    goal: ""
-  });
-
+  const [visionData, setVisionData] = useState<any>({ mission: "", vision: "", goal: "" });
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [values, setValues] = useState<any[]>([]);
   
   // ALL SECTION HEADERS
-  const [partnersHeader, setPartnersHeader] = useState({ title: "", description: "" });
-  const [testimonialsHeader, setTestimonialsHeader] = useState({ title: "", description: "" });
-  const [valuesHeader, setValuesHeader] = useState({ title: "", description: "" });
-  const [visionHeader, setVisionHeader] = useState({ title: "", description: "" });
-  const [galleryHeader, setGalleryHeader] = useState({ title: "", description: "" });
+  const [partnersHeader, setPartnersHeader] = useState<any>({ title: "", description: "" });
+  const [testimonialsHeader, setTestimonialsHeader] = useState<any>({ title: "", description: "" });
+  const [valuesHeader, setValuesHeader] = useState<any>({ title: "", description: "" });
+  const [visionHeader, setVisionHeader] = useState<any>({ title: "", description: "" });
+  const [galleryHeader, setGalleryHeader] = useState<any>({ title: "", description: "" });
+  const [servicesHeader, setServicesHeader] = useState<any>({ subtitle: "What We Do", title: "Comprehensive Waste & ESG Services" });
+  const [platformsHeader, setPlatformsHeader] = useState<any>({ subtitle: "Technology", title: "Digital Platforms" });
 
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [partners, setPartners] = useState<any[]>([]); 
-  
-  // Services Section State
-  const [servicesHeader, setServicesHeader] = useState({
-    subtitle: "What We Do",
-    title: "Comprehensive Waste & ESG Services"
-  });
   const [featuredServices, setFeaturedServices] = useState<any[]>([]);
-
-  // Digital Platforms Section State
-  const [platformsHeader, setPlatformsHeader] = useState({
-    subtitle: "Technology",
-    title: "Digital Platforms"
-  });
   const [digitalPlatforms, setDigitalPlatforms] = useState<any[]>([]);
 
   // --- 1. FETCH INITIAL DATA FROM FIREBASE ON LOAD ---
@@ -65,7 +50,6 @@ export default function AdminHome() {
           if (data.platformsHeader) setPlatformsHeader(data.platformsHeader);
           if (data.digitalPlatforms) setDigitalPlatforms(data.digitalPlatforms);
 
-          // Fetch Section Headers
           if (data.partnersHeader) setPartnersHeader(data.partnersHeader);
           if (data.testimonialsHeader) setTestimonialsHeader(data.testimonialsHeader);
           if (data.valuesHeader) setValuesHeader(data.valuesHeader);
@@ -78,7 +62,6 @@ export default function AdminHome() {
         setIsLoading(false);
       }
     };
-
     fetchHomeData();
   }, []);
 
@@ -88,21 +71,9 @@ export default function AdminHome() {
     try {
       const docRef = doc(db, "website_content", "home_page");
       await setDoc(docRef, {
-        visionData,
-        heroSlides,
-        values,
-        testimonials,
-        galleryImages,
-        partners, 
-        servicesHeader,
-        featuredServices,
-        platformsHeader,
-        digitalPlatforms,
-        partnersHeader,
-        testimonialsHeader, 
-        valuesHeader,
-        visionHeader,
-        galleryHeader,
+        visionData, heroSlides, values, testimonials, galleryImages, partners, 
+        servicesHeader, featuredServices, platformsHeader, digitalPlatforms,
+        partnersHeader, testimonialsHeader, valuesHeader, visionHeader, galleryHeader,
         lastUpdated: new Date()
       }, { merge: true });
 
@@ -116,50 +87,43 @@ export default function AdminHome() {
   };
 
   // --- HANDLERS FOR UPDATING LOCAL STATE ---
-  const addHeroSlide = () => setHeroSlides(prev => [...prev, { id: `slide-${Date.now()}`, subtitle: "", title: "", description: "", imagePreview: "", altText: "", button1Text: "", button1Link: "", button2Text: "", button2Link: "" }]);
+  const addHeroSlide = () => setHeroSlides(prev => [...prev, { id: `slide-${Date.now()}` }]);
   const removeHeroSlide = (id: string) => setHeroSlides(prev => prev.filter(s => s.id !== id));
   const updateHeroSlide = (id: string, field: string, value: string) => setHeroSlides(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
 
-  const addValue = () => setValues(prev => [...prev, { id: `val-${Date.now()}`, title: "", desc: "", iconPreview: "" }]);
+  const addValue = () => setValues(prev => [...prev, { id: `val-${Date.now()}` }]);
   const removeValue = (id: string) => setValues(prev => prev.filter(v => v.id !== id));
   const updateValue = (id: string, field: string, value: string) => setValues(prev => prev.map(v => v.id === id ? { ...v, [field]: value } : v));
 
-  const addTestimonial = () => setTestimonials(prev => [...prev, { id: `test-${Date.now()}`, author: "", organization: "", quote: "", imagePreview: "" }]);
+  const addTestimonial = () => setTestimonials(prev => [...prev, { id: `test-${Date.now()}` }]);
   const removeTestimonial = (id: string) => setTestimonials(prev => prev.filter(t => t.id !== id));
   const updateTestimonial = (id: string, field: string, value: string) => setTestimonials(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
 
-  const addGalleryImage = () => setGalleryImages(prev => [...prev, { id: `img-${Date.now()}`, preview: "", fileName: "", altText: "" }]);
+  const addGalleryImage = () => setGalleryImages(prev => [...prev, { id: `img-${Date.now()}` }]);
   const removeGalleryImage = (id: string) => setGalleryImages(prev => prev.filter(img => img.id !== id));
   const updateGalleryImage = (id: string, field: string, value: string) => setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, [field]: value } : img));
 
-  const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}`, imagePreview: "", fileName: "", altText: "" }]);
+  const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}` }]);
   const removePartner = (id: string) => setPartners(prev => prev.filter(p => p.id !== id));
   const updatePartner = (id: string, field: string, value: string) => setPartners(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
-  
   const movePartner = (index: number, direction: 'left' | 'right') => {
     setPartners(prev => {
       const newPartners = [...prev];
-      if (direction === 'left' && index > 0) {
-        [newPartners[index - 1], newPartners[index]] = [newPartners[index], newPartners[index - 1]];
-      } else if (direction === 'right' && index < newPartners.length - 1) {
-        [newPartners[index + 1], newPartners[index]] = [newPartners[index], newPartners[index + 1]];
-      }
+      if (direction === 'left' && index > 0) [newPartners[index - 1], newPartners[index]] = [newPartners[index], newPartners[index - 1]];
+      else if (direction === 'right' && index < newPartners.length - 1) [newPartners[index + 1], newPartners[index]] = [newPartners[index], newPartners[index + 1]];
       return newPartners;
     });
   };
 
-  const addService = () => setFeaturedServices(prev => [...prev, { id: `service-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
+  const addService = () => setFeaturedServices(prev => [...prev, { id: `service-${Date.now()}` }]);
   const removeService = (id: string) => setFeaturedServices(prev => prev.filter(s => s.id !== id));
   const updateService = (id: string, field: string, value: string) => setFeaturedServices(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
 
-  const addPlatform = () => setDigitalPlatforms(prev => [...prev, { id: `plat-${Date.now()}`, title: "", desc: "", link: "", imagePreview: "" }]);
+  const addPlatform = () => setDigitalPlatforms(prev => [...prev, { id: `plat-${Date.now()}` }]);
   const removePlatform = (id: string) => setDigitalPlatforms(prev => prev.filter(p => p.id !== id));
   const updatePlatform = (id: string, field: string, value: string) => setDigitalPlatforms(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
 
-
-  if (isLoading) {
-    return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
-  }
+  if (isLoading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-500 pb-12">
@@ -170,18 +134,12 @@ export default function AdminHome() {
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Edit Home Page</h1>
           <p className="text-gray-500 text-sm">Update the static content, sliders, and images on your landing page.</p>
         </div>
-        <Button 
-          onClick={handleSave}
-          disabled={isSaving}
-          className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white flex items-center gap-2 px-6"
-        >
-          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save size={18} />}
-          {isSaving ? 'Saving to Database...' : 'Save All Changes'}
+        <Button onClick={handleSave} disabled={isSaving} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white flex items-center gap-2 px-6">
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save size={18} />} Save All Changes
         </Button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        
         {/* LEFT SIDE: Tab Navigation */}
         <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
           <TabButton id="hero" label="Hero Slideshow" icon={<Layout size={18} />} activeTab={activeTab} onClick={setActiveTab} />
@@ -205,14 +163,11 @@ export default function AdminHome() {
                   <h2 className="text-xl font-bold text-gray-900">Hero Slideshow</h2>
                   <p className="text-sm text-gray-500 mt-1">Manage the main sliding banners at the top of your website.</p>
                 </div>
-                <Button onClick={addHeroSlide} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
-                  <Plus size={16} className="mr-2" /> Add Slide
-                </Button>
+                <Button onClick={addHeroSlide} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Slide</Button>
               </div>
 
               <div className="space-y-8">
-                {heroSlides.length === 0 && <p className="text-gray-400 text-center py-8">No slides added yet. Click "Add Slide" to begin.</p>}
-                
+                {heroSlides.length === 0 && <p className="text-gray-400 text-center py-8">No slides added yet.</p>}
                 {heroSlides.map((slide, index) => (
                   <div key={slide.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group">
                     <div className="flex items-center justify-between mb-6 border-b border-gray-200 pb-4">
@@ -220,47 +175,44 @@ export default function AdminHome() {
                         <GripVertical className="text-gray-400 cursor-grab" size={20} />
                         <h3 className="font-bold text-gray-700 text-lg">Slide {index + 1}</h3>
                       </div>
-                      <button onClick={() => removeHeroSlide(slide.id)} className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50">
-                        <Trash2 size={18} />
-                      </button>
+                      <button onClick={() => removeHeroSlide(slide.id)} className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50"><Trash2 size={18} /></button>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                      <div className="md:col-span-4 space-y-2 flex flex-col">
-                        <label className="block text-sm font-bold text-gray-700">Background Image</label>
-                        <ImageUploader 
-                          preview={slide.imagePreview} 
-                          onUploadSuccess={(url: string) => updateHeroSlide(slide.id, 'imagePreview', url)} 
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-6">
+                      <div className="lg:col-span-4 flex flex-col gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2">Background Image</label>
+                          <div className="h-[250px] w-full rounded-xl overflow-hidden shadow-sm">
+                            <ImageUploader preview={slide.imagePreview} onUploadSuccess={(url: string) => updateHeroSlide(slide.id, 'imagePreview', url)} />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1">Image Alt Text (SEO)</label>
+                          <input type="text" value={slide.altText || ''} onChange={(e) => updateHeroSlide(slide.id, 'altText', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="e.g. RecyGlo Team collecting waste" />
+                        </div>
+                      </div>
+                      
+                      <div className="lg:col-span-8 space-y-5">
+                        <TranslatableField 
+                          label="Small Subtitle"
+                          baseValue={{ en: slide.subtitle_en || slide.subtitle, th: slide.subtitle_th, my: slide.subtitle_my, vi: slide.subtitle_vi }}
+                          onUpdateTranslation={(lang: string, val: string) => updateHeroSlide(slide.id, `subtitle_${lang}`, val)}
+                        />
+                        <TranslatableField 
+                          label="Main Heading"
+                          baseValue={{ en: slide.title_en || slide.title, th: slide.title_th, my: slide.title_my, vi: slide.title_vi }}
+                          onUpdateTranslation={(lang: string, val: string) => updateHeroSlide(slide.id, `title_${lang}`, val)}
+                        />
+                        <TranslatableField 
+                          label="Description"
+                          isTextArea={true}
+                          baseValue={{ en: slide.description_en || slide.description, th: slide.description_th, my: slide.description_my, vi: slide.description_vi }}
+                          onUpdateTranslation={(lang: string, val: string) => updateHeroSlide(slide.id, `description_${lang}`, val)}
                         />
                       </div>
-                      <div className="md:col-span-8 space-y-4">
-                        {/* ✅ MOVED: Image Alt Text is now safely in the right column */}
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Image Alt Text (SEO)</label>
-                          <input 
-                            type="text" 
-                            value={slide.altText || ''} 
-                            onChange={(e) => updateHeroSlide(slide.id, 'altText', e.target.value)} 
-                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-medium" 
-                            placeholder="e.g. RecyGlo Team collecting waste" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
-                          <input type="text" value={slide.subtitle} onChange={(e) => updateHeroSlide(slide.id, 'subtitle', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Zero Waste to Landfill" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Main Heading</label>
-                          <input type="text" value={slide.title} onChange={(e) => updateHeroSlide(slide.id, 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" placeholder="e.g. Circular Economy Strategies" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                          <textarea rows={3} value={slide.description} onChange={(e) => updateHeroSlide(slide.id, 'description', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Enter paragraph text..." />
-                        </div>
-                      </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-200 pt-6">
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1">Button 1 Text (Left)</label>
                         <input type="text" value={slide.button1Text || ''} onChange={(e) => updateHeroSlide(slide.id, 'button1Text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="Calculate Carbon Footprint" />
@@ -275,7 +227,7 @@ export default function AdminHome() {
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1">Button 2 Link / Path</label>
-                        <input type="text" value={slide.button2Link || ''} onChange={(e) => updateHeroSlide(slide.id, 'button2Link', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/solutions" />
+                        <input type="text" value={slide.button2Link || ''} onChange={(e) => updateHeroSlide(slide.id, 'button2Link', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm bg-white" placeholder="/services" />
                       </div>
                     </div>
                   </div>
@@ -299,49 +251,47 @@ export default function AdminHome() {
 
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
-                    <input type="text" value={servicesHeader.subtitle} onChange={(e) => setServicesHeader({...servicesHeader, subtitle: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. What We Do" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={servicesHeader.title} onChange={(e) => setServicesHeader({...servicesHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Comprehensive Waste & ESG Services" />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Small Subtitle"
+                  baseValue={{ en: servicesHeader.subtitle_en || servicesHeader.subtitle, th: servicesHeader.subtitle_th, my: servicesHeader.subtitle_my, vi: servicesHeader.subtitle_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setServicesHeader({...servicesHeader, [`subtitle_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: servicesHeader.title_en || servicesHeader.title, th: servicesHeader.title_th, my: servicesHeader.title_my, vi: servicesHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setServicesHeader({...servicesHeader, [`title_${lang}`]: val})}
+                />
               </div>
 
               <div className="space-y-6">
-                {featuredServices.length === 0 && <p className="text-gray-400 text-center py-8">No services added yet. Click "Add Service" to begin.</p>}
-                
+                {featuredServices.length === 0 && <p className="text-gray-400 text-center py-8">No services added yet.</p>}
                 {featuredServices.map((service) => (
                   <div key={service.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group">
-                    <button onClick={() => removeService(service.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors z-10">
-                      <Trash2 size={18} />
-                    </button>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                      <div className="md:col-span-4 space-y-2">
-                        <label className="block text-sm font-bold text-gray-700">Cover Image (1:1 Ratio)</label>
-                        <div className="aspect-square w-full">
-                          <ImageUploader 
-                            preview={service.imagePreview} 
-                            onUploadSuccess={(url: string) => updateService(service.id, 'imagePreview', url)} 
-                          />
+                    <button onClick={() => removeService(service.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors z-10"><Trash2 size={18} /></button>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                      <div className="lg:col-span-4 flex flex-col gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2">Cover Image (1:1 Ratio)</label>
+                          <div className="aspect-square w-full rounded-xl overflow-hidden shadow-sm">
+                            <ImageUploader preview={service.imagePreview} onUploadSuccess={(url: string) => updateService(service.id, 'imagePreview', url)} />
+                          </div>
                         </div>
                       </div>
-                      <div className="md:col-span-8 space-y-4 pt-1">
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Service Title</label>
-                          <input type="text" value={service.title} onChange={(e) => updateService(service.id, 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" placeholder="e.g. Waste Management Solutions" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                          <textarea rows={2} value={service.desc} onChange={(e) => updateService(service.id, 'desc', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Short description for the card..." />
-                        </div>
+                      <div className="lg:col-span-8 space-y-5">
+                        <TranslatableField 
+                          label="Service Title"
+                          baseValue={{ en: service.title_en || service.title, th: service.title_th, my: service.title_my, vi: service.title_vi }}
+                          onUpdateTranslation={(lang: string, val: string) => updateService(service.id, `title_${lang}`, val)}
+                        />
+                        <TranslatableField 
+                          label="Description"
+                          isTextArea={true}
+                          baseValue={{ en: service.desc_en || service.desc, th: service.desc_th, my: service.desc_my, vi: service.desc_vi }}
+                          onUpdateTranslation={(lang: string, val: string) => updateService(service.id, `desc_${lang}`, val)}
+                        />
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">Link (URL Path)</label>
-                          <input type="text" value={service.link} onChange={(e) => updateService(service.id, 'link', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. /solutions/waste-management" />
+                          <input type="text" value={service.link} onChange={(e) => updateService(service.id, 'link', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. /services/waste-management" />
                         </div>
                       </div>
                     </div>
@@ -359,53 +309,49 @@ export default function AdminHome() {
                   <h2 className="text-xl font-bold text-gray-900">Digital Platforms</h2>
                   <p className="text-sm text-gray-500 mt-1">Manage external links and cards for your software platforms.</p>
                 </div>
-                <Button onClick={addPlatform} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
-                  <Plus size={16} className="mr-2" /> Add Platform
-                </Button>
+                <Button onClick={addPlatform} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Platform</Button>
               </div>
 
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
-                    <input type="text" value={platformsHeader.subtitle} onChange={(e) => setPlatformsHeader({...platformsHeader, subtitle: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Technology" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={platformsHeader.title} onChange={(e) => setPlatformsHeader({...platformsHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Digital Platforms" />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Small Subtitle"
+                  baseValue={{ en: platformsHeader.subtitle_en || platformsHeader.subtitle, th: platformsHeader.subtitle_th, my: platformsHeader.subtitle_my, vi: platformsHeader.subtitle_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setPlatformsHeader({...platformsHeader, [`subtitle_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: platformsHeader.title_en || platformsHeader.title, th: platformsHeader.title_th, my: platformsHeader.title_my, vi: platformsHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setPlatformsHeader({...platformsHeader, [`title_${lang}`]: val})}
+                />
               </div>
 
               <div className="space-y-6">
-                {digitalPlatforms.length === 0 && <p className="text-gray-400 text-center py-8">No platforms added yet. Click "Add Platform" to begin.</p>}
-                
+                {digitalPlatforms.length === 0 && <p className="text-gray-400 text-center py-8">No platforms added yet.</p>}
                 {digitalPlatforms.map((plat) => (
                   <div key={plat.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group">
-                    <button onClick={() => removePlatform(plat.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors z-10">
-                      <Trash2 size={18} />
-                    </button>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                      <div className="md:col-span-5 space-y-2">
-                        <label className="block text-sm font-bold text-gray-700">Preview Image (16:9 Ratio)</label>
-                        <div className="aspect-video w-full">
-                          <ImageUploader 
-                            preview={plat.imagePreview} 
-                            onUploadSuccess={(url: string) => updatePlatform(plat.id, 'imagePreview', url)} 
-                          />
+                    <button onClick={() => removePlatform(plat.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors z-10"><Trash2 size={18} /></button>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                      <div className="lg:col-span-5 flex flex-col gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2">Preview Image (16:9 Ratio)</label>
+                          <div className="aspect-video w-full rounded-xl overflow-hidden shadow-sm">
+                            <ImageUploader preview={plat.imagePreview} onUploadSuccess={(url: string) => updatePlatform(plat.id, 'imagePreview', url)} />
+                          </div>
                         </div>
                       </div>
-                      <div className="md:col-span-7 space-y-4 pt-1">
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Platform Name</label>
-                          <input type="text" value={plat.title} onChange={(e) => updatePlatform(plat.id, 'title', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" placeholder="e.g. SanaTerra" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                          <textarea rows={2} value={plat.desc} onChange={(e) => updatePlatform(plat.id, 'desc', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Enterprise carbon tracking..." />
-                        </div>
+                      <div className="lg:col-span-7 space-y-5">
+                        <TranslatableField 
+                          label="Platform Name"
+                          baseValue={{ en: plat.title_en || plat.title, th: plat.title_th, my: plat.title_my, vi: plat.title_vi }}
+                          onUpdateTranslation={(lang: string, val: string) => updatePlatform(plat.id, `title_${lang}`, val)}
+                        />
+                        <TranslatableField 
+                          label="Description"
+                          isTextArea={true}
+                          baseValue={{ en: plat.desc_en || plat.desc, th: plat.desc_th, my: plat.desc_my, vi: plat.desc_vi }}
+                          onUpdateTranslation={(lang: string, val: string) => updatePlatform(plat.id, `desc_${lang}`, val)}
+                        />
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">External Link (URL)</label>
                           <input type="text" value={plat.link} onChange={(e) => updatePlatform(plat.id, 'link', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="https://sanaterra.co" />
@@ -418,7 +364,7 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 4: PARTNERS WITH ALT TEXT */}
+          {/* TAB 4: PARTNERS */}
           {activeTab === 'partners' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -426,37 +372,29 @@ export default function AdminHome() {
                   <h2 className="text-xl font-bold text-gray-900">Trusted Partners & Brands</h2>
                   <p className="text-sm text-gray-500 mt-1">Upload logos and specify SEO Alt text for each brand.</p>
                 </div>
-                <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
-                  <Plus size={16} className="mr-2" /> Add Logo
-                </Button>
+                <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Logo</Button>
               </div>
 
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={partnersHeader.title} onChange={(e) => setPartnersHeader({...partnersHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Trusted by Global Brands" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
-                    <textarea rows={2} value={partnersHeader.description} onChange={(e) => setPartnersHeader({...partnersHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description under the title..." />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: partnersHeader.title_en || partnersHeader.title, th: partnersHeader.title_th, my: partnersHeader.title_my, vi: partnersHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setPartnersHeader({...partnersHeader, [`title_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Description"
+                  isTextArea={true}
+                  baseValue={{ en: partnersHeader.description_en || partnersHeader.description, th: partnersHeader.description_th, my: partnersHeader.description_my, vi: partnersHeader.description_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setPartnersHeader({...partnersHeader, [`description_${lang}`]: val})}
+                />
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {partners.map((partner, index) => (
                   <div key={partner.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
                     <div className="aspect-video relative overflow-hidden rounded-lg">
-                      <ImageUploader 
-                        preview={partner.imagePreview} 
-                        onUploadSuccess={(url: string, fileName: string) => {
-                          updatePartner(partner.id, 'imagePreview', url);
-                          if(fileName) updatePartner(partner.id, 'fileName', fileName);
-                        }}
-                      />
-                      
+                      <ImageUploader preview={partner.imagePreview} onUploadSuccess={(url: string, fileName: string) => { updatePartner(partner.id, 'imagePreview', url); if(fileName) updatePartner(partner.id, 'fileName', fileName); }} />
                       <div className="absolute top-0 right-0 left-0 p-1 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
                         <div className="flex gap-1">
                           <button onClick={() => movePartner(index, 'left')} disabled={index === 0} className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"><ArrowLeft size={14} /></button>
@@ -465,30 +403,11 @@ export default function AdminHome() {
                         <button onClick={() => removePartner(partner.id)} className="bg-white/90 backdrop-blur text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all"><Trash2 size={14} /></button>
                       </div>
                     </div>
-                    
-                    {/* ✅ NEW: SEO ALT TEXT INPUT */}
-                    <input 
-                      type="text" 
-                      value={partner.altText || ''} 
-                      onChange={(e) => updatePartner(partner.id, 'altText', e.target.value)} 
-                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-900 font-medium" 
-                      placeholder="Alt Text (SEO)" 
-                    />
-                    
-                    <input 
-                      type="text" 
-                      value={partner.fileName || ''} 
-                      onChange={(e) => updatePartner(partner.id, 'fileName', e.target.value)} 
-                      className="w-full text-[10px] text-center px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-transparent text-gray-400" 
-                      placeholder="Upload to see filename" 
-                    />
+                    <input type="text" value={partner.altText || ''} onChange={(e) => updatePartner(partner.id, 'altText', e.target.value)} className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-900 font-medium" placeholder="Alt Text (SEO)" />
+                    <input type="text" value={partner.fileName || ''} onChange={(e) => updatePartner(partner.id, 'fileName', e.target.value)} className="w-full text-[10px] text-center px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-transparent text-gray-400" placeholder="Upload to see filename" />
                   </div>
                 ))}
-                
-                <div onClick={addPartner} className="aspect-video border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]">
-                  <Plus size={24} className="mb-2" />
-                  <span className="text-xs font-medium">Add Logo</span>
-                </div>
+                <div onClick={addPartner} className="aspect-video border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"><Plus size={24} className="mb-2" /><span className="text-xs font-medium">Add Logo</span></div>
               </div>
             </div>
           )}
@@ -502,28 +421,38 @@ export default function AdminHome() {
               </div>
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={visionHeader.title} onChange={(e) => setVisionHeader({...visionHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Our Strategic Vision" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
-                    <textarea rows={2} value={visionHeader.description} onChange={(e) => setVisionHeader({...visionHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: visionHeader.title_en || visionHeader.title, th: visionHeader.title_th, my: visionHeader.title_my, vi: visionHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setVisionHeader({...visionHeader, [`title_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Description"
+                  isTextArea={true}
+                  baseValue={{ en: visionHeader.description_en || visionHeader.description, th: visionHeader.description_th, my: visionHeader.description_my, vi: visionHeader.description_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setVisionHeader({...visionHeader, [`description_${lang}`]: val})}
+                />
               </div>
-              <div className="space-y-4">
-                <label className="block text-sm font-bold text-gray-700">Our Mission Block</label>
-                <textarea rows={4} value={visionData.mission} onChange={(e) => setVisionData({...visionData, mission: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-gray-50 focus:bg-white transition-colors" />
-              </div>
-              <div className="space-y-4 pt-4 border-t border-gray-100">
-                <label className="block text-sm font-bold text-gray-700">Our Vision Block</label>
-                <textarea rows={4} value={visionData.vision} onChange={(e) => setVisionData({...visionData, vision: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-gray-50 focus:bg-white transition-colors" />
-              </div>
-              <div className="space-y-4 pt-4 border-t border-gray-100">
-                <label className="block text-sm font-bold text-gray-700">Our Goal Block</label>
-                <textarea rows={6} value={visionData.goal} onChange={(e) => setVisionData({...visionData, goal: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] bg-gray-50 focus:bg-white transition-colors" />
+              
+              <div className="space-y-6 border-t border-gray-100 pt-6">
+                <TranslatableField 
+                  label="Our Mission Block"
+                  isTextArea={true}
+                  baseValue={{ en: visionData.mission_en || visionData.mission, th: visionData.mission_th, my: visionData.mission_my, vi: visionData.mission_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setVisionData({...visionData, [`mission_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Our Vision Block"
+                  isTextArea={true}
+                  baseValue={{ en: visionData.vision_en || visionData.vision, th: visionData.vision_th, my: visionData.vision_my, vi: visionData.vision_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setVisionData({...visionData, [`vision_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Our Goal Block"
+                  isTextArea={true}
+                  baseValue={{ en: visionData.goal_en || visionData.goal, th: visionData.goal_th, my: visionData.goal_my, vi: visionData.goal_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setVisionData({...visionData, [`goal_${lang}`]: val})}
+                />
               </div>
             </div>
           )}
@@ -536,42 +465,44 @@ export default function AdminHome() {
                   <h2 className="text-xl font-bold text-gray-900">Our Values</h2>
                   <p className="text-sm text-gray-500 mt-1">Manage the section title and the core values grid displayed on your home page.</p>
                 </div>
-                <Button onClick={addValue} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
-                  <Plus size={16} className="mr-2" /> Add Value
-                </Button>
+                <Button onClick={addValue} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Value</Button>
               </div>
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={valuesHeader.title} onChange={(e) => setValuesHeader({...valuesHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Our Values" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
-                    <textarea rows={2} value={valuesHeader.description} onChange={(e) => setValuesHeader({...valuesHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: valuesHeader.title_en || valuesHeader.title, th: valuesHeader.title_th, my: valuesHeader.title_my, vi: valuesHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setValuesHeader({...valuesHeader, [`title_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Description"
+                  isTextArea={true}
+                  baseValue={{ en: valuesHeader.description_en || valuesHeader.description, th: valuesHeader.description_th, my: valuesHeader.description_my, vi: valuesHeader.description_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setValuesHeader({...valuesHeader, [`description_${lang}`]: val})}
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {values.length === 0 && <p className="text-gray-400 py-8 col-span-2 text-center">No values added yet.</p>}
                 {values.map((val) => (
-                  <div key={val.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group">
-                    <button onClick={() => removeValue(val.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition-colors">
-                      <Trash2 size={16} />
-                    </button>
-                    <div className="flex gap-4 mb-4">
+                  <div key={val.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group flex flex-col">
+                    <button onClick={() => removeValue(val.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition-colors z-10"><Trash2 size={16} /></button>
+                    <div className="mb-6 flex justify-center">
                       <div className="w-16 h-16 flex-shrink-0">
                         <ImageUploader preview={val.iconPreview} circle small onUploadSuccess={(url: string) => updateValue(val.id, 'iconPreview', url)}/>
                       </div>
-                      <div className="flex-1 mt-1">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Value Title</label>
-                        <input type="text" value={val.title} onChange={(e) => updateValue(val.id, 'title', e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Environmental Stewardship" />
-                      </div>
                     </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Description</label>
-                      <textarea rows={3} value={val.desc} onChange={(e) => updateValue(val.id, 'desc', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Enter description..." />
+                    <div className="space-y-5">
+                      <TranslatableField 
+                        label="Value Title"
+                        baseValue={{ en: val.title_en || val.title, th: val.title_th, my: val.title_my, vi: val.title_vi }}
+                        onUpdateTranslation={(lang: string, v: string) => updateValue(val.id, `title_${lang}`, v)}
+                      />
+                      <TranslatableField 
+                        label="Description"
+                        isTextArea={true}
+                        baseValue={{ en: val.desc_en || val.desc, th: val.desc_th, my: val.desc_my, vi: val.desc_vi }}
+                        onUpdateTranslation={(lang: string, v: string) => updateValue(val.id, `desc_${lang}`, v)}
+                      />
                     </div>
                   </div>
                 ))}
@@ -587,62 +518,51 @@ export default function AdminHome() {
                   <h2 className="text-xl font-bold text-gray-900">Testimonials</h2>
                   <p className="text-sm text-gray-500 mt-1">Manage the title, description, and client quotes.</p>
                 </div>
-                <Button onClick={addTestimonial} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
-                  <Plus size={16} className="mr-2" /> Add Testimonial
-                </Button>
+                <Button onClick={addTestimonial} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Testimonial</Button>
               </div>
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input 
-                      type="text" 
-                      value={testimonialsHeader.title} 
-                      onChange={(e) => setTestimonialsHeader({...testimonialsHeader, title: e.target.value})} 
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" 
-                      placeholder="e.g. What Our Clients Say" 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                    <textarea 
-                      rows={2} 
-                      value={testimonialsHeader.description} 
-                      onChange={(e) => setTestimonialsHeader({...testimonialsHeader, description: e.target.value})} 
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" 
-                      placeholder="e.g. Hear directly from industry leaders..." 
-                    />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: testimonialsHeader.title_en || testimonialsHeader.title, th: testimonialsHeader.title_th, my: testimonialsHeader.title_my, vi: testimonialsHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setTestimonialsHeader({...testimonialsHeader, [`title_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Description"
+                  isTextArea={true}
+                  baseValue={{ en: testimonialsHeader.description_en || testimonialsHeader.description, th: testimonialsHeader.description_th, my: testimonialsHeader.description_my, vi: testimonialsHeader.description_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setTestimonialsHeader({...testimonialsHeader, [`description_${lang}`]: val})}
+                />
               </div>
               <div className="space-y-6">
                 {testimonials.length === 0 && <p className="text-gray-400 py-8 text-center">No testimonials added yet.</p>}
                 {testimonials.map((test) => (
-                  <div key={test.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group flex flex-col md:flex-row gap-6">
-                    <div className="w-24 h-24 flex-shrink-0 mx-auto md:mx-0">
+                  <div key={test.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group flex flex-col lg:flex-row gap-8">
+                    <div className="w-24 h-24 flex-shrink-0 mx-auto lg:mx-0">
                       <ImageUploader preview={test.imagePreview} circle onUploadSuccess={(url: string) => updateTestimonial(test.id, 'imagePreview', url)} />
                     </div>
-                    <div className="flex-1 space-y-4">
+                    <div className="flex-1 space-y-5">
                       <div className="flex justify-between items-start">
-                        <div className="grid grid-cols-2 gap-4 flex-1 pr-8">
-                          <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-1">Author Name</label>
-                            <input type="text" value={test.author} onChange={(e) => updateTestimonial(test.id, 'author', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. John Doe" />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-1">Organization / Title</label>
-                            <input type="text" value={test.organization} onChange={(e) => updateTestimonial(test.id, 'organization', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Partner, French Embassy" />
-                          </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 pr-8">
+                          <TranslatableField 
+                            label="Author Name"
+                            baseValue={{ en: test.author_en || test.author, th: test.author_th, my: test.author_my, vi: test.author_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateTestimonial(test.id, `author_${lang}`, val)}
+                          />
+                          <TranslatableField 
+                            label="Organization / Title"
+                            baseValue={{ en: test.organization_en || test.organization, th: test.organization_th, my: test.organization_my, vi: test.organization_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateTestimonial(test.id, `organization_${lang}`, val)}
+                          />
                         </div>
-                        <button onClick={() => removeTestimonial(test.id)} className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
-                          <Trash2 size={18} />
-                        </button>
+                        <button onClick={() => removeTestimonial(test.id)} className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"><Trash2 size={18} /></button>
                       </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1"><Quote size={12}/> Quote</label>
-                        <textarea rows={3} value={test.quote} onChange={(e) => updateTestimonial(test.id, 'quote', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20] bg-white italic" placeholder="Enter their quote here..." />
-                      </div>
+                      <TranslatableField 
+                        label="Quote"
+                        isTextArea={true}
+                        baseValue={{ en: test.quote_en || test.quote, th: test.quote_th, my: test.quote_my, vi: test.quote_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => updateTestimonial(test.id, `quote_${lang}`, val)}
+                      />
                     </div>
                   </div>
                 ))}
@@ -650,7 +570,7 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 8: IMPACT GALLERY WITH ALT TEXT */}
+          {/* TAB 8: IMPACT GALLERY */}
           {activeTab === 'gallery' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -658,23 +578,22 @@ export default function AdminHome() {
                   <h2 className="text-xl font-bold text-gray-900">Impact Gallery</h2>
                   <p className="text-sm text-gray-500 mt-1">Manage the grid of images, section title, and SEO Alt text.</p>
                 </div>
-                <Button onClick={addGalleryImage} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
-                  <Plus size={16} className="mr-2" /> Add Image Box
-                </Button>
+                <Button onClick={addGalleryImage} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Image Box</Button>
               </div>
 
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                 <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={galleryHeader.title} onChange={(e) => setGalleryHeader({...galleryHeader, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. Impact in Action" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description (Optional)</label>
-                    <textarea rows={2} value={galleryHeader.description} onChange={(e) => setGalleryHeader({...galleryHeader, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="Optional short description..." />
-                  </div>
-                </div>
+                <TranslatableField 
+                  label="Main Title"
+                  baseValue={{ en: galleryHeader.title_en || galleryHeader.title, th: galleryHeader.title_th, my: galleryHeader.title_my, vi: galleryHeader.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setGalleryHeader({...galleryHeader, [`title_${lang}`]: val})}
+                />
+                <TranslatableField 
+                  label="Description"
+                  isTextArea={true}
+                  baseValue={{ en: galleryHeader.description_en || galleryHeader.description, th: galleryHeader.description_th, my: galleryHeader.description_my, vi: galleryHeader.description_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setGalleryHeader({...galleryHeader, [`description_${lang}`]: val})}
+                />
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -688,37 +607,13 @@ export default function AdminHome() {
                           if(fileName) updateGalleryImage(img.id, 'fileName', fileName);
                         }}
                       />
-                      <button 
-                        onClick={() => removeGalleryImage(img.id)}
-                        className="absolute top-2 right-2 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <button onClick={() => removeGalleryImage(img.id)} className="absolute top-2 right-2 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"><Trash2 size={16} /></button>
                     </div>
-
-                    {/* ✅ NEW: SEO ALT TEXT INPUT */}
-                    <input 
-                      type="text" 
-                      value={img.altText || ''} 
-                      onChange={(e) => updateGalleryImage(img.id, 'altText', e.target.value)} 
-                      className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-900 font-medium" 
-                      placeholder="Alt Text (SEO)" 
-                    />
-
-                    <input 
-                      type="text" 
-                      value={img.fileName || ''} 
-                      onChange={(e) => updateGalleryImage(img.id, 'fileName', e.target.value)} 
-                      className="w-full text-[10px] text-center px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-transparent text-gray-400" 
-                      placeholder="Upload to see filename" 
-                    />
+                    <input type="text" value={img.altText || ''} onChange={(e) => updateGalleryImage(img.id, 'altText', e.target.value)} className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-900 font-medium" placeholder="Alt Text (SEO)" />
+                    <input type="text" value={img.fileName || ''} onChange={(e) => updateGalleryImage(img.id, 'fileName', e.target.value)} className="w-full text-[10px] text-center px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-transparent text-gray-400" placeholder="Upload to see filename" />
                   </div>
                 ))}
-                
-                <div onClick={addGalleryImage} className="aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]">
-                  <Plus size={32} className="mb-2" />
-                  <span className="text-sm font-medium">Add Image Box</span>
-                </div>
+                <div onClick={addGalleryImage} className="aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"><Plus size={32} className="mb-2" /><span className="text-sm font-medium">Add Image Box</span></div>
               </div>
             </div>
           )}
@@ -734,12 +629,7 @@ export default function AdminHome() {
 function TabButton({ id, label, icon, activeTab, onClick }: any) {
   const isActive = activeTab === id;
   return (
-    <button
-      onClick={() => onClick(id)}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left ${
-        isActive ? 'bg-[#1B5E20] text-white shadow-md' : 'bg-transparent text-gray-600 hover:bg-gray-100'
-      }`}
-    >
+    <button onClick={() => onClick(id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left ${isActive ? 'bg-[#1B5E20] text-white shadow-md' : 'bg-transparent text-gray-600 hover:bg-gray-100'}`}>
       <span className={isActive ? 'text-[#76FF03]' : 'text-gray-400'}>{icon}</span>
       {label}
     </button>
@@ -768,35 +658,137 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
   };
 
   return (
-    <div className={`
-      border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors w-full h-full
-      ${circle ? 'rounded-full aspect-square' : 'rounded-xl min-h-[100px]'}
-    `}>
-      <input 
-        type="file" 
-        accept="image/*"
-        onChange={handleFileChange}
-        disabled={isUploading}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-      />
-
+    <div className={`border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors w-full h-full ${circle ? 'rounded-full aspect-square' : 'rounded-xl min-h-[100px]'}`}>
+      <input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
       {isUploading ? (
-        <div className="flex flex-col items-center justify-center p-2 text-[#1B5E20]">
-          <Loader2 className="animate-spin mb-2" size={small ? 20 : 32} />
-          {!small && <span className="text-xs font-bold">Uploading...</span>}
-        </div>
+        <div className="flex flex-col items-center justify-center p-2 text-[#1B5E20]"><Loader2 className="animate-spin mb-2" size={small ? 20 : 32} />{!small && <span className="text-xs font-bold">Uploading...</span>}</div>
       ) : preview ? (
         <>
           <img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity">
-            <UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} />
-            {!small && <span className="text-xs font-bold text-[#1B5E20]">Change</span>}
-          </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} />{!small && <span className="text-xs font-bold text-[#1B5E20]">Change</span>}</div>
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center p-2 text-center text-gray-400">
-          <ImageIcon size={small ? 20 : 32} className="mb-1" />
-          {!small && <span className="text-xs font-medium">Upload Image</span>}
+        <div className="flex flex-col items-center justify-center p-2 text-center text-gray-400"><ImageIcon size={small ? 20 : 32} className="mb-1" />{!small && <span className="text-xs font-medium">Upload Image</span>}</div>
+      )}
+    </div>
+  );
+}
+
+// --- REUSABLE AUTO-TRANSLATE FIELD (REAL GOOGLE AI TRANSLATION) ---
+function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea = false }: any) {
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showLanguages, setShowLanguages] = useState(false);
+
+  const handleAutoTranslate = async () => {
+    if (!baseValue.en) return alert("Please enter English text first!");
+    
+    setIsTranslating(true);
+    
+    // PULL THE API KEY FROM YOUR .env FILE
+    const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY; 
+
+    if (!GOOGLE_API_KEY) {
+      alert("Missing Google Translate API Key in .env file!");
+      setIsTranslating(false);
+      return;
+    }
+    
+    try {
+      // Helper function to call Google Translate API
+      const translateText = async (text: string, targetLang: string) => {
+        const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            q: text,
+            source: 'en',
+            target: targetLang,
+            format: 'text' 
+          })
+        });
+        
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        // Decode HTML entities automatically
+        const translated = data.data.translations[0].translatedText;
+        const txt = document.createElement("textarea");
+        txt.innerHTML = translated;
+        return txt.value;
+      };
+
+      // Translate all three languages simultaneously
+      const [thText, myText, viText] = await Promise.all([
+        translateText(baseValue.en, 'th'),
+        translateText(baseValue.en, 'my'),
+        translateText(baseValue.en, 'vi')
+      ]);
+      
+      // Save the real translations (NO weird prefixes)
+      onUpdateTranslation('th', thText);
+      onUpdateTranslation('my', myText);
+      onUpdateTranslation('vi', viText);
+      
+      setShowLanguages(true); 
+    } catch (error) {
+      console.error("Translation failed", error);
+      alert("Auto-translation failed. Check console for details.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="p-3 bg-gray-50 border-b border-gray-200 flex items-start gap-4">
+        <div className="flex-1">
+          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
+            🇬🇧 {label} (English base)
+          </label>
+          {isTextArea ? (
+            <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
+          ) : (
+            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
+          )}
+        </div>
+        
+        <div className="pt-5 flex flex-col gap-2 shrink-0">
+          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
+            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />}
+            Auto-Translate
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="h-7 text-xs text-gray-500">
+            <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
+          </Button>
+        </div>
+      </div>
+
+      {showLanguages && (
+        <div className="p-3 grid grid-cols-1 gap-3 bg-white">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">TH</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Thai translation..." />
+            ) : (
+               <input type="text" value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Thai translation..." />
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">MY</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Myanmar translation..." />
+            ) : (
+               <input type="text" value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Myanmar translation..." />
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">VN</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Vietnamese translation..." />
+            ) : (
+               <input type="text" value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Vietnamese translation..." />
+            )}
+          </div>
         </div>
       )}
     </div>

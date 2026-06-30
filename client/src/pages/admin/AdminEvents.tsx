@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Calendar, Edit, X, Loader2, Save, Image as ImageIcon, UploadCloud, MapPin, Video } from "lucide-react";
+import { Plus, Trash2, Calendar, Edit, X, Loader2, Save, Image as ImageIcon, UploadCloud, MapPin, Video, Languages, Wand2 } from "lucide-react";
 import { collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -72,7 +72,7 @@ export default function AdminEvents() {
 
   const openNewWebinarModal = () => {
     setEditingWebinar({
-      title: "", date: new Date().toISOString().slice(0, 16), category: "Webinar", speakers: "", description: "", link: "", youtubeLink: "", imagePreview: ""
+      title_en: "", date: new Date().toISOString().slice(0, 16), category_en: "Webinar", speakers_en: "", description_en: "", link: "", youtubeLink: "", imagePreview: ""
     });
     setIsWebinarModalOpen(true);
   };
@@ -100,7 +100,7 @@ export default function AdminEvents() {
 
   const openNewInPersonModal = () => {
     setEditingInPerson({
-      title: "", date: new Date().toISOString().slice(0, 10), type: "Conference", location: "", description: "", images: []
+      title_en: "", date: new Date().toISOString().slice(0, 10), type_en: "Conference", location_en: "", description_en: "", images: []
     });
     setIsInPersonModalOpen(true);
   };
@@ -172,13 +172,13 @@ export default function AdminEvents() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-gray-900 text-lg">{ev.title}</h3>
+                          <h3 className="font-bold text-gray-900 text-lg">{ev.title_en || ev.title}</h3>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isPast ? 'bg-gray-100 text-gray-500' : 'bg-[#E2552B]/10 text-[#E2552B]'}`}>
                             {isPast ? 'Past' : 'Upcoming'}
                           </span>
                         </div>
                         <p className="text-sm text-gray-500 mb-1"><Calendar size={14} className="inline mr-1"/> {new Date(ev.date).toLocaleString()}</p>
-                        <p className="text-sm text-gray-500 line-clamp-1">{ev.description}</p>
+                        <p className="text-sm text-gray-500 line-clamp-1">{ev.description_en || ev.description}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
@@ -226,11 +226,11 @@ export default function AdminEvents() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-gray-900 text-lg">{ev.title}</h3>
-                        <span className="bg-gray-200 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{ev.type}</span>
+                        <h3 className="font-bold text-gray-900 text-lg">{ev.title_en || ev.title}</h3>
+                        <span className="bg-gray-200 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{ev.type_en || ev.type}</span>
                       </div>
-                      <p className="text-sm text-[#E2552B] font-bold mb-1"><MapPin size={14} className="inline mr-1"/> {ev.location}</p>
-                      <p className="text-sm text-gray-500 line-clamp-1">{ev.description}</p>
+                      <p className="text-sm text-[#E2552B] font-bold mb-1"><MapPin size={14} className="inline mr-1"/> {ev.location_en || ev.location}</p>
+                      <p className="text-sm text-gray-500 line-clamp-1">{ev.description_en || ev.description}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -251,57 +251,74 @@ export default function AdminEvents() {
       {/* WEBINAR EDITOR MODAL */}
       {isWebinarModalOpen && editingWebinar && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
               <h2 className="text-xl font-bold text-gray-900">{editingWebinar.id ? 'Edit Webinar' : 'Create Webinar'}</h2>
               <button onClick={() => setIsWebinarModalOpen(false)} className="text-gray-400 hover:text-gray-900"><X size={24} /></button>
             </div>
             
             <form onSubmit={handleSaveWebinar} className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-1 space-y-2">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                {/* Left Side: Image */}
+                <div className="lg:col-span-4 space-y-2">
                   <label className="block text-sm font-bold text-gray-700">Cover Image</label>
-                  <ImageUploader preview={editingWebinar.imagePreview} onUploadSuccess={(url: string) => setEditingWebinar((prev: any) => ({...prev, imagePreview: url}))} />
-                </div>
-                <div className="md:col-span-2 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Webinar Title</label>
-                    <input required type="text" value={editingWebinar.title} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, title: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
+                  <div className="aspect-video lg:aspect-[4/3] rounded-xl overflow-hidden">
+                    <ImageUploader preview={editingWebinar.imagePreview} onUploadSuccess={(url: string) => setEditingWebinar((prev: any) => ({...prev, imagePreview: url}))} />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                </div>
+                
+                {/* Right Side: Fields */}
+                <div className="lg:col-span-8 space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-1">Date & Time</label>
                       <input required type="datetime-local" value={editingWebinar.date} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, date: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">Category</label>
-                      <input type="text" value={editingWebinar.category} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, category: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Reporting, Waste..." />
+                      <TranslatableField 
+                        label="Category"
+                        baseValue={{ en: editingWebinar.category_en || editingWebinar.category, th: editingWebinar.category_th, my: editingWebinar.category_my, vi: editingWebinar.category_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => setEditingWebinar((prev: any) => ({...prev, [`category_${lang}`]: val}))}
+                      />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Speakers</label>
-                    <input type="text" value={editingWebinar.speakers} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, speakers: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Jane Doe, John Smith" />
+                  
+                  <TranslatableField 
+                    label="Webinar Title"
+                    baseValue={{ en: editingWebinar.title_en || editingWebinar.title, th: editingWebinar.title_th, my: editingWebinar.title_my, vi: editingWebinar.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingWebinar((prev: any) => ({...prev, [`title_${lang}`]: val}))}
+                  />
+                  
+                  <TranslatableField 
+                    label="Speakers"
+                    baseValue={{ en: editingWebinar.speakers_en || editingWebinar.speakers, th: editingWebinar.speakers_th, my: editingWebinar.speakers_my, vi: editingWebinar.speakers_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingWebinar((prev: any) => ({...prev, [`speakers_${lang}`]: val}))}
+                  />
+                  
+                  <TranslatableField 
+                    label="Description"
+                    isTextArea={true}
+                    baseValue={{ en: editingWebinar.description_en || editingWebinar.description, th: editingWebinar.description_th, my: editingWebinar.description_my, vi: editingWebinar.description_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingWebinar((prev: any) => ({...prev, [`description_${lang}`]: val}))}
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">Registration Link (Upcoming)</label>
+                      <input type="url" value={editingWebinar.link} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, link: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://zoom.us/..." />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-[#E2552B] mb-1">YouTube Link (Past)</label>
+                      <input type="url" value={editingWebinar.youtubeLink} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, youtubeLink: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://youtube.com/..." />
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                <textarea required rows={4} value={editingWebinar.description} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, description: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Registration Link (Upcoming)</label>
-                  <input type="url" value={editingWebinar.link} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, link: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://zoom.us/..." />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-[#E2552B] mb-1">YouTube Link (Past)</label>
-                  <input type="url" value={editingWebinar.youtubeLink} onChange={(e) => setEditingWebinar((prev: any) => ({...prev, youtubeLink: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://youtube.com/..." />
                 </div>
               </div>
             </form>
             <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 shrink-0 bg-white rounded-b-2xl">
               <Button type="button" variant="outline" onClick={() => setIsWebinarModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSaveWebinar} disabled={isSaving || !editingWebinar.title} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
+              <Button onClick={handleSaveWebinar} disabled={isSaving || !(editingWebinar.title_en || editingWebinar.title)} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
                 {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />} Save Webinar
               </Button>
             </div>
@@ -312,37 +329,46 @@ export default function AdminEvents() {
       {/* IN-PERSON EVENT EDITOR MODAL */}
       {isInPersonModalOpen && editingInPerson && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
               <h2 className="text-xl font-bold text-gray-900">{editingInPerson.id ? 'Edit In-Person Event' : 'Create In-Person Event'}</h2>
               <button onClick={() => setIsInPersonModalOpen(false)} className="text-gray-400 hover:text-gray-900"><X size={24} /></button>
             </div>
             
             <form onSubmit={handleSaveInPerson} className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Event Title</label>
-                  <input required type="text" value={editingInPerson.title} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, title: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Location</label>
-                  <input required type="text" value={editingInPerson.location} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, location: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. BITEC Bangna, Bangkok" />
-                </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TranslatableField 
+                  label="Event Title"
+                  baseValue={{ en: editingInPerson.title_en || editingInPerson.title, th: editingInPerson.title_th, my: editingInPerson.title_my, vi: editingInPerson.title_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setEditingInPerson((prev: any) => ({...prev, [`title_${lang}`]: val}))}
+                />
+                
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
-                  {/* Notice this is just a date, not datetime, usually sufficient for in-person day events */}
-                  <input required type="date" value={editingInPerson.date} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, date: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
+                  <input required type="date" value={editingInPerson.date} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, date: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] h-10" />
                 </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Event Type / Tag</label>
-                  <input required type="text" value={editingInPerson.type} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, type: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Conference, Workshop" />
-                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TranslatableField 
+                  label="Location"
+                  baseValue={{ en: editingInPerson.location_en || editingInPerson.location, th: editingInPerson.location_th, my: editingInPerson.location_my, vi: editingInPerson.location_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setEditingInPerson((prev: any) => ({...prev, [`location_${lang}`]: val}))}
+                />
+                <TranslatableField 
+                  label="Event Type / Tag"
+                  baseValue={{ en: editingInPerson.type_en || editingInPerson.type, th: editingInPerson.type_th, my: editingInPerson.type_my, vi: editingInPerson.type_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setEditingInPerson((prev: any) => ({...prev, [`type_${lang}`]: val}))}
+                />
               </div>
               
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Event Description</label>
-                <textarea required rows={3} value={editingInPerson.description} onChange={(e) => setEditingInPerson((prev: any) => ({...prev, description: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="Briefly describe the event..." />
-              </div>
+              <TranslatableField 
+                label="Event Description"
+                isTextArea={true}
+                baseValue={{ en: editingInPerson.description_en || editingInPerson.description, th: editingInPerson.description_th, my: editingInPerson.description_my, vi: editingInPerson.description_vi }}
+                onUpdateTranslation={(lang: string, val: string) => setEditingInPerson((prev: any) => ({...prev, [`description_${lang}`]: val}))}
+              />
 
               {/* IMAGE GALLERY UPLOADER */}
               <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl">
@@ -366,7 +392,7 @@ export default function AdminEvents() {
             
             <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 shrink-0 bg-white rounded-b-2xl">
               <Button type="button" variant="outline" onClick={() => setIsInPersonModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSaveInPerson} disabled={isSaving || !editingInPerson.title} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
+              <Button onClick={handleSaveInPerson} disabled={isSaving || !(editingInPerson.title_en || editingInPerson.title)} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
                 {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />} Save Event
               </Button>
             </div>
@@ -404,6 +430,100 @@ function ImageUploader({ preview, small, onUploadSuccess }: any) {
       {isUploading ? <Loader2 className="animate-spin text-[#1B5E20]" size={small ? 16 : 24} /> : preview ? (
         <><img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" /><div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20]" size={small ? 16 : 24} /></div></>
       ) : <UploadCloud className="text-gray-400" size={small ? 20 : 32} />}
+    </div>
+  );
+}
+
+// --- REUSABLE AUTO-TRANSLATE FIELD (REAL GOOGLE AI TRANSLATION) ---
+// ✅ FIXED: Removed layout stretching bug classes
+function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea = false }: any) {
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showLanguages, setShowLanguages] = useState(false);
+
+  const handleAutoTranslate = async () => {
+    if (!baseValue.en) return alert("Please enter English text first!");
+    
+    setIsTranslating(true);
+    
+    const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY; 
+
+    if (!GOOGLE_API_KEY) {
+      alert("Missing Google Translate API Key in .env file!");
+      setIsTranslating(false);
+      return;
+    }
+    
+    try {
+      const translateText = async (text: string, targetLang: string) => {
+        const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: text, source: 'en', target: targetLang, format: 'html' })
+        });
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        const translated = data.data.translations[0].translatedText;
+        const txt = document.createElement("textarea");
+        txt.innerHTML = translated;
+        return txt.value;
+      };
+
+      const [thText, myText, viText] = await Promise.all([
+        translateText(baseValue.en, 'th'),
+        translateText(baseValue.en, 'my'),
+        translateText(baseValue.en, 'vi')
+      ]);
+      
+      onUpdateTranslation('th', thText);
+      onUpdateTranslation('my', myText);
+      onUpdateTranslation('vi', viText);
+      setShowLanguages(true); 
+    } catch (error) {
+      console.error("Translation failed", error);
+      alert("Auto-translation failed. Check console for details.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
+        <div className="flex-1 w-full">
+          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">🇬🇧 {label} (English base)</label>
+          {isTextArea ? (
+            <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
+          ) : (
+            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
+          )}
+        </div>
+        <div className="flex md:flex-col gap-2 shrink-0 md:pt-5 w-full md:w-auto">
+          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="flex-1 md:flex-none bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
+            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />} Auto-Translate
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="flex-1 md:flex-none h-9 md:h-7 text-xs text-gray-500 bg-gray-200 md:bg-transparent">
+            <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
+          </Button>
+        </div>
+      </div>
+
+      {showLanguages && (
+        <div className="p-3 grid grid-cols-1 gap-3 bg-white">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">TH</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">MY</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">VN</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

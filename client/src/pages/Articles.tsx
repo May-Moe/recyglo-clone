@@ -6,6 +6,9 @@ import { ArrowRight, ChevronRight, Play, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser'; 
 
+// --- i18n TRANSLATION IMPORT ---
+import { useTranslation } from 'react-i18next';
+
 // --- FIREBASE IMPORTS ---
 import { collection, onSnapshot, doc, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -14,6 +17,16 @@ import newsletterImg from '@/assets/images/newsletter-img.png';
 
 export default function Articles() {
   const [, setLocation] = useLocation();
+
+  // --- TRANSLATION SETUP ---
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+
+  // ✅ MAGIC HELPER FUNCTION: Automatically pulls the correct language field from Firebase!
+  const tDb = (obj: any, field: string, fallback: string = "") => {
+    if (!obj) return fallback;
+    return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
+  };
 
   const [pageData, setPageData] = useState({
     heroData: { subtitle: "", title: "", description: "", imagePreview: "" }
@@ -47,32 +60,18 @@ export default function Articles() {
 
     setIsSubscribing(true);
     try {
-      // 1. Save the email to Firebase Database
       await addDoc(collection(db, "subscribers"), {
         email: email,
         subscribedAt: serverTimestamp(),
         status: "active"
       });
 
-      const templateParams = {
-        user_email: email, 
-      };
+      const templateParams = { user_email: email };
 
-      // 2. Email to USER (Using Account 1)
-      await emailjs.send(
-        'service_1tw0b8s',        // User Account Service ID
-        'template_5ojmfbf',       // User Account Newsletter Template ID
-        templateParams,
-        'ni4KN7ecyorm5ah49'       // User Account Public Key
-      );
-
-      // 3. Email to ADMIN (Using Account 2)
-      await emailjs.send(
-        'service_k0mx018',        // Admin Account Service ID
-        'template_k2a3jrq',       // Admin Account Subscribe Template ID
-        templateParams,
-        'fq_6mOEQTgoWyhYMp'       // Admin Account Public Key
-      );
+      // Email to USER
+      await emailjs.send('service_1tw0b8s', 'template_5ojmfbf', templateParams, 'ni4KN7ecyorm5ah49');
+      // Email to ADMIN
+      await emailjs.send('service_k0mx018', 'template_k2a3jrq', templateParams, 'fq_6mOEQTgoWyhYMp');
       
       alert('Thank you for subscribing! Check your email for a welcome message.');
       setEmail(''); 
@@ -98,41 +97,41 @@ export default function Articles() {
         />
         
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
-  <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
-     
-     {/* Subtitle - Matched to Home: text-lg md:text-xl font-semibold */}
-     <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
-        {pageData.heroData.subtitle}
-     </h2>
-     
-     {/* Title - Matched to Home: text-3xl md:text-4xl lg:text-5xl font-extrabold */}
-     <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
-        {pageData.heroData.title}
-     </h1>
-     
-     {/* Description - Matched to Home: text-base md:text-lg font-light */}
-     <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
-        {pageData.heroData.description}
-     </p>
+          <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
+             
+             {/* ✅ TRANSLATED SUBTITLE */}
+             <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
+                {tDb(pageData.heroData, 'subtitle')}
+             </h2>
+             
+             {/* ✅ TRANSLATED TITLE */}
+             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
+                {tDb(pageData.heroData, 'title')}
+             </h1>
+             
+             {/* ✅ TRANSLATED DESCRIPTION */}
+             <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
+                {tDb(pageData.heroData, 'description')}
+             </p>
 
-     {/* Buttons - Matched to Home (added hover:scale-105 and adjusted padding) */}
-     <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
-        <Button 
-          onClick={() => { setLocation('/carbon-calculator'); window.scrollTo(0, 0); }} 
-          className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
-        >
-          <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> Calculate Carbon Footprint
-        </Button>
-        
-        <Button 
-          onClick={() => { setLocation('/services'); window.scrollTo(0, 0); }}
-          className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" 
-        >
-          Our Solutions
-        </Button>
-     </div>
-  </div>
-</div>
+             <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
+                <Button 
+                  onClick={() => { setLocation('/carbon-calculator'); window.scrollTo(0, 0); }} 
+                  className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
+                >
+                  <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> 
+                  {t('home.calcButton', 'Calculate Carbon Footprint')}
+                </Button>
+                
+                <Button 
+                  onClick={() => { setLocation('/services'); window.scrollTo(0, 0); }}
+                  className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" 
+                >
+                  {t('home.solutionsButton', 'Our Solutions')}
+                </Button>
+             </div>
+          </div>
+        </div>
       </section>
 
       {/* 2. BLOG LISTING SECTION */}
@@ -140,12 +139,12 @@ export default function Articles() {
         <div className="container px-4 sm:px-8 lg:px-12">
           
           <div className="mb-10 text-sm font-medium text-gray-500 flex items-center gap-2">
-            <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">Home</Link>
+            <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.home', 'Home')}</Link>
             <ChevronRight size={14} className="text-gray-300" />
-            <span className="text-gray-900 font-bold">Articles</span>
+            <span className="text-gray-900 font-bold">{t('nav.blog', 'Articles')}</span>
           </div>
 
-          <h2 className="text-4xl font-bold text-[#1B5E20] mb-8">Blogs</h2>
+          <h2 className="text-4xl font-bold text-[#1B5E20] mb-8">{t('nav.blog', 'Blogs')}</h2>
 
           <div className="flex flex-wrap gap-3 mb-10">
              <button className="bg-[#E2552B] text-white px-5 py-2.5 rounded-md text-sm font-semibold shadow-sm transition-all">All Articles</button>
@@ -168,12 +167,13 @@ export default function Articles() {
                   className="group cursor-pointer flex flex-col h-full bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden border border-gray-100"
                 >
                   <div className="relative h-56 w-full overflow-hidden mb-5 shrink-0 bg-gray-100">
-                    {article.imagePreview && <img src={article.imagePreview} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />}
+                    {article.imagePreview && <img src={article.imagePreview} alt={tDb(article, 'title')} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />}
                   </div>
 
                   <div className="p-6 pt-0 flex flex-col flex-grow">
                     <h3 className="text-xl font-bold text-[#1B5E20] group-hover:text-[#2E7D32] transition-colors mb-4 line-clamp-2 leading-snug">
-                      {article.title}
+                      {/* ✅ TRANSLATED ARTICLE TITLE */}
+                      {tDb(article, 'title')}
                     </h3>
                     
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -182,11 +182,15 @@ export default function Articles() {
                       ))}
                     </div>
 
-                    <p className="text-gray-500 text-sm mb-4 line-clamp-3 leading-relaxed flex-grow">{article.excerpt}</p>
+                    {/* ✅ TRANSLATED EXCERPT */}
+                    <p className="text-gray-500 text-sm mb-4 line-clamp-3 leading-relaxed flex-grow">
+                      {tDb(article, 'excerpt')}
+                    </p>
+                    
                     <div className="text-gray-400 text-xs mb-4 font-medium">{article.date}</div>
 
                     <div className="flex items-center gap-1 text-[#E2552B] font-bold text-sm mt-auto group-hover:gap-2 transition-all">
-                      Read More <ArrowRight size={16} />
+                      {t('home.readMore', 'Read More')} <ArrowRight size={16} />
                     </div>
                   </div>
                 </Link>

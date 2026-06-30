@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Mail, ChevronRight, Facebook, Linkedin, Instagram, ChevronDown, ChevronUp, Play, Loader2, HelpCircle, Phone } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import { useTranslation } from 'react-i18next'; // ✅ IMPORT TRANSLATION
 
 // --- FIREBASE IMPORTS ---
 import { doc, onSnapshot, collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -13,17 +14,21 @@ import { db } from "@/lib/firebase";
 export default function Contact() {
   const [, setLocation] = useLocation();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    customSubject: '', 
-    message: '',
+    name: '', email: '', subject: '', customSubject: '', message: '',
   });
+
+  // --- TRANSLATION SETUP ---
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+
+  // ✅ MAGIC HELPER FUNCTION
+  const tDb = (obj: any, field: string, fallback: string = "") => {
+    if (!obj) return fallback;
+    return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
+  };
 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // State for showing the example message questions
   const [showMessageHint, setShowMessageHint] = useState(false);
 
   const [pageData, setPageData] = useState({
@@ -66,45 +71,23 @@ export default function Contact() {
     const finalSubject = formData.subject === 'Other' ? formData.customSubject : formData.subject;
     
     try {
-      // 1. Save the message to Firebase Database
       await addDoc(collection(db, "inquiries"), {
-        name: formData.name,
-        email: formData.email,
-        subject: finalSubject, 
-        message: formData.message,
-        createdAt: serverTimestamp(),
-        status: "unread" 
+        name: formData.name, email: formData.email, subject: finalSubject, message: formData.message,
+        createdAt: serverTimestamp(), status: "unread" 
       });
 
-      const templateParams = {
-        user_name: formData.name,
-        user_email: formData.email,
-        subject: finalSubject, 
-        message: formData.message,
-      };
+      const templateParams = { user_name: formData.name, user_email: formData.email, subject: finalSubject, message: formData.message };
 
-      // 2. Email to USER (Using Account 1)
-      await emailjs.send(
-        'service_1tw0b8s',        // User Account Service ID
-        'template_5e7ht0i',       // User Account Contact Template ID
-        templateParams,
-        'ni4KN7ecyorm5ah49'       // User Account Public Key
-      );
-
-      // 3. Email to ADMIN (Using Account 2)
-      await emailjs.send(
-        'service_k0mx018',        // Admin Account Service ID
-        'template_a004yvy',       // Admin Account Contact Template ID
-        templateParams,
-        'fq_6mOEQTgoWyhYMp'       // Admin Account Public Key
-      );
+      // Emails
+      await emailjs.send('service_1tw0b8s', 'template_5e7ht0i', templateParams, 'ni4KN7ecyorm5ah49');
+      await emailjs.send('service_k0mx018', 'template_a004yvy', templateParams, 'fq_6mOEQTgoWyhYMp');
       
-      alert('Thank you for your message. We will get back to you soon!');
+      alert(t('contact.successMsg', 'Thank you for your message. We will get back to you soon!'));
       setFormData({ name: '', email: '', subject: '', customSubject: '', message: '' });
-      setShowMessageHint(false); // Close the hint if it's open
+      setShowMessageHint(false); 
     } catch (error) {
       console.error("Error submitting form: ", error);
-      alert("Something went wrong. Please try again later.");
+      alert(t('contact.errorMsg', 'Something went wrong. Please try again later.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -118,7 +101,9 @@ export default function Contact() {
     return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
   }
 
-  const locationList = pageData.contactInfo.locations ? pageData.contactInfo.locations.split(',').map(loc => loc.trim()).filter(loc => loc.length > 0) : [];
+  // TRANSLATED LOCATIONS
+  const locationString = tDb(pageData.contactInfo, 'locations');
+  const locationList = locationString ? locationString.split(',').map(loc => loc.trim()).filter(loc => loc.length > 0) : [];
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
@@ -128,54 +113,45 @@ export default function Contact() {
       <section className="relative py-12 md:py-24 overflow-hidden bg-[#1B5E20]">
         <div 
           className="absolute inset-0 z-0 opacity-80 bg-black/30"
-          style={pageData.heroData.imagePreview ? {
-            backgroundImage: `url(${pageData.heroData.imagePreview})`, 
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          } : {}}
+          style={pageData.heroData.imagePreview ? { backgroundImage: `url(${pageData.heroData.imagePreview})`, backgroundSize: 'cover', backgroundPosition: 'center'} : {}}
         />
         
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
-  <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
-     
-     {/* Subtitle - Matched to Home: text-lg md:text-xl font-semibold */}
-     <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
-        {pageData.heroData.subtitle}
-     </h2>
-     
-     {/* Title - Matched to Home: text-3xl md:text-4xl lg:text-5xl font-extrabold */}
-     <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
-        {pageData.heroData.title}
-     </h1>
-     
-     {/* Description - Matched to Home: text-base md:text-lg font-light */}
-     <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
-        {pageData.heroData.description}
-     </p>
+          <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
+             
+             {/* TRANSLATED SUBTITLE */}
+             <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
+                {tDb(pageData.heroData, 'subtitle')}
+             </h2>
+             
+             {/* TRANSLATED TITLE */}
+             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
+                {tDb(pageData.heroData, 'title')}
+             </h1>
+             
+             {/* TRANSLATED DESCRIPTION */}
+             <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
+                {tDb(pageData.heroData, 'description')}
+             </p>
 
-     {/* Buttons - Matched to Home (added hover:scale-105 and adjusted padding) */}
-     <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
-        <Button 
-          onClick={() => {
-            setLocation('/carbon-calculator');
-            window.scrollTo(0, 0);
-          }}
-          className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
-        >
-          <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
-          Calculate Carbon Footprint
-        </Button>
-        
-        {/* Note: I updated this link to '/services' to match your recent route changes! */}
-        <Button 
-          className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105"
-          onClick={() => setLocation('/services')}
-        >
-          Our Solutions
-        </Button>
-     </div>
-  </div>
-</div>
+             <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
+                <Button 
+                  onClick={() => { setLocation('/carbon-calculator'); window.scrollTo(0, 0); }}
+                  className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
+                >
+                  <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
+                  {t('home.calcButton', 'Calculate Carbon Footprint')}
+                </Button>
+                
+                <Button 
+                  className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105"
+                  onClick={() => setLocation('/services')}
+                >
+                  {t('home.solutionsButton', 'Our Solutions')}
+                </Button>
+             </div>
+          </div>
+        </div>
       </section>
 
       {/* 2. MAIN CONTACT SECTION */}
@@ -183,15 +159,15 @@ export default function Contact() {
         <div className="container px-4 sm:px-8 lg:px-12 max-w-6xl">
           
           <div className="mb-8 text-sm font-medium text-gray-500 flex items-center gap-2">
-            <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">Home</Link>
+            <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.home', 'Home')}</Link>
             <ChevronRight size={14} className="text-gray-300" />
-            <span className="text-gray-900 font-bold">Contact Us</span>
+            <span className="text-gray-900 font-bold">{t('nav.contact', 'Contact Us')}</span>
           </div>
 
           <div className="mb-12">
-             <h2 className="text-4xl font-bold text-[#1B5E20] mb-4">Get in Touch</h2>
+             <h2 className="text-4xl font-bold text-[#1B5E20] mb-4">{t('contact.getInTouch', 'Get in Touch')}</h2>
              <p className="text-gray-600 text-lg">
-               We'd love to hear from you! Contact us for more information about our services and solutions.
+               {t('contact.subtitle', "We'd love to hear from you! Contact us for more information about our services and solutions.")}
              </p>
           </div>
 
@@ -199,33 +175,33 @@ export default function Contact() {
              
              {/* LEFT: Contact Form */}
              <div className="lg:col-span-7 bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-gray-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Please fill in your details.</h3>
-                <p className="text-red-500 text-sm mb-8 font-medium">* * Indicates Required Fields</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('contact.fillDetails', 'Please fill in your details.')}</h3>
+                <p className="text-red-500 text-sm mb-8 font-medium">* {t('contact.required', 'Indicates Required Fields')}</p>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Name <span className="text-red-500">*</span></label>
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Enter name" required className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors" />
+                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.name', 'Name')} <span className="text-red-500">*</span></label>
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder={t('contact.enterName', 'Enter name')} required className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors" />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Enter email" required className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors" />
+                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.email', 'Email')} <span className="text-red-500">*</span></label>
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder={t('contact.enterEmail', 'Enter email')} required className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors" />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Subject <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.subject', 'Subject')} <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <select name="subject" value={formData.subject} onChange={handleChange} required className="w-full px-4 py-3 rounded-lg border border-gray-200 appearance-none bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors cursor-pointer">
-                        <option value="" disabled>Select a subject</option>
-                        <option value="General Inquiry">General Inquiry</option>
-                        <option value="Waste Management Solutions">Waste Management Solutions</option>
-                        <option value="ESG Data Analytics">ESG Data Analytics</option>
-                        <option value="Circular Economy Consulting">Circular Economy Consulting</option>
-                        <option value="Reporting and Compliance">Reporting and Compliance</option>
-                        <option value="Waste Auditing">Waste Auditing</option>
-                        <option value="Consulting and Training">Consulting and Training</option>
-                        <option value="Other">Other (Please specify)</option>
+                        <option value="" disabled>{t('contact.selectSubject', 'Select a subject')}</option>
+                        <option value="General Inquiry">{t('contact.subjGeneral', 'General Inquiry')}</option>
+                        <option value="Waste Management Solutions">{t('contact.subjWaste', 'Waste Management Solutions')}</option>
+                        <option value="ESG Data Analytics">{t('contact.subjEsg', 'ESG Data Analytics')}</option>
+                        <option value="Circular Economy Consulting">{t('contact.subjCircular', 'Circular Economy Consulting')}</option>
+                        <option value="Reporting and Compliance">{t('contact.subjCompliance', 'Reporting and Compliance')}</option>
+                        <option value="Waste Auditing">{t('contact.subjAudit', 'Waste Auditing')}</option>
+                        <option value="Consulting and Training">{t('contact.subjConsulting', 'Consulting and Training')}</option>
+                        <option value="Other">{t('contact.subjOther', 'Other (Please specify)')}</option>
                       </select>
                       <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
@@ -237,7 +213,7 @@ export default function Contact() {
                           name="customSubject" 
                           value={formData.customSubject} 
                           onChange={handleChange} 
-                          placeholder="Please specify your topic" 
+                          placeholder={t('contact.specifyTopic', 'Please specify your topic')}
                           required 
                           className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors" 
                         />
@@ -247,42 +223,38 @@ export default function Contact() {
                   
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="block text-sm font-bold text-gray-700">Message <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-bold text-gray-700">{t('contact.message', 'Message')} <span className="text-red-500">*</span></label>
                       <button 
                         type="button" 
                         onClick={() => setShowMessageHint(!showMessageHint)} 
                         className="text-gray-400 hover:text-[#1B5E20] transition-colors flex items-center gap-1 text-xs font-bold"
                       >
-                        <HelpCircle size={14} /> Need ideas?
+                        <HelpCircle size={14} /> {t('contact.needIdeas', 'Need ideas?')}
                       </button>
                     </div>
 
-                    {/* DYNAMIC Example Questions Dropdown */}
+                    {/* DYNAMIC TRANSLATED Example Questions Dropdown */}
                     {showMessageHint && (
                       <div className="mb-3 p-4 bg-[#1B5E20]/5 border border-[#1B5E20]/10 rounded-lg text-sm text-[#1B5E20] animate-in fade-in slide-in-from-top-1">
-                        <strong className="block mb-2 text-[#1B5E20]">Not sure what to ask? Here are some examples:</strong>
+                        <strong className="block mb-2 text-[#1B5E20]">{t('contact.hereAreExamples', 'Not sure what to ask? Here are some examples:')}</strong>
                         <ul className="list-disc pl-5 space-y-1 text-gray-700">
                           {pageData.messageHints && pageData.messageHints.length > 0 ? (
                             pageData.messageHints.map((hint: any) => (
-                              <li key={hint.id}>{hint.text}</li>
+                              <li key={hint.id}>{tDb(hint, 'text')}</li>
                             ))
                           ) : (
-                            <>
-                              <li>How does your ESG data analytics platform work?</li>
-                              <li>Can you help our company achieve Zero Waste to Landfill?</li>
-                              <li>What is the process and cost for scheduling a waste audit?</li>
-                            </>
+                            <li>{t('contact.defaultIdea', 'Can you help our company achieve Zero Waste?')}</li>
                           )}
                         </ul>
                       </div>
                     )}
 
-                    <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Type message" required rows={5} className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors resize-none" />
+                    <textarea name="message" value={formData.message} onChange={handleChange} placeholder={t('contact.typeMessage', 'Type message')} required rows={5} className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors resize-none" />
                   </div>
                   
                   <div className="pt-2">
                     <Button type="submit" disabled={isSubmitting} className="bg-[#E2552B] hover:bg-[#E2552B]/90 text-white font-bold px-10 py-6 rounded-md shadow-md transition-all w-full sm:w-auto">
-                      {isSubmitting ? <><Loader2 className="animate-spin mr-2" size={18} /> Submitting...</> : 'Submit'}
+                      {isSubmitting ? <><Loader2 className="animate-spin mr-2" size={18} /> {t('contact.submitting', 'Submitting...')}</> : t('contact.submit', 'Submit')}
                     </Button>
                   </div>
                 </form>
@@ -291,18 +263,18 @@ export default function Contact() {
              {/* RIGHT: Contact Information */}
              <div className="lg:col-span-5 bg-[#1C3B2B] p-8 md:p-10 rounded-2xl text-white shadow-xl flex flex-col gap-10">
                 <div>
-                   <h3 className="text-[#A3E635] font-bold text-xl mb-6">Location</h3>
+                   <h3 className="text-[#A3E635] font-bold text-xl mb-6">{t('contact.location', 'Location')}</h3>
                    <div className="grid grid-cols-2 gap-y-4 gap-x-4 text-sm text-white/90 font-medium">
-                     {locationList.length > 0 ? locationList.map((loc, i) => (
+                     {locationList.length > 0 ? locationList.map((loc: string, i: number) => (
                        <span key={i}>{loc}</span>
                      )) : (
-                       <span>No locations set</span>
+                       <span>{t('contact.noLocation', 'No locations set')}</span>
                      )}
                    </div>
                 </div>
 
                 <div>
-                   <h3 className="text-[#A3E635] font-bold text-xl mb-6">Contact Info</h3>
+                   <h3 className="text-[#A3E635] font-bold text-xl mb-6">{t('contact.contactInfo', 'Contact Info')}</h3>
                    <ul className="space-y-5 text-sm text-white/90 font-medium">
                      <li className="flex items-center gap-3">
                        <Mail size={18} />
@@ -326,7 +298,7 @@ export default function Contact() {
                 </div>
 
                 <div className="mt-auto">
-                   <h3 className="text-[#A3E635] font-bold text-xl mb-6">Follow us on Social Media</h3>
+                   <h3 className="text-[#A3E635] font-bold text-xl mb-6">{t('contact.followUs', 'Follow us on Social Media')}</h3>
                    <div className="flex gap-4">
                      <a href={pageData.contactInfo.facebook || "#"} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white text-[#1C3B2B] flex items-center justify-center hover:bg-[#A3E635] transition-colors shadow-sm">
                        <Facebook size={20} fill="currentColor" className="stroke-none" />
@@ -344,26 +316,28 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* 3. FAQs SECTION */}
+      {/* 3. FAQs SECTION WITH TRANSLATIONS */}
       {pageData.faqs.length > 0 && (
         <section className="py-16 md:py-24 bg-[#F8F9F7]">
           <div className="container px-4 sm:px-8 lg:px-12 max-w-4xl">
-             <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-10">FAQs</h2>
+             <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-10">{t('nav.faqs', 'FAQs')}</h2>
              
              <div className="flex flex-col gap-2">
                {pageData.faqs.map((faq: any, index: number) => (
                   <div key={faq.id || index} className="border-b border-gray-200 last:border-0">
                     <button onClick={() => toggleFaq(index)} className="w-full flex items-center justify-between py-5 text-left focus:outline-none group">
                       <span className="font-semibold text-gray-800 group-hover:text-[#1B5E20] transition-colors text-[15px]">
-                        {faq.q}
+                        {/* TRANSLATED QUESTION */}
+                        {tDb(faq, 'q')}
                       </span>
                       {openFaq === index ? <ChevronUp size={20} className="text-gray-500 shrink-0 ml-4" /> : <ChevronDown size={20} className="text-gray-500 shrink-0 ml-4" />}
                     </button>
                     
                     <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === index ? 'max-h-[500px] opacity-100 pb-6' : 'max-h-0 opacity-0'}`}>
+                      {/* TRANSLATED ANSWER */}
                       <div 
                         className="text-gray-600 text-[15px] leading-relaxed pl-3 border-l-2 border-[#1B5E20]/20 whitespace-pre-line [&_a]:text-[#E2552B] [&_a]:font-bold hover:[&_a]:underline"
-                        dangerouslySetInnerHTML={{ __html: faq.a }}
+                        dangerouslySetInnerHTML={{ __html: tDb(faq, 'a') }}
                       />
                     </div>
                   </div>

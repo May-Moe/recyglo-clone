@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Layout, Briefcase, Video, Factory, MonitorSmartphone, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, ArrowUp, ArrowDown, Info } from "lucide-react";
+import { Save, Layout, Briefcase, Video, Factory, MonitorSmartphone, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, ArrowUp, ArrowDown, Info, Languages, Wand2 } from "lucide-react";
 import { doc, getDoc, setDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase"; 
@@ -19,30 +19,30 @@ export default function AdminSolutions() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- 1. STATE FOR THE MAIN LANDING PAGE (Pre-loaded with defaults) ---
-  const [pageData, setPageData] = useState({
+  // --- 1. STATE FOR THE MAIN LANDING PAGE (Pre-loaded with translation keys) ---
+  const [pageData, setPageData] = useState<any>({
     heroData: { 
-      subtitle: "End-to-End Solutions for Businesses, Emissions, and Corporates in Asia-Pacific.", 
-      title: "Services", 
-      description: "At RecyGlo, our mission is to foster a more sustainable future through innovative waste, energy, and carbon management and ESG data analytics solutions. We are dedicated to assisting businesses in minimizing their environmental footprint and reaching their sustainability objectives.", 
+      subtitle_en: "End-to-End Solutions for Businesses, Emissions, and Corporates in Asia-Pacific.", 
+      title_en: "Services", 
+      description_en: "At RecyGlo, our mission is to foster a more sustainable future through innovative waste, energy, and carbon management and ESG data analytics solutions. We are dedicated to assisting businesses in minimizing their environmental footprint and reaching their sustainability objectives.", 
       imagePreview: heroBg 
     },
     videoUrl: "https://www.youtube.com/embed/-eNZ-Tm7Yj0?si=4xnXJNbNLJy9Z3M_",
     industrySolutions: [
-      { id: 'ind-1', title: 'Manufacturing', desc: 'In the manufacturing sector, production process management can lead to a massive waste reduction. To be precise, reducing the waste at the source through recycling, and sustainable sourcing can be one of the many solutions. The first solution is waste reduction in the supply chain process attainable when businesses implement lean manufacturing techniques in their system. For cases when waste cannot be reduced, recycling the used material serves as a great alternative solution.' },
-      { id: 'ind-2', title: 'Retail', desc: 'The global retail sector produces 2.12 billion tons of waste yearly significantly contributing to land degradation, water pollution, and disruption of the eco-system. The improvement of supply chain sustainability and the implementation of an efficient recycling system are the best solutions to minimize the environmental impact of this industry.' },
-      { id: 'ind-3', title: 'Healthcare', desc: 'Waste produced in the healthcare field can be toxic and filled with radioactive components. Medical equipment such as needles and syringes which are used over 16 billion times a year needs to be discarded properly.' },
-      { id: 'ind-4', title: 'Education', desc: 'The education sector has a significant potential to accelerate proper waste management by promoting sustainability initiatives and reduction of waste in educational institutions. Perhaps the most impactful solution would be to conduct awareness campaigns by educating students and the staff.' }
-    ] as any[],
+      { id: 'ind-1', title_en: 'Manufacturing', desc_en: 'In the manufacturing sector, production process management can lead to a massive waste reduction. To be precise, reducing the waste at the source through recycling, and sustainable sourcing can be one of the many solutions. The first solution is waste reduction in the supply chain process attainable when businesses implement lean manufacturing techniques in their system. For cases when waste cannot be reduced, recycling the used material serves as a great alternative solution.' },
+      { id: 'ind-2', title_en: 'Retail', desc_en: 'The global retail sector produces 2.12 billion tons of waste yearly significantly contributing to land degradation, water pollution, and disruption of the eco-system. The improvement of supply chain sustainability and the implementation of an efficient recycling system are the best solutions to minimize the environmental impact of this industry.' },
+      { id: 'ind-3', title_en: 'Healthcare', desc_en: 'Waste produced in the healthcare field can be toxic and filled with radioactive components. Medical equipment such as needles and syringes which are used over 16 billion times a year needs to be discarded properly.' },
+      { id: 'ind-4', title_en: 'Education', desc_en: 'The education sector has a significant potential to accelerate proper waste management by promoting sustainability initiatives and reduction of waste in educational institutions. Perhaps the most impactful solution would be to conduct awareness campaigns by educating students and the staff.' }
+    ],
     techSolutions: [
-      { id: 'tech-1', title: 'Sustainability Platform', desc: "At RecyGlo, we offer technology-driven solutions to help you on your sustainability journey. Here's how we can assist: by providing a centralized dashboard that tracks your real-time carbon emissions, waste generation, and energy consumption across all your facilities." },
-      { id: 'tech-2', title: 'Services', desc: 'We streamline your sustainability management with dependable tools and services to help you achieve your objectives. At RecyGlo we offer a comprehensive range of additional services to support your sustainability efforts, including: • Standard Reporting Service • Annual report • Energy Auditing • Sustainability report' }
-    ] as any[]
+      { id: 'tech-1', title_en: 'Sustainability Platform', desc_en: "At RecyGlo, we offer technology-driven solutions to help you on your sustainability journey. Here's how we can assist: by providing a centralized dashboard that tracks your real-time carbon emissions, waste generation, and energy consumption across all your facilities." },
+      { id: 'tech-2', title_en: 'Services', desc_en: 'We streamline your sustainability management with dependable tools and services to help you achieve your objectives. At RecyGlo we offer a comprehensive range of additional services to support your sustainability efforts, including: • Standard Reporting Service • Annual report • Energy Auditing • Sustainability report' }
+    ]
   });
 
   // --- 2. STATE FOR DYNAMIC SERVICE PAGES (Collection) ---
   const [services, setServices] = useState<any[]>([]);
-  const [orderedServices, setOrderedServices] = useState<any[]>([]); // New state for reordering
+  const [orderedServices, setOrderedServices] = useState<any[]>([]); 
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null); 
 
@@ -66,12 +66,9 @@ export default function AdminSolutions() {
           const loadedServices: any[] = [];
           snapshot.forEach((doc) => loadedServices.push({ id: doc.id, ...doc.data() }));
           
-          // Sort by orderIndex, fallback to alphabetical
           loadedServices.sort((a, b) => {
-            if (a.orderIndex !== undefined && b.orderIndex !== undefined) {
-               return a.orderIndex - b.orderIndex;
-            }
-            return (a.title || "").localeCompare(b.title || "");
+            if (a.orderIndex !== undefined && b.orderIndex !== undefined) return a.orderIndex - b.orderIndex;
+            return ((a.title_en || a.title) || "").localeCompare((b.title_en || b.title) || "");
           });
           
           setServices(loadedServices);
@@ -106,7 +103,6 @@ export default function AdminSolutions() {
   const saveServiceOrder = async (newOrder: any[]) => {
     setIsSaving(true);
     try {
-      // Update each document in the collection with its new orderIndex
       await Promise.all(newOrder.map((service, index) => {
         return updateDoc(doc(db, "services", service.id), { orderIndex: index });
       }));
@@ -126,7 +122,7 @@ export default function AdminSolutions() {
       [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
     }
     setOrderedServices(newArr);
-    saveServiceOrder(newArr); // Save to DB immediately
+    saveServiceOrder(newArr); 
   };
 
   // --- MAGIC MIGRATION BUTTON WITH HERO SECTION DATA & FULL BLOCKS ---
@@ -134,92 +130,74 @@ export default function AdminSolutions() {
     setIsSaving(true);
     const defaultServices = [
       { 
-        title: 'Waste Management Solutions', 
-        slug: 'waste-management', 
-        imagePreview: service1, 
-        desc: 'RecyGlo offers comprehensive B2B waste management solutions, specializing in general, hazardous, and e-waste disposal.', 
-        heroSubtitle: 'RELIABLE COLLECTION SERVICES',
-        heroTitle: 'Waste Management Solutions',
-        heroDescription: 'RecyGlo offers comprehensive B2B waste management solutions, specializing in general, hazardous, and e-waste disposal. Our approach guarantees environmental compliance and operational efficiency.',
-        heroImage: '',
-        orderIndex: 0,
+        title_en: 'Waste Management Solutions', title: 'Waste Management Solutions',
+        slug: 'waste-management', imagePreview: service1, 
+        desc_en: 'RecyGlo offers comprehensive B2B waste management solutions, specializing in general, hazardous, and e-waste disposal.', 
+        heroSubtitle_en: 'RELIABLE COLLECTION SERVICES',
+        heroTitle_en: 'Waste Management Solutions',
+        heroDescription_en: 'RecyGlo offers comprehensive B2B waste management solutions, specializing in general, hazardous, and e-waste disposal. Our approach guarantees environmental compliance and operational efficiency.',
+        heroImage: '', orderIndex: 0,
+        contentBlocks: [{ id: 'b1', type: 'text', title_en: 'Comprehensive Waste Collection', text_en: 'We provide end-to-end waste collection and processing tailored to your facility’s needs.' }] 
+      },
+      { 
+        title_en: 'Waste Auditing', title: 'Waste Auditing',
+        slug: 'waste-auditing', imagePreview: service2, 
+        desc_en: 'We provide comprehensive waste auditing services to help B2B facilities optimize waste management practices.', 
+        heroSubtitle_en: 'OPTIMIZE YOUR WASTE PRACTICES',
+        heroTitle_en: 'Waste Auditing',
+        heroDescription_en: 'We provide comprehensive waste auditing services to help B2B facilities optimize waste management practices, identify cost reduction opportunities, and achieve Zero-Waste-to-Landfill goals safely.',
+        heroImage: '', orderIndex: 1,
+        contentBlocks: [{ id: 'b1', type: 'text', title_en: 'In-Depth Waste Audits', text_en: 'Our experts conduct thorough on-site audits to analyze your current waste streams.' }] 
+      },
+      { 
+        title_en: 'Reporting and Compliance', title: 'Reporting and Compliance',
+        slug: 'reporting', imagePreview: service3, 
+        desc_en: 'Navigate complex environmental regulations easily. We deliver audit-ready sustainability reports and streamline ESG reporting.', 
+        heroSubtitle_en: 'END-TO-END SOLUTIONS FOR BUSINESSES',
+        heroTitle_en: 'Reporting and Compliance',
+        heroDescription_en: 'Navigate complex environmental regulations easily. We deliver audit-ready sustainability reports and streamline ESG reporting, ensuring complete data transparency across your organization.',
+        heroImage: '', orderIndex: 2,
         contentBlocks: [
-          { id: 'b1', type: 'text', title: 'Comprehensive Waste Collection', text: 'We provide end-to-end waste collection and processing tailored to your facility’s needs.' },
+          { id: 'b1', type: 'image', title_en: 'ESG REPORT', text_en: '', imagePreview: '' },
+          { id: 'b2', type: 'text', title_en: 'ESG Reporting', text_en: "ESG reporting is the disclosure of a company's environmental, social, and corporate governance data..." },
+          { id: 'b3', type: 'list', title_en: 'Benefits of ESG Reporting', text_en: 'Credibility and reputation\nAttracts equity investors\nLeading to sustainable future for your business' }
         ] 
       },
       { 
-        title: 'Waste Auditing', 
-        slug: 'waste-auditing', 
-        imagePreview: service2, 
-        desc: 'We provide comprehensive waste auditing services to help B2B facilities optimize waste management practices.', 
-        heroSubtitle: 'OPTIMIZE YOUR WASTE PRACTICES',
-        heroTitle: 'Waste Auditing',
-        heroDescription: 'We provide comprehensive waste auditing services to help B2B facilities optimize waste management practices, identify cost reduction opportunities, and achieve Zero-Waste-to-Landfill goals safely.',
-        heroImage: '',
-        orderIndex: 1,
+        title_en: 'Consulting and Training', title: 'Consulting and Training',
+        slug: 'consulting', imagePreview: service4, 
+        desc_en: 'Expert sustainability consulting and training services to help B2B organizations implement robust ESG strategies.', 
+        heroSubtitle_en: 'MAKING THE WORLD A CLEANER PLACE',
+        heroTitle_en: 'Consulting and Training',
+        heroDescription_en: 'Expert sustainability consulting and training services to help B2B organizations implement robust ESG strategies, optimize waste management, and achieve compliance with global standards.',
+        heroImage: '', orderIndex: 3,
         contentBlocks: [
-          { id: 'b1', type: 'text', title: 'In-Depth Waste Audits', text: 'Our experts conduct thorough on-site audits to analyze your current waste streams.' },
+          { id: 'b1', type: 'text', title_en: 'Sustainable Waste Management Training', text_en: 'Transform your business\'s sustainability vision with RecyGlo\'s Expert Training Programs.' },
+          { id: 'b2', type: 'list', title_en: 'Package A', text_en: 'Environmental system audit and advice\nCertificate by RecyGlo\nDuration: 2 Hours\nPrice: 15,000 THB' },
         ] 
       },
       { 
-        title: 'Reporting and Compliance', 
-        slug: 'reporting', 
-        imagePreview: service3, 
-        desc: 'Navigate complex environmental regulations easily. We deliver audit-ready sustainability reports and streamline ESG reporting.', 
-        heroSubtitle: 'END-TO-END SOLUTIONS FOR BUSINESSES',
-        heroTitle: 'Reporting and Compliance',
-        heroDescription: 'Navigate complex environmental regulations easily. We deliver audit-ready sustainability reports and streamline ESG reporting, ensuring complete data transparency across your organization.',
-        heroImage: '',
-        orderIndex: 2,
+        title_en: 'ESG Data Analytics', title: 'ESG Data Analytics',
+        slug: 'esg-data-analytics', imagePreview: service5, 
+        desc_en: 'Advanced ESG data analytics services to help businesses track and analyze Scope 1, 2, and 3 emissions.', 
+        heroSubtitle_en: 'END-TO-END SOLUTIONS FOR BUSINESSES',
+        heroTitle_en: 'ESG Data Analytics',
+        heroDescription_en: 'Advanced ESG data analytics services to help businesses track and analyze Scope 1, 2, and 3 emissions. We transform raw environmental data into clear, actionable insights.',
+        heroImage: '', orderIndex: 4,
         contentBlocks: [
-          { id: 'b1', type: 'image', title: 'ESG REPORT', text: '', imagePreview: '' },
-          { id: 'b2', type: 'text', title: 'ESG Reporting', text: "ESG reporting is the disclosure of a company's environmental, social, and corporate governance data..." },
-          { id: 'b3', type: 'list', title: 'Benefits of ESG Reporting', text: 'Credibility and reputation\nAttracts equity investors\nLeading to sustainable future for your business' }
+          { id: 'b1', type: 'image', title_en: 'ESG Data Analytical Platform', text_en: 'Data-Driven Decision-Making. At RecyGlo, we offer technology-driven solutions...', imagePreview: '' },
+          { id: 'b2', type: 'list', title_en: 'Platform Features', text_en: 'Track Your Progress Accurately\nSet Realistic Milestones\nPromote Data Transparency' },
         ] 
       },
       { 
-        title: 'Consulting and Training', 
-        slug: 'consulting', 
-        imagePreview: service4, 
-        desc: 'Expert sustainability consulting and training services to help B2B organizations implement robust ESG strategies.', 
-        heroSubtitle: 'MAKING THE WORLD A CLEANER PLACE',
-        heroTitle: 'Consulting and Training',
-        heroDescription: 'Expert sustainability consulting and training services to help B2B organizations implement robust ESG strategies, optimize waste management, and achieve compliance with global standards.',
-        heroImage: '',
-        orderIndex: 3,
-        contentBlocks: [
-          { id: 'b1', type: 'text', title: 'Sustainable Waste Management Training', text: 'Transform your business\'s sustainability vision with RecyGlo\'s Expert Training Programs.' },
-          { id: 'b2', type: 'list', title: 'Package A', text: 'Environmental system audit and advice\nCertificate by RecyGlo\nDuration: 2 Hours\nPrice: 15,000 THB' },
-        ] 
-      },
-      { 
-        title: 'ESG Data Analytics', 
-        slug: 'esg-data-analytics', 
-        imagePreview: service5, 
-        desc: 'Advanced ESG data analytics services to help businesses track and analyze Scope 1, 2, and 3 emissions.', 
-        heroSubtitle: 'END-TO-END SOLUTIONS FOR BUSINESSES',
-        heroTitle: 'ESG Data Analytics',
-        heroDescription: 'Advanced ESG data analytics services to help businesses track and analyze Scope 1, 2, and 3 emissions. We transform raw environmental data into clear, actionable insights.',
-        heroImage: '',
-        orderIndex: 4,
-        contentBlocks: [
-          { id: 'b1', type: 'image', title: 'ESG Data Analytical Platform', text: 'Data-Driven Decision-Making. At RecyGlo, we offer technology-driven solutions...', imagePreview: '' },
-          { id: 'b2', type: 'list', title: 'Platform Features', text: 'Track Your Progress Accurately\nSet Realistic Milestones\nPromote Data Transparency' },
-        ] 
-      },
-      { 
-        title: 'Circular Economy', 
-        slug: 'circular-economy', 
-        imagePreview: service6, 
-        desc: 'RecyGlo promotes the transition from linear to circular models by helping businesses recover, recycle, and repurpose materials.', 
-        heroSubtitle: 'WORKING FOR A CLEANER WORLD',
-        heroTitle: 'Circular Economy',
-        heroDescription: 'RecyGlo promotes the transition from linear to circular models by helping businesses recover, recycle, and repurpose materials. We guide organizations in closing the loop, minimizing waste, and creating sustainable value chains.',
-        heroImage: '',
-        orderIndex: 5,
-        contentBlocks: [
-          { id: 'b1', type: 'text', title: 'Waste Material Types', text: 'At RecyGlo, we specialize in handling a wide variety of waste streams...' },
-        ] 
+        title_en: 'Circular Economy', title: 'Circular Economy',
+        slug: 'circular-economy', imagePreview: service6, 
+        desc_en: 'RecyGlo promotes the transition from linear to circular models by helping businesses recover, recycle, and repurpose materials.', 
+        heroSubtitle_en: 'WORKING FOR A CLEANER WORLD',
+        heroTitle_en: 'Circular Economy',
+        heroDescription_en: 'RecyGlo promotes the transition from linear to circular models by helping businesses recover, recycle, and repurpose materials. We guide organizations in closing the loop, minimizing waste, and creating sustainable value chains.',
+        heroImage: '', orderIndex: 5,
+        contentBlocks: [{ id: 'b1', type: 'text', title_en: 'Waste Material Types', text_en: 'At RecyGlo, we specialize in handling a wide variety of waste streams...' }] 
       }
     ];
 
@@ -241,8 +219,8 @@ export default function AdminSolutions() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      // ✅ FIX: Keep the old slug if it exists, only generate a new one if it's a brand new page
-      const slug = editingService.slug || editingService.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const baseTitle = editingService.title_en || editingService.title || 'untitled';
+      const slug = editingService.slug || baseTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       const serviceDataToSave = { ...editingService, slug, orderIndex: editingService.orderIndex ?? orderedServices.length };
 
       if (editingService.id) {
@@ -266,17 +244,17 @@ export default function AdminSolutions() {
   };
 
   // --- HANDLERS FOR INDUSTRY & TECH LISTS ---
-  const addIndustry = () => setPageData(prev => ({...prev, industrySolutions: [...prev.industrySolutions, { id: `ind-${Date.now()}`, title: "", desc: "" }]}));
+  const addIndustry = () => setPageData(prev => ({...prev, industrySolutions: [...prev.industrySolutions, { id: `ind-${Date.now()}`, title_en: "", desc_en: "" }]}));
   const removeIndustry = (id: string) => setPageData(prev => ({...prev, industrySolutions: prev.industrySolutions.filter((i:any) => i.id !== id)}));
   const updateIndustry = (id: string, field: string, value: string) => setPageData(prev => ({...prev, industrySolutions: prev.industrySolutions.map((i:any) => i.id === id ? { ...i, [field]: value } : i)}));
 
-  const addTech = () => setPageData(prev => ({...prev, techSolutions: [...prev.techSolutions, { id: `tech-${Date.now()}`, title: "", desc: "" }]}));
+  const addTech = () => setPageData(prev => ({...prev, techSolutions: [...prev.techSolutions, { id: `tech-${Date.now()}`, title_en: "", desc_en: "" }]}));
   const removeTech = (id: string) => setPageData(prev => ({...prev, techSolutions: prev.techSolutions.filter((t:any) => t.id !== id)}));
   const updateTech = (id: string, field: string, value: string) => setPageData(prev => ({...prev, techSolutions: prev.techSolutions.map((t:any) => t.id === id ? { ...t, [field]: value } : t)}));
 
   // --- HANDLERS FOR MODULAR CONTENT BLOCKS INSIDE THE MODAL ---
   const addContentBlock = (type: 'text' | 'image' | 'video' | 'list') => {
-    const newBlock = { id: `block-${Date.now()}`, type, title: "", text: "", imagePreview: "", videoUrl: "" };
+    const newBlock = { id: `block-${Date.now()}`, type, title_en: "", text_en: "", imagePreview: "", videoUrl: "" };
     setEditingService((prev: any) => ({ ...prev, contentBlocks: [...(prev.contentBlocks || []), newBlock] }));
   };
 
@@ -332,8 +310,8 @@ export default function AdminSolutions() {
                 </div>
                 <Button onClick={() => { 
                     setEditingService({ 
-                      title: "", desc: "", imagePreview: "", 
-                      heroSubtitle: "Our Solution", heroTitle: "", heroDescription: "", heroImage: "", 
+                      title_en: "", desc_en: "", imagePreview: "", 
+                      heroSubtitle_en: "Our Solution", heroTitle_en: "", heroDescription_en: "", heroImage: "", 
                       contentBlocks: [] 
                     }); 
                     setIsServiceModalOpen(true); 
@@ -369,8 +347,7 @@ export default function AdminSolutions() {
                         {service.imagePreview ? <img src={service.imagePreview} className="w-full h-full object-cover" /> : <Briefcase className="w-full h-full p-4 text-gray-400" />}
                       </div>
                       <div>
-                        <h3 className="font-bold text-gray-900">{service.title}</h3>
-                        {/* ✅ UPDATED SLUG PATH TEXT */}
+                        <h3 className="font-bold text-gray-900">{service.title_en || service.title}</h3>
                         <p className="text-sm text-gray-500 font-mono">/services/{service.slug}</p>
                       </div>
                     </div>
@@ -392,24 +369,30 @@ export default function AdminSolutions() {
           {activeTab === 'hero' && (
             <div className="space-y-6 animate-in fade-in">
               <h2 className="text-xl font-bold text-gray-900 border-b pb-4">Main Landing Hero Banner</h2>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                 <div className="md:col-span-4 space-y-2">
                   <label className="block text-sm font-bold text-gray-700">Background Image</label>
-                  <ImageUploader folder="solutions-page" preview={pageData.heroData?.imagePreview} onUploadSuccess={(url: string) => setPageData({...pageData, heroData: {...pageData.heroData, imagePreview: url}})} />
+                  <div className="h-[250px] w-full rounded-xl overflow-hidden shadow-sm">
+                    <ImageUploader folder="solutions-page" preview={pageData.heroData?.imagePreview} onUploadSuccess={(url: string) => setPageData((prev: any) => ({...prev, heroData: {...prev.heroData, imagePreview: url}}))} />
+                  </div>
                 </div>
-                <div className="md:col-span-8 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
-                    <input type="text" value={pageData.heroData?.subtitle} onChange={(e) => setPageData({...pageData, heroData: {...pageData.heroData, subtitle: e.target.value}})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={pageData.heroData?.title} onChange={(e) => setPageData({...pageData, heroData: {...pageData.heroData, title: e.target.value}})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                    <textarea rows={4} value={pageData.heroData?.description} onChange={(e) => setPageData({...pageData, heroData: {...pageData.heroData, description: e.target.value}})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
+                <div className="md:col-span-8 space-y-5">
+                  <TranslatableField 
+                    label="Small Subtitle"
+                    baseValue={{ en: pageData.heroData?.subtitle_en || pageData.heroData?.subtitle, th: pageData.heroData?.subtitle_th, my: pageData.heroData?.subtitle_my, vi: pageData.heroData?.subtitle_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setPageData((prev: any) => ({...prev, heroData: {...prev.heroData, [`subtitle_${lang}`]: val}}))}
+                  />
+                  <TranslatableField 
+                    label="Main Title"
+                    baseValue={{ en: pageData.heroData?.title_en || pageData.heroData?.title, th: pageData.heroData?.title_th, my: pageData.heroData?.title_my, vi: pageData.heroData?.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setPageData((prev: any) => ({...prev, heroData: {...prev.heroData, [`title_${lang}`]: val}}))}
+                  />
+                  <TranslatableField 
+                    label="Description"
+                    isTextArea={true}
+                    baseValue={{ en: pageData.heroData?.description_en || pageData.heroData?.description, th: pageData.heroData?.description_th, my: pageData.heroData?.description_my, vi: pageData.heroData?.description_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setPageData((prev: any) => ({...prev, heroData: {...prev.heroData, [`description_${lang}`]: val}}))}
+                  />
                 </div>
               </div>
             </div>
@@ -431,7 +414,7 @@ export default function AdminSolutions() {
                   </div>
                 </div>
 
-                <input type="text" value={pageData.videoUrl} onChange={(e) => setPageData({...pageData, videoUrl: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://www.youtube.com/embed/..." />
+                <input type="text" value={pageData.videoUrl} onChange={(e) => setPageData((prev: any) => ({...prev, videoUrl: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="https://www.youtube.com/embed/..." />
               </div>
               {pageData.videoUrl && (
                 <div className="aspect-video bg-black rounded-xl overflow-hidden mt-4 border-4 border-gray-100">
@@ -449,11 +432,20 @@ export default function AdminSolutions() {
                 <Button onClick={addIndustry} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Industry</Button>
               </div>
               <div className="space-y-4">
-                {pageData.industrySolutions?.map((item: any, idx: number) => (
-                  <div key={item.id} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
+                {pageData.industrySolutions?.map((item: any) => (
+                  <div key={item.id} className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative group space-y-4">
                     <button onClick={() => removeIndustry(item.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><Trash2 size={16}/></button>
-                    <input type="text" value={item.title} onChange={(e) => updateIndustry(item.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold mb-2 focus:outline-none focus:border-[#1B5E20]" placeholder="Industry Name (e.g. Retail)" />
-                    <textarea rows={4} value={item.desc} onChange={(e) => updateIndustry(item.id, 'desc', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Description..." />
+                    <TranslatableField 
+                      label="Industry Name (e.g. Retail)"
+                      baseValue={{ en: item.title_en || item.title, th: item.title_th, my: item.title_my, vi: item.title_vi }}
+                      onUpdateTranslation={(lang: string, val: string) => updateIndustry(item.id, `title_${lang}`, val)}
+                    />
+                    <TranslatableField 
+                      label="Description"
+                      isTextArea={true}
+                      baseValue={{ en: item.desc_en || item.desc, th: item.desc_th, my: item.desc_my, vi: item.desc_vi }}
+                      onUpdateTranslation={(lang: string, val: string) => updateIndustry(item.id, `desc_${lang}`, val)}
+                    />
                   </div>
                 ))}
               </div>
@@ -468,11 +460,20 @@ export default function AdminSolutions() {
                 <Button onClick={addTech} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Tech Solution</Button>
               </div>
               <div className="space-y-4">
-                {pageData.techSolutions?.map((item: any, idx: number) => (
-                  <div key={item.id} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
+                {pageData.techSolutions?.map((item: any) => (
+                  <div key={item.id} className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative group space-y-4">
                     <button onClick={() => removeTech(item.id)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><Trash2 size={16}/></button>
-                    <input type="text" value={item.title} onChange={(e) => updateTech(item.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold mb-2 focus:outline-none focus:border-[#1B5E20]" placeholder="Solution Name (e.g. Dashboard)" />
-                    <textarea rows={4} value={item.desc} onChange={(e) => updateTech(item.id, 'desc', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Description..." />
+                    <TranslatableField 
+                      label="Solution Name (e.g. Dashboard)"
+                      baseValue={{ en: item.title_en || item.title, th: item.title_th, my: item.title_my, vi: item.title_vi }}
+                      onUpdateTranslation={(lang: string, val: string) => updateTech(item.id, `title_${lang}`, val)}
+                    />
+                    <TranslatableField 
+                      label="Description"
+                      isTextArea={true}
+                      baseValue={{ en: item.desc_en || item.desc, th: item.desc_th, my: item.desc_my, vi: item.desc_vi }}
+                      onUpdateTranslation={(lang: string, val: string) => updateTech(item.id, `desc_${lang}`, val)}
+                    />
                   </div>
                 ))}
               </div>
@@ -485,7 +486,7 @@ export default function AdminSolutions() {
       {/* --- MODULAR SERVICE PAGE EDITOR MODAL --- */}
       {isServiceModalOpen && editingService && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
             
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
               <h2 className="text-xl font-bold text-gray-900">{editingService.id ? 'Edit Service Page' : 'Create New Service Page'}</h2>
@@ -495,55 +496,63 @@ export default function AdminSolutions() {
             <div className="p-6 overflow-y-auto space-y-8 flex-1 bg-gray-50/50 custom-scrollbar">
               
               {/* SECTION 1: MENU CARD SETTINGS */}
-              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-3">
+              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-12">
                   <h3 className="font-bold text-lg text-[#1B5E20] border-b pb-2">1. Menu Card Settings</h3>
                   <p className="text-xs text-gray-500 mt-1">This controls how the service looks on the main Solutions grid.</p>
                 </div>
-                <div className="space-y-2">
+                <div className="lg:col-span-4 space-y-2">
                   <label className="block text-sm font-bold text-gray-700">Square Card Image</label>
-                  <ImageUploader folder="service-covers" preview={editingService.imagePreview} onUploadSuccess={(url: string) => setEditingService({...editingService, imagePreview: url})} />
+                  <div className="aspect-square w-full rounded-xl overflow-hidden shadow-sm">
+                    <ImageUploader folder="service-covers" preview={editingService.imagePreview} onUploadSuccess={(url: string) => setEditingService((prev: any) => ({...prev, imagePreview: url}))} />
+                  </div>
                 </div>
-                <div className="md:col-span-2 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Service Title</label>
-                    <input type="text" value={editingService.title} onChange={(e) => setEditingService({...editingService, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold text-lg" placeholder="e.g. Consulting & Training" required />
-                    
-                    {/* ✅ UPDATED SLUG PATH TEXT */}
-                    <p className="text-xs text-gray-400 mt-1">URL will be: /services/{editingService.title ? editingService.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '...'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Short Summary</label>
-                    <textarea rows={3} value={editingService.desc} onChange={(e) => setEditingService({...editingService, desc: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="A brief summary shown on the main solutions landing page." />
-                  </div>
+                <div className="lg:col-span-8 space-y-5">
+                  <TranslatableField 
+                    label="Service Title"
+                    baseValue={{ en: editingService.title_en || editingService.title, th: editingService.title_th, my: editingService.title_my, vi: editingService.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingService((prev: any) => ({...prev, [`title_${lang}`]: val}))}
+                  />
+                  <p className="text-xs text-gray-400 -mt-3">URL will be: /services/{editingService.title_en ? editingService.title_en.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '...'}</p>
+                  
+                  <TranslatableField 
+                    label="Short Summary"
+                    isTextArea={true}
+                    baseValue={{ en: editingService.desc_en || editingService.desc, th: editingService.desc_th, my: editingService.desc_my, vi: editingService.desc_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingService((prev: any) => ({...prev, [`desc_${lang}`]: val}))}
+                  />
                 </div>
               </div>
 
               {/* SECTION 2: PAGE HERO SETTINGS */}
-              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-3">
+              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-12">
                   <h3 className="font-bold text-lg text-[#1B5E20] border-b pb-2">2. Page Hero Section</h3>
                   <p className="text-xs text-gray-500 mt-1">This controls the big banner at the very top of the specific service page.</p>
                 </div>
-                <div className="space-y-2">
+                <div className="lg:col-span-4 space-y-2">
                   <label className="block text-sm font-bold text-gray-700">Wide Hero Image</label>
-                  <ImageUploader folder="service-heroes" preview={editingService.heroImage} onUploadSuccess={(url: string) => setEditingService({...editingService, heroImage: url})} />
+                  <div className="aspect-video w-full rounded-xl overflow-hidden shadow-sm">
+                    <ImageUploader folder="service-heroes" preview={editingService.heroImage} onUploadSuccess={(url: string) => setEditingService((prev: any) => ({...prev, heroImage: url}))} />
+                  </div>
                 </div>
-                <div className="md:col-span-2 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">Hero Subtitle</label>
-                      <input type="text" value={editingService.heroSubtitle} onChange={(e) => setEditingService({...editingService, heroSubtitle: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Our Solution" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">Hero Title</label>
-                      <input type="text" value={editingService.heroTitle} onChange={(e) => setEditingService({...editingService, heroTitle: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Hero Description</label>
-                    <textarea rows={3} value={editingService.heroDescription} onChange={(e) => setEditingService({...editingService, heroDescription: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="The long text paragraph over the hero image." />
-                  </div>
+                <div className="lg:col-span-8 space-y-5">
+                  <TranslatableField 
+                    label="Hero Subtitle"
+                    baseValue={{ en: editingService.heroSubtitle_en || editingService.heroSubtitle, th: editingService.heroSubtitle_th, my: editingService.heroSubtitle_my, vi: editingService.heroSubtitle_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingService((prev: any) => ({...prev, [`heroSubtitle_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Hero Title"
+                    baseValue={{ en: editingService.heroTitle_en || editingService.heroTitle, th: editingService.heroTitle_th, my: editingService.heroTitle_my, vi: editingService.heroTitle_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingService((prev: any) => ({...prev, [`heroTitle_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Hero Description"
+                    isTextArea={true}
+                    baseValue={{ en: editingService.heroDescription_en || editingService.heroDescription, th: editingService.heroDescription_th, my: editingService.heroDescription_my, vi: editingService.heroDescription_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingService((prev: any) => ({...prev, [`heroDescription_${lang}`]: val}))}
+                  />
                 </div>
               </div>
 
@@ -567,7 +576,7 @@ export default function AdminSolutions() {
                     <div className="text-center py-8 text-gray-400 border-2 border-dashed rounded-xl">Page is empty. Click a button above to add a block.</div>
                   )}
 
-                  {editingService.contentBlocks?.map((block: any, index: number) => (
+                  {editingService.contentBlocks?.map((block: any) => (
                     <div key={block.id} className="p-4 bg-gray-50 border border-gray-200 rounded-xl relative group">
                       <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
                         <span className="font-bold text-gray-500 flex items-center gap-2 uppercase text-xs tracking-wider">
@@ -578,25 +587,50 @@ export default function AdminSolutions() {
                       
                       {/* DYNAMIC RENDER BASED ON BLOCK TYPE */}
                       {block.type === 'text' && (
-                        <div className="space-y-3">
-                          <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="Optional Heading..." />
-                          <textarea rows={4} value={block.text} onChange={(e) => updateContentBlock(block.id, 'text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none" placeholder="Write paragraph text here..." />
+                        <div className="space-y-5">
+                          <TranslatableField 
+                            label="Block Heading (Optional)"
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
+                          />
+                          <TranslatableField 
+                            label="Paragraph Text"
+                            isTextArea={true}
+                            baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
+                          />
                         </div>
                       )}
 
                       {block.type === 'image' && (
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div className="md:col-span-1"><ImageUploader folder="service-blocks" preview={block.imagePreview} small onUploadSuccess={(url: string) => updateContentBlock(block.id, 'imagePreview', url)} /></div>
-                          <div className="md:col-span-3 space-y-3">
-                            <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="Image Title (Optional)..." />
-                            <textarea rows={2} value={block.text} onChange={(e) => updateContentBlock(block.id, 'text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none" placeholder="Image Caption/Description..." />
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                          <div className="md:col-span-1">
+                            <label className="block text-xs font-bold text-gray-700 mb-2">Block Image</label>
+                            <ImageUploader folder="service-blocks" preview={block.imagePreview} small onUploadSuccess={(url: string) => updateContentBlock(block.id, 'imagePreview', url)} />
+                          </div>
+                          <div className="md:col-span-3 space-y-5">
+                            <TranslatableField 
+                              label="Image Title (Optional)"
+                              baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                              onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
+                            />
+                            <TranslatableField 
+                              label="Image Caption / Text"
+                              isTextArea={true}
+                              baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                              onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
+                            />
                           </div>
                         </div>
                       )}
 
                       {block.type === 'video' && (
-                        <div className="space-y-3">
-                          <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="Video Title..." />
+                        <div className="space-y-5">
+                          <TranslatableField 
+                            label="Video Title"
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
+                          />
                           
                           {/* INSTRUCTION ALERT BOX */}
                           <div className="bg-[#E2552B]/5 border border-[#E2552B]/20 rounded-md p-3 flex items-start gap-2 text-sm text-[#E2552B]">
@@ -612,9 +646,18 @@ export default function AdminSolutions() {
                       )}
 
                       {block.type === 'list' && (
-                        <div className="space-y-3">
-                          <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="List Title (e.g. Package A)..." />
-                          <textarea rows={5} value={block.text} onChange={(e) => updateContentBlock(block.id, 'text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none" placeholder="Type bullet points here. Put each point on a new line." />
+                        <div className="space-y-5">
+                          <TranslatableField 
+                            label="List Title (e.g. Package A)"
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
+                          />
+                          <TranslatableField 
+                            label="List Items (One per line)"
+                            isTextArea={true}
+                            baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
+                          />
                         </div>
                       )}
 
@@ -626,7 +669,7 @@ export default function AdminSolutions() {
 
             <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 shrink-0 bg-white rounded-b-2xl">
               <Button type="button" variant="outline" onClick={() => setIsServiceModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSaveService} disabled={isSaving || !editingService.title} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
+              <Button onClick={handleSaveService} disabled={isSaving || !(editingService.title_en || editingService.title)} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
                 {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />}
                 {editingService.id ? 'Save Changes' : 'Publish Page'}
               </Button>
@@ -674,6 +717,98 @@ function ImageUploader({ preview, small, onUploadSuccess, folder = "misc" }: any
       {isUploading ? <Loader2 className="animate-spin text-[#1B5E20]" size={24} /> : preview ? (
         <><img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" /><div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20]" size={24} /></div></>
       ) : <UploadCloud className="text-gray-400" size={small ? 24 : 32} />}
+    </div>
+  );
+}
+
+// --- REUSABLE AUTO-TRANSLATE FIELD (REAL GOOGLE AI TRANSLATION) ---
+// ✅ FIXED: Removed `flex-col h-full justify-center` from the outer wrapper
+function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea = false }: any) {
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showLanguages, setShowLanguages] = useState(false);
+
+  const handleAutoTranslate = async () => {
+    if (!baseValue.en) return alert("Please enter English text first!");
+    setIsTranslating(true);
+    
+    const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY; 
+
+    if (!GOOGLE_API_KEY) {
+      alert("Missing Google Translate API Key in .env file!");
+      setIsTranslating(false);
+      return;
+    }
+    
+    try {
+      const translateText = async (text: string, targetLang: string) => {
+        const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: text, source: 'en', target: targetLang, format: 'html' })
+        });
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        const translated = data.data.translations[0].translatedText;
+        const txt = document.createElement("textarea");
+        txt.innerHTML = translated;
+        return txt.value;
+      };
+
+      const [thText, myText, viText] = await Promise.all([
+        translateText(baseValue.en, 'th'),
+        translateText(baseValue.en, 'my'),
+        translateText(baseValue.en, 'vi')
+      ]);
+      
+      onUpdateTranslation('th', thText);
+      onUpdateTranslation('my', myText);
+      onUpdateTranslation('vi', viText);
+      setShowLanguages(true); 
+    } catch (error) {
+      console.error("Translation failed", error);
+      alert("Auto-translation failed. Check console for details.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
+        <div className="flex-1 w-full">
+          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">🇬🇧 {label} (English base)</label>
+          {isTextArea ? (
+            <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
+          ) : (
+            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
+          )}
+        </div>
+        <div className="flex md:flex-col gap-2 shrink-0 md:pt-5 w-full md:w-auto">
+          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="flex-1 md:flex-none bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
+            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />} Auto-Translate
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="flex-1 md:flex-none h-9 md:h-7 text-xs text-gray-500 bg-gray-200 md:bg-transparent">
+            <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
+          </Button>
+        </div>
+      </div>
+
+      {showLanguages && (
+        <div className="p-3 grid grid-cols-1 gap-3 bg-white">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">TH</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">MY</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">VN</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

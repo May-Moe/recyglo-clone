@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, MapPin, MessageCircle, Plus, Trash2, UploadCloud, GripVertical, Loader2, HelpCircle } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, MapPin, MessageCircle, Plus, Trash2, UploadCloud, GripVertical, Loader2, HelpCircle, Languages, Wand2 } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -11,27 +11,18 @@ export default function AdminContact() {
   const [isLoading, setIsLoading] = useState(true);
 
   // --- STATE: HERO SECTION ---
-  const [heroData, setHeroData] = useState({
-    subtitle: "",
-    title: "",
-    description: "",
-    imagePreview: ""
+  const [heroData, setHeroData] = useState<any>({
+    subtitle_en: "", title_en: "", description_en: "", imagePreview: ""
   });
 
   // --- STATE: CONTACT INFO ---
-  const [contactInfo, setContactInfo] = useState({
-    locations: "", 
-    email: "",
-    phone: "", 
-    lineId: "",
-    facebook: "",
-    linkedin: "",
-    instagram: ""
+  const [contactInfo, setContactInfo] = useState<any>({
+    locations_en: "", email: "", phone: "", lineId: "", facebook: "", linkedin: "", instagram: ""
   });
 
   // --- STATE: FAQS & HINTS ---
   const [faqs, setFaqs] = useState<any[]>([]);
-  const [messageHints, setMessageHints] = useState<{id: string, text: string}[]>([]);
+  const [messageHints, setMessageHints] = useState<any[]>([]);
 
   // --- 1. FETCH INITIAL DATA FROM FIREBASE ON LOAD ---
   useEffect(() => {
@@ -43,46 +34,29 @@ export default function AdminContact() {
         if (docSnap.exists() && Object.keys(docSnap.data()).length > 0) {
           const data = docSnap.data();
           if (data.heroData) setHeroData(data.heroData);
-          
-          if (data.contactInfo) {
-            setContactInfo({
-              ...data.contactInfo,
-              phone: data.contactInfo.phone || "" 
-            });
-          }
-          
+          if (data.contactInfo) setContactInfo({ ...data.contactInfo, phone: data.contactInfo.phone || "" });
           if (data.faqs && data.faqs.length > 0) setFaqs(data.faqs);
           if (data.messageHints && data.messageHints.length > 0) setMessageHints(data.messageHints);
         } else {
-          // If empty, pre-fill with defaults for easy migration
+          // Defaults for easy migration
           setHeroData({
-            subtitle: "Get in Touch with Our Team",
-            title: "Contact RecyGlo",
-            description: "Contact RecyGlo for more information about our sustainability solutions and ESG data analytics services. We're here to help you achieve your goals.",
+            subtitle_en: "Get in Touch with Our Team",
+            title_en: "Contact RecyGlo",
+            description_en: "Contact RecyGlo for more information about our sustainability solutions and ESG data analytics services. We're here to help you achieve your goals.",
             imagePreview: ""
           });
           setContactInfo({
-            locations: "Thailand, Vietnam, Myanmar, Indonesia, South Korea, Singapore, Malaysia",
-            email: "Contact@recyglo.com",
-            phone: "(+66) 81 412 6842", 
-            lineId: "@RecyGlo",
-            facebook: "",
-            linkedin: "",
-            instagram: ""
+            locations_en: "Thailand, Vietnam, Myanmar, Indonesia, South Korea, Singapore, Malaysia",
+            email: "Contact@recyglo.com", phone: "(+66) 81 412 6842", lineId: "@RecyGlo",
+            facebook: "", linkedin: "", instagram: ""
           });
           setFaqs([
-            { id: 'faq-1', q: "What is RecyGlo?", a: "RecyGlo is a pioneering sustainability solutions provider dedicated to helping businesses across Asia-Pacific achieve their environmental and ESG goals." },
-            { id: 'faq-2', q: "Where is RecyGlo office located?", a: "We have operations and offices across Thailand, Myanmar, Vietnam, Indonesia, South Korea, Singapore, and Malaysia." },
-            { id: 'faq-3', q: "How can we contact the company?", a: "You can reach us via our contact form, email us directly at Contact@recyglo.com, or call our team at (+66) 81 412 6842." },
-            { id: 'faq-4', q: "What services does the company provide?", a: "We offer comprehensive B2B Waste Management Solutions, Waste Auditing, ESG Data Analytics, Circular Economy implementations, and Sustainability Consulting." },
-            { id: 'faq-5', q: "How do I request a consultation?", a: "Simply fill out the contact form above with your details and subject, and a member of our team will reach out to schedule a consultation." },
-            { id: 'faq-6', q: "What are your business hours?", a: "Our standard business hours are Monday to Friday, from 8:30 AM to 5:30 PM." },
-            { id: 'faq-7', q: "Do you have social media channels?", a: "Yes! You can follow our journey and updates on <a href='https://facebook.com/recyglo' target='_blank'>Facebook</a>, LinkedIn, and Instagram @RecyGlo." }
+            { id: 'faq-1', q_en: "What is RecyGlo?", a_en: "RecyGlo is a pioneering sustainability solutions provider..." },
+            { id: 'faq-2', q_en: "Where is RecyGlo office located?", a_en: "We have operations and offices across Thailand..." }
           ]);
           setMessageHints([
-            { id: 'hint-1', text: "How does your ESG data analytics platform work?" },
-            { id: 'hint-2', text: "Can you help our company achieve Zero Waste to Landfill?" },
-            { id: 'hint-3', text: "What is the process and cost for scheduling a waste audit?" }
+            { id: 'hint-1', text_en: "How does your ESG data analytics platform work?" },
+            { id: 'hint-2', text_en: "Can you help our company achieve Zero Waste to Landfill?" },
           ]);
         }
       } catch (error) {
@@ -91,7 +65,6 @@ export default function AdminContact() {
         setIsLoading(false);
       }
     };
-
     fetchContactData();
   }, []);
 
@@ -101,11 +74,7 @@ export default function AdminContact() {
     try {
       const docRef = doc(db, "website_content", "contact_page");
       await setDoc(docRef, {
-        heroData,
-        contactInfo,
-        faqs,
-        messageHints,
-        lastUpdated: new Date()
+        heroData, contactInfo, faqs, messageHints, lastUpdated: new Date()
       }, { merge: true });
 
       alert("Contact Page successfully updated in the database!");
@@ -117,18 +86,16 @@ export default function AdminContact() {
     }
   };
 
-  // --- FAQ & HINT HANDLERS ---
-  const addFaq = () => setFaqs([...faqs, { id: `faq-${Date.now()}`, q: "", a: "" }]);
-  const removeFaq = (id: string) => setFaqs(faqs.filter(f => f.id !== id));
-  const updateFaq = (id: string, field: string, value: string) => setFaqs(faqs.map(f => f.id === id ? { ...f, [field]: value } : f));
+  // --- FAQ & HINT HANDLERS (UPDATED TO BE STATE-SAFE FOR TRANSLATIONS) ---
+  const addFaq = () => setFaqs(prev => [...prev, { id: `faq-${Date.now()}` }]);
+  const removeFaq = (id: string) => setFaqs(prev => prev.filter(f => f.id !== id));
+  const updateFaq = (id: string, field: string, value: string) => setFaqs(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
 
-  const addHint = () => setMessageHints([...messageHints, { id: `hint-${Date.now()}`, text: "" }]);
-  const removeHint = (id: string) => setMessageHints(messageHints.filter(h => h.id !== id));
-  const updateHint = (id: string, text: string) => setMessageHints(messageHints.map(h => h.id === id ? { ...h, text } : h));
+  const addHint = () => setMessageHints(prev => [...prev, { id: `hint-${Date.now()}` }]);
+  const removeHint = (id: string) => setMessageHints(prev => prev.filter(h => h.id !== id));
+  const updateHint = (id: string, field: string, value: string) => setMessageHints(prev => prev.map(h => h.id === id ? { ...h, [field]: value } : h));
 
-  if (isLoading) {
-    return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
-  }
+  if (isLoading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-500 pb-12">
@@ -140,8 +107,7 @@ export default function AdminContact() {
           <p className="text-gray-500 text-sm">Update contact details, social links, FAQs, and form ideas.</p>
         </div>
         <Button onClick={handleSave} disabled={isSaving} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white flex items-center gap-2 px-6">
-          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save size={18} />}
-          {isSaving ? 'Saving to Database...' : 'Save All Changes'}
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save size={18} />} Save All Changes
         </Button>
       </div>
 
@@ -165,24 +131,30 @@ export default function AdminContact() {
                 <h2 className="text-xl font-bold text-gray-900">Hero Banner</h2>
                 <p className="text-sm text-gray-500">Edit the main introductory banner at the top of the contact page.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div className="md:col-span-4 space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div className="md:col-span-4 space-y-4">
                   <label className="block text-sm font-bold text-gray-700">Background Image</label>
-                  <ImageUploader preview={heroData.imagePreview} onUploadSuccess={(url: string) => setHeroData({...heroData, imagePreview: url})} />
+                  <div className="h-[250px] w-full rounded-xl overflow-hidden shadow-sm">
+                    <ImageUploader preview={heroData.imagePreview} onUploadSuccess={(url: string) => setHeroData(prev => ({...prev, imagePreview: url}))} />
+                  </div>
                 </div>
-                <div className="md:col-span-8 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
-                    <input type="text" value={heroData.subtitle} onChange={(e) => setHeroData({...heroData, subtitle: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={heroData.title} onChange={(e) => setHeroData({...heroData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                    <textarea rows={4} value={heroData.description} onChange={(e) => setHeroData({...heroData, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
-                  </div>
+                <div className="md:col-span-8 space-y-5">
+                  <TranslatableField 
+                    label="Small Subtitle"
+                    baseValue={{ en: heroData.subtitle_en || heroData.subtitle, th: heroData.subtitle_th, my: heroData.subtitle_my, vi: heroData.subtitle_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setHeroData(prev => ({...prev, [`subtitle_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Main Title"
+                    baseValue={{ en: heroData.title_en || heroData.title, th: heroData.title_th, my: heroData.title_my, vi: heroData.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setHeroData(prev => ({...prev, [`title_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Description"
+                    isTextArea={true}
+                    baseValue={{ en: heroData.description_en || heroData.description, th: heroData.description_th, my: heroData.description_my, vi: heroData.description_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setHeroData(prev => ({...prev, [`description_${lang}`]: val}))}
+                  />
                 </div>
               </div>
             </div>
@@ -197,24 +169,25 @@ export default function AdminContact() {
               </div>
               
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Office Locations (Comma Separated)</label>
-                  <textarea rows={2} value={contactInfo.locations} onChange={(e) => setContactInfo({...contactInfo, locations: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. Thailand, Vietnam, Myanmar..." />
-                  <p className="text-xs text-gray-500 mt-1">Separate countries with a comma. These generate the list in the location block.</p>
-                </div>
+                <TranslatableField 
+                  label="Office Locations (Comma Separated)"
+                  isTextArea={true}
+                  baseValue={{ en: contactInfo.locations_en || contactInfo.locations, th: contactInfo.locations_th, my: contactInfo.locations_my, vi: contactInfo.locations_vi }}
+                  onUpdateTranslation={(lang: string, val: string) => setContactInfo(prev => ({...prev, [`locations_${lang}`]: val}))}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
-                    <input type="email" value={contactInfo.email} onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
+                    <input type="email" value={contactInfo.email} onChange={(e) => setContactInfo(prev => ({...prev, email: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Phone Number</label>
-                    <input type="text" value={contactInfo.phone} onChange={(e) => setContactInfo({...contactInfo, phone: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. (+66) 81 412 6842" />
+                    <input type="text" value={contactInfo.phone} onChange={(e) => setContactInfo(prev => ({...prev, phone: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="e.g. (+66) 81 412 6842" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">LINE Official ID</label>
-                    <input type="text" value={contactInfo.lineId} onChange={(e) => setContactInfo({...contactInfo, lineId: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
+                    <input type="text" value={contactInfo.lineId} onChange={(e) => setContactInfo(prev => ({...prev, lineId: e.target.value}))} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white" />
                   </div>
                 </div>
 
@@ -222,22 +195,22 @@ export default function AdminContact() {
                   <h3 className="font-bold text-gray-900">Social Media Links</h3>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">Facebook URL</label>
-                    <input type="url" value={contactInfo.facebook} onChange={(e) => setContactInfo({...contactInfo, facebook: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="https://facebook.com/..." />
+                    <input type="url" value={contactInfo.facebook} onChange={(e) => setContactInfo(prev => ({...prev, facebook: e.target.value}))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="https://facebook.com/..." />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">LinkedIn URL</label>
-                    <input type="url" value={contactInfo.linkedin} onChange={(e) => setContactInfo({...contactInfo, linkedin: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="https://linkedin.com/..." />
+                    <input type="url" value={contactInfo.linkedin} onChange={(e) => setContactInfo(prev => ({...prev, linkedin: e.target.value}))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="https://linkedin.com/..." />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">Instagram URL</label>
-                    <input type="url" value={contactInfo.instagram} onChange={(e) => setContactInfo({...contactInfo, instagram: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="https://instagram.com/..." />
+                    <input type="url" value={contactInfo.instagram} onChange={(e) => setContactInfo(prev => ({...prev, instagram: e.target.value}))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#1B5E20] bg-white" placeholder="https://instagram.com/..." />
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 3: FORM HINTS (NEW) */}
+          {/* TAB 3: FORM HINTS */}
           {activeTab === 'hints' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -250,27 +223,21 @@ export default function AdminContact() {
                 </Button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {messageHints.length === 0 && <p className="text-gray-400 text-center py-8">No ideas added yet.</p>}
                 
-                {messageHints.map((hint, index) => (
-                  <div key={hint.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex gap-4 items-center group">
-                    <div className="cursor-grab text-gray-400">
-                      <GripVertical size={20} />
-                    </div>
+                {messageHints.map((hint) => (
+                  <div key={hint.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex gap-4 items-start group">
+                    <div className="cursor-grab text-gray-400 mt-2"><GripVertical size={20} /></div>
                     <div className="flex-1">
-                      <input 
-                        type="text" 
-                        value={hint.text} 
-                        onChange={(e) => updateHint(hint.id, e.target.value)} 
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#1B5E20]" 
-                        placeholder="e.g. Can you help our company achieve Zero Waste?" 
+                      <TranslatableField 
+                        label="Form Message Idea"
+                        baseValue={{ en: hint.text_en || hint.text, th: hint.text_th, my: hint.text_my, vi: hint.text_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => updateHint(hint.id, `text_${lang}`, val)}
                       />
                     </div>
                     <div>
-                      <button onClick={() => removeHint(hint.id)} className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
-                        <Trash2 size={18} />
-                      </button>
+                      <button onClick={() => removeHint(hint.id)} className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors mt-1"><Trash2 size={18} /></button>
                     </div>
                   </div>
                 ))}
@@ -300,26 +267,27 @@ export default function AdminContact() {
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {faqs.length === 0 && <p className="text-gray-400 text-center py-8">No FAQs added yet.</p>}
                 
-                {faqs.map((faq, index) => (
-                  <div key={faq.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex gap-4 group">
-                    <div className="pt-2 cursor-grab text-gray-400">
-                      <GripVertical size={20} />
-                    </div>
-                    <div className="flex-1 space-y-3">
-                      <div>
-                        <input type="text" value={faq.q} onChange={(e) => updateFaq(faq.id, 'q', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-900 focus:outline-none focus:border-[#1B5E20]" placeholder="Question..." />
-                      </div>
-                      <div>
-                        <textarea rows={2} value={faq.a} onChange={(e) => updateFaq(faq.id, 'a', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#1B5E20]" placeholder="Answer (HTML allowed for links)..." />
-                      </div>
+                {faqs.map((faq) => (
+                  <div key={faq.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex gap-4 group">
+                    <div className="pt-2 cursor-grab text-gray-400"><GripVertical size={20} /></div>
+                    <div className="flex-1 space-y-4">
+                      <TranslatableField 
+                        label="Question"
+                        baseValue={{ en: faq.q_en || faq.q, th: faq.q_th, my: faq.q_my, vi: faq.q_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => updateFaq(faq.id, `q_${lang}`, val)}
+                      />
+                      <TranslatableField 
+                        label="Answer (HTML allowed for links)"
+                        isTextArea={true}
+                        baseValue={{ en: faq.a_en || faq.a, th: faq.a_th, my: faq.a_my, vi: faq.a_vi }}
+                        onUpdateTranslation={(lang: string, val: string) => updateFaq(faq.id, `a_${lang}`, val)}
+                      />
                     </div>
                     <div>
-                      <button onClick={() => removeFaq(faq.id)} className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
-                        <Trash2 size={18} />
-                      </button>
+                      <button onClick={() => removeFaq(faq.id)} className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors mt-1"><Trash2 size={18} /></button>
                     </div>
                   </div>
                 ))}
@@ -369,19 +337,102 @@ function ImageUploader({ preview, onUploadSuccess }: any) {
     <div className={`border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors rounded-xl h-full w-full min-h-[120px]`}>
       <input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
       {isUploading ? (
-        <div className="flex flex-col items-center justify-center p-2 text-[#1B5E20]">
-          <Loader2 className="animate-spin mb-1" size={24} />
-        </div>
+        <div className="flex flex-col items-center justify-center p-2 text-[#1B5E20]"><Loader2 className="animate-spin mb-1" size={24} /></div>
       ) : preview ? (
-        <>
-          <img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity">
-            <UploadCloud className="text-[#1B5E20] mb-1" size={24} />
-          </div>
-        </>
+        <><img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" /><div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20] mb-1" size={24} /></div></>
       ) : (
-        <div className="flex flex-col items-center justify-center p-2 text-center text-gray-400">
-          <ImageIcon size={32} className="mb-1" />
+        <div className="flex flex-col items-center justify-center p-2 text-center text-gray-400"><ImageIcon size={32} className="mb-1" /></div>
+      )}
+    </div>
+  );
+}
+
+// --- REUSABLE AUTO-TRANSLATE FIELD (REAL GOOGLE AI TRANSLATION) ---
+function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea = false }: any) {
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showLanguages, setShowLanguages] = useState(false);
+
+  const handleAutoTranslate = async () => {
+    if (!baseValue.en) return alert("Please enter English text first!");
+    setIsTranslating(true);
+    
+    const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY; 
+
+    if (!GOOGLE_API_KEY) {
+      alert("Missing Google Translate API Key in .env file!");
+      setIsTranslating(false);
+      return;
+    }
+    
+    try {
+      const translateText = async (text: string, targetLang: string) => {
+        const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: text, source: 'en', target: targetLang, format: 'html' }) // HTML ensures it doesn't break FAQ links
+        });
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        const translated = data.data.translations[0].translatedText;
+        const txt = document.createElement("textarea");
+        txt.innerHTML = translated;
+        return txt.value;
+      };
+
+      const [thText, myText, viText] = await Promise.all([
+        translateText(baseValue.en, 'th'),
+        translateText(baseValue.en, 'my'),
+        translateText(baseValue.en, 'vi')
+      ]);
+      
+      onUpdateTranslation('th', thText);
+      onUpdateTranslation('my', myText);
+      onUpdateTranslation('vi', viText);
+      setShowLanguages(true); 
+    } catch (error) {
+      console.error("Translation failed", error);
+      alert("Auto-translation failed. Check console for details.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
+        <div className="flex-1 w-full">
+          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">🇬🇧 {label} (English base)</label>
+          {isTextArea ? (
+            <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
+          ) : (
+            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
+          )}
+        </div>
+        <div className="flex md:flex-col gap-2 shrink-0 md:pt-5 w-full md:w-auto">
+          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="flex-1 md:flex-none bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
+            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />} Auto-Translate
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="flex-1 md:flex-none h-9 md:h-7 text-xs text-gray-500 bg-gray-200 md:bg-transparent">
+            <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
+          </Button>
+        </div>
+      </div>
+
+      {showLanguages && (
+        <div className="p-3 grid grid-cols-1 gap-3 bg-white">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">TH</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">MY</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">VN</span>
+            {isTextArea ? <textarea rows={2} value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
+          </div>
         </div>
       )}
     </div>

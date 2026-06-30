@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Layout, FileText, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, Video, Info } from "lucide-react";
+import { Save, Layout, FileText, Plus, Trash2, Edit, X, Loader2, UploadCloud, Image as ImageIcon, GripVertical, List, Type, Video, Info, Languages, Wand2 } from "lucide-react";
 import { doc, getDoc, setDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase"; 
@@ -19,9 +19,9 @@ export default function AdminArticles() {
   // --- 1. STATE FOR THE MAIN LANDING PAGE ---
   const [pageData, setPageData] = useState({
     heroData: { 
-      subtitle: "Insights on Sustainability and ESG Reporting", 
-      title: "RecyGlo Blogs", 
-      description: "Stay updated with the latest insights, trends, and tips on sustainability and ESG reporting from RecyGlo's experts. Read our latest blog posts.", 
+      subtitle_en: "Insights on Sustainability and ESG Reporting", 
+      title_en: "RecyGlo Blogs", 
+      description_en: "Stay updated with the latest insights, trends, and tips on sustainability and ESG reporting from RecyGlo's experts. Read our latest blog posts.", 
       imagePreview: aboutHero 
     }
   });
@@ -43,7 +43,6 @@ export default function AdminArticles() {
         const unsubscribe = onSnapshot(collection(db, "articles"), (snapshot) => {
           const loadedArticles: any[] = [];
           snapshot.forEach((doc) => loadedArticles.push({ id: doc.id, ...doc.data() }));
-          // Sort by newest first based on a simple string sort or date parsing
           setArticles(loadedArticles.reverse());
           setIsLoading(false);
         });
@@ -74,45 +73,48 @@ export default function AdminArticles() {
     setIsSaving(true);
     const defaultArticles = [
       { 
-        title: "RecyGlo Publishes Report on Thailand's Battle With Climate Change", 
+        title_en: "RecyGlo Publishes Report on Thailand's Battle With Climate Change", 
+        title: "RecyGlo Publishes Report on Thailand's Battle With Climate Change", // Fallback
         slug: "thailand-climate-change-report",
         imagePreview: blog1, 
         tags: "Sustainability",
         date: "11 October 2024",
-        excerpt: "In July 2024, RecyGlo published a report on Thailand's battle with climate change that highlights about the significant challenges driven by the aftermath of climate change in Thailand.", 
+        excerpt_en: "In July 2024, RecyGlo published a report on Thailand's battle with climate change that highlights about the significant challenges driven by the aftermath of climate change in Thailand.", 
         contentBlocks: [
-          { id: 'b1', type: 'text', title: '', text: "In July 2024, RecyGlo published a report on Thailand's battle with climate change that highlights about the significant challenges driven by the aftermath of climate change in Thailand. This report delves into how extreme levels of greenhouse gas emissions in Thailand have been a result of the growing population in Thailand with its rapid economic expansion. The report further highlights the urgent need for comprehensive mitigation and adaptation strategies." },
-          { id: 'b2', type: 'text', title: 'Climate Change Impacts on Thailand', text: "Climate change presents significant challenges globally and Thailand is no exception as it faces escalating risks from climate hazards such as heavy rainfall, floods, droughts, and sea level rise. Given these challenges, it is essential to assess Thailand's environmental impact, and implement proper strategies for mitigation and adaptation to combat the effects of climate change.\n\nThailand's tropical climate has seen an increasing temperature and fluctuating precipitation patterns over recent decades. The report highlights some of the factors Thailand has been facing:" },
-          { id: 'b3', type: 'list', title: '', text: "1. Rising Temperatures: From 2011 to 2021, Thailand experienced significant temperature increases, with the highest temperature recorded in April 2016 at 44.6°C in Mae Hong Son. The heatwaves lead to serious health risks such as heat stress and respiratory diseases, impacting public health significantly in Thailand.\n2. Sea Level Rise: Rising sea level has posed a major threat to coastal areas, especially in the Bangkok region which is built on a low-lying plain and hence faces serious risks of being submerged by 2050 if proper action is not taken.\n3. Air Quality Degradation: The degradation of air quality is a result of climate change since rising temperatures increase the level of particulate matter and ground-level ozone." },
-          { id: 'b4', type: 'text', title: 'Socioeconomic Impacts', text: "The report covers the impacts of climate change in Thailand which is profound, affecting myriad sectors:" },
-          { id: 'b5', type: 'list', title: '', text: "1. Agriculture: Altered precipitation and unstable temperature patterns have been threatening crop yields and food security, impacting the livelihoods of farmers and rural communities in Thailand.\n2. Public Health: Increased heatwaves and deteriorating air quality are leading to respiratory and heat-related illnesses, posing significant health risks.\n3. Infrastructure: Floods and rising sea levels have damaged infrastructure, leading to economic losses and displacement of communities in Thailand." },
+          { id: 'b1', type: 'text', title_en: '', text_en: "In July 2024, RecyGlo published a report on Thailand's battle with climate change that highlights about the significant challenges driven by the aftermath of climate change in Thailand. This report delves into how extreme levels of greenhouse gas emissions in Thailand have been a result of the growing population in Thailand with its rapid economic expansion. The report further highlights the urgent need for comprehensive mitigation and adaptation strategies." },
+          { id: 'b2', type: 'text', title_en: 'Climate Change Impacts on Thailand', text_en: "Climate change presents significant challenges globally and Thailand is no exception as it faces escalating risks from climate hazards such as heavy rainfall, floods, droughts, and sea level rise. Given these challenges, it is essential to assess Thailand's environmental impact, and implement proper strategies for mitigation and adaptation to combat the effects of climate change.\n\nThailand's tropical climate has seen an increasing temperature and fluctuating precipitation patterns over recent decades. The report highlights some of the factors Thailand has been facing:" },
+          { id: 'b3', type: 'list', title_en: '', text_en: "1. Rising Temperatures: From 2011 to 2021, Thailand experienced significant temperature increases, with the highest temperature recorded in April 2016 at 44.6°C in Mae Hong Son. The heatwaves lead to serious health risks such as heat stress and respiratory diseases, impacting public health significantly in Thailand.\n2. Sea Level Rise: Rising sea level has posed a major threat to coastal areas, especially in the Bangkok region which is built on a low-lying plain and hence faces serious risks of being submerged by 2050 if proper action is not taken.\n3. Air Quality Degradation: The degradation of air quality is a result of climate change since rising temperatures increase the level of particulate matter and ground-level ozone." },
+          { id: 'b4', type: 'text', title_en: 'Socioeconomic Impacts', text_en: "The report covers the impacts of climate change in Thailand which is profound, affecting myriad sectors:" },
+          { id: 'b5', type: 'list', title_en: '', text_en: "1. Agriculture: Altered precipitation and unstable temperature patterns have been threatening crop yields and food security, impacting the livelihoods of farmers and rural communities in Thailand.\n2. Public Health: Increased heatwaves and deteriorating air quality are leading to respiratory and heat-related illnesses, posing significant health risks.\n3. Infrastructure: Floods and rising sea levels have damaged infrastructure, leading to economic losses and displacement of communities in Thailand." },
         ] 
       },
       { 
+        title_en: "Thailand's Sustainable Future: The Significance of Renewable Energy", 
         title: "Thailand's Sustainable Future: The Significance of Renewable Energy", 
         slug: "thailand-renewable-energy",
         imagePreview: blog2, 
         tags: "Circular Economy, News, Sustainability",
         date: "11 October 2024",
-        excerpt: "Thailand's road to sustainability requires a robust strategy to reach its goal by 2030 and plan for a greener future ahead.", 
+        excerpt_en: "Thailand's road to sustainability requires a robust strategy to reach its goal by 2030 and plan for a greener future ahead.", 
         contentBlocks: [
-          { id: 'b1', type: 'text', title: '', text: "Thailand's road to sustainability requires a robust strategy to reach its goal by 2030 and plan for a greener future ahead. The use of renewable energy hence is crucial in lowering carbon emissions, strengthing energy security, and ensuring a smooth transition to a circular economy with greener alternatives. The Thai government has a solid framework called the Power Development Plan (PDP) scheduled to be implemented for the period 2024 to 2037. According to this plan, the ideal target set covers that 30% of the total power generated in Thailand must be renewable energy by 2030." },
-          { id: 'b2', type: 'text', title: 'Making the Switch to Renewable Energy', text: "The main renewable energy sources that are now under development include hydropower, biomass, solar, and wind. Thailand's abundant solar resources tradition it as a nation with significant potential for solar energy development, and the government has incentivized the use of solar power through tax incentives and financial support of projects.\n\nThailand's geography is abundant with alternative resources for energy production, albeit at a lower capacity. Wind power projects are possible in coastal and highland regions and small and micro-hydropower system projects are possible at rural locations too." },
-          { id: 'b3', type: 'list', title: 'Thailand\'s shift to renewable energy will result in:', text: "1. Expand job market opportunities\n2. Create a positive environmental impact\n3. Social Development" },
+          { id: 'b1', type: 'text', title_en: '', text_en: "Thailand's road to sustainability requires a robust strategy to reach its goal by 2030 and plan for a greener future ahead. The use of renewable energy hence is crucial in lowering carbon emissions, strengthing energy security, and ensuring a smooth transition to a circular economy with greener alternatives. The Thai government has a solid framework called the Power Development Plan (PDP) scheduled to be implemented for the period 2024 to 2037. According to this plan, the ideal target set covers that 30% of the total power generated in Thailand must be renewable energy by 2030." },
+          { id: 'b2', type: 'text', title_en: 'Making the Switch to Renewable Energy', text_en: "The main renewable energy sources that are now under development include hydropower, biomass, solar, and wind. Thailand's abundant solar resources tradition it as a nation with significant potential for solar energy development, and the government has incentivized the use of solar power through tax incentives and financial support of projects.\n\nThailand's geography is abundant with alternative resources for energy production, albeit at a lower capacity. Wind power projects are possible in coastal and highland regions and small and micro-hydropower system projects are possible at rural locations too." },
+          { id: 'b3', type: 'list', title_en: 'Thailand\'s shift to renewable energy will result in:', text_en: "1. Expand job market opportunities\n2. Create a positive environmental impact\n3. Social Development" },
         ] 
       },
       { 
+        title_en: "Understanding the importance of circular economy in Thailand", 
         title: "Understanding the importance of circular economy in Thailand", 
         slug: "understanding-circular-economy-thailand",
         imagePreview: blog3, 
         tags: "Circular Economy",
         date: "11 October 2024",
-        excerpt: "The 'Take-Make-Waste' system normally endorsed by Thailand's linear economy has been reprimanded recently due to its role in promoting climatic hazards.", 
+        excerpt_en: "The 'Take-Make-Waste' system normally endorsed by Thailand's linear economy has been reprimanded recently due to its role in promoting climatic hazards.", 
         contentBlocks: [
-          { id: 'b1', type: 'text', title: '', text: "The \"Take-Make-Waste\" system normally endorsed by Thailand's linear economy has been reprimanded recently due to its role in promoting climatic hazards. Under this production process, resources that are not utilized during the manufacturing period are discarded as waste and even after the product is manufactured, waste is produced from the packaging and eventually, the end of a product's usable life signals its call to further become a waste.\n\nThe Take-Make-Waste model has shown to be unsustainable as it has been exacerbating environmental and climate issues in today's expanding economy of over-consumption." },
-          { id: 'b2', type: 'text', title: 'The Circular Economy: A Sustainable Solution', text: "The circular economy model presents a sustainable alternative to the linear model. It is a closed-loop system where materials and resources are maintained in the economy for as long as possible, while substantially reducing emissions.\n\nThe importance of a circular economy extends beyond environmental benefits. It unlocks a multitude of innovative opportunities that can boost profits for businesses. In Thailand, industries have taken an ambitious goal of integrating a circular economy as part of their business core strategies to adopt a circular economy." },
-          { id: 'b3', type: 'text', title: 'Thailand\'s Circular Economy Initiatives 2024', text: "Currently, the initiatives related to CE are mainly handled by private and public sectors through voluntary engagements. While the government of Thailand has shown a growing interest and dedication in resolving the linear economic model and transitioning towards a circular one, the agenda for the longer term generally relies on the Sufficiency Economy Philosophy (SEP).\n\nThe Thai government's current stance on adopting CE is accelerated through its Bio-Circular-Green (BCG) economic model where it introduces initiatives on the level of:" },
-          { id: 'b4', type: 'list', title: '', text: "1. Plastic Waste Management: Encouraging the use of biodegradable plastics and the promotion of recycling.\n2. Food Waste Reduction: Promoting food waste management through better packaging and awareness campaigns.\n3. Legislation and Policies: Creating a legal framework to promote a circular economy." },
+          { id: 'b1', type: 'text', title_en: '', text_en: "The \"Take-Make-Waste\" system normally endorsed by Thailand's linear economy has been reprimanded recently due to its role in promoting climatic hazards. Under this production process, resources that are not utilized during the manufacturing period are discarded as waste and even after the product is manufactured, waste is produced from the packaging and eventually, the end of a product's usable life signals its call to further become a waste.\n\nThe Take-Make-Waste model has shown to be unsustainable as it has been exacerbating environmental and climate issues in today's expanding economy of over-consumption." },
+          { id: 'b2', type: 'text', title_en: 'The Circular Economy: A Sustainable Solution', text_en: "The circular economy model presents a sustainable alternative to the linear model. It is a closed-loop system where materials and resources are maintained in the economy for as long as possible, while substantially reducing emissions.\n\nThe importance of a circular economy extends beyond environmental benefits. It unlocks a multitude of innovative opportunities that can boost profits for businesses. In Thailand, industries have taken an ambitious goal of integrating a circular economy as part of their business core strategies to adopt a circular economy." },
+          { id: 'b3', type: 'text', title_en: 'Thailand\'s Circular Economy Initiatives 2024', text_en: "Currently, the initiatives related to CE are mainly handled by private and public sectors through voluntary engagements. While the government of Thailand has shown a growing interest and dedication in resolving the linear economic model and transitioning towards a circular one, the agenda for the longer term generally relies on the Sufficiency Economy Philosophy (SEP).\n\nThe Thai government's current stance on adopting CE is accelerated through its Bio-Circular-Green (BCG) economic model where it introduces initiatives on the level of:" },
+          { id: 'b4', type: 'list', title_en: '', text_en: "1. Plastic Waste Management: Encouraging the use of biodegradable plastics and the promotion of recycling.\n2. Food Waste Reduction: Promoting food waste management through better packaging and awareness campaigns.\n3. Legislation and Policies: Creating a legal framework to promote a circular economy." },
         ] 
       }
     ];
@@ -134,7 +136,8 @@ export default function AdminArticles() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const slug = editingArticle.slug || editingArticle.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const baseTitle = editingArticle.title_en || editingArticle.title || 'untitled';
+      const slug = editingArticle.slug || baseTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       const articleDataToSave = { ...editingArticle, slug };
 
       if (editingArticle.id) {
@@ -159,7 +162,7 @@ export default function AdminArticles() {
 
   // Content Block Handlers
   const addContentBlock = (type: 'text' | 'image' | 'video' | 'list') => {
-    const newBlock = { id: `block-${Date.now()}`, type, title: "", text: "", imagePreview: "", videoUrl: "" };
+    const newBlock = { id: `block-${Date.now()}`, type, title_en: "", text_en: "", imagePreview: "", videoUrl: "" };
     setEditingArticle((prev: any) => ({ ...prev, contentBlocks: [...(prev.contentBlocks || []), newBlock] }));
   };
   const removeContentBlock = (blockId: string) => {
@@ -202,7 +205,7 @@ export default function AdminArticles() {
                 </div>
                 <Button onClick={() => { 
                     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-                    setEditingArticle({ title: "", tags: "", date: today, excerpt: "", imagePreview: "", contentBlocks: [] }); 
+                    setEditingArticle({ title_en: "", tags: "", date: today, excerpt_en: "", imagePreview: "", contentBlocks: [] }); 
                     setIsModalOpen(true); 
                   }} 
                   className="bg-[#E2552B] hover:bg-[#E2552B]/90 text-white"
@@ -228,7 +231,7 @@ export default function AdminArticles() {
                         {article.imagePreview ? <img src={article.imagePreview} className="w-full h-full object-cover" /> : <FileText className="w-full h-full p-4 text-gray-400" />}
                       </div>
                       <div>
-                        <h3 className="font-bold text-gray-900 line-clamp-1">{article.title}</h3>
+                        <h3 className="font-bold text-gray-900 line-clamp-1">{article.title_en || article.title}</h3>
                         <p className="text-sm text-gray-500">{article.date} • {article.tags}</p>
                       </div>
                     </div>
@@ -242,28 +245,34 @@ export default function AdminArticles() {
             </div>
           )}
 
-          {/* TAB 2: HERO BANNER */}
+          {/* TAB 2: HERO BANNER WITH TRANSLATIONS */}
           {activeTab === 'hero' && (
             <div className="space-y-6 animate-in fade-in">
               <h2 className="text-xl font-bold text-gray-900 border-b pb-4">Main Landing Hero Banner</h2>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                 <div className="md:col-span-4 space-y-2">
                   <label className="block text-sm font-bold text-gray-700">Background Image</label>
-                  <ImageUploader folder="articles-page" preview={pageData.heroData?.imagePreview} onUploadSuccess={(url: string) => setPageData({...pageData, heroData: {...pageData.heroData, imagePreview: url}})} />
+                  <div className="h-[250px] w-full rounded-xl overflow-hidden shadow-sm">
+                    <ImageUploader folder="articles-page" preview={pageData.heroData?.imagePreview} onUploadSuccess={(url: string) => setPageData(prev => ({...prev, heroData: {...prev.heroData, imagePreview: url}}))} />
+                  </div>
                 </div>
-                <div className="md:col-span-8 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Small Subtitle</label>
-                    <input type="text" value={pageData.heroData?.subtitle} onChange={(e) => setPageData({...pageData, heroData: {...pageData.heroData, subtitle: e.target.value}})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Main Title</label>
-                    <input type="text" value={pageData.heroData?.title} onChange={(e) => setPageData({...pageData, heroData: {...pageData.heroData, title: e.target.value}})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                    <textarea rows={4} value={pageData.heroData?.description} onChange={(e) => setPageData({...pageData, heroData: {...pageData.heroData, description: e.target.value}})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" />
-                  </div>
+                <div className="md:col-span-8 space-y-5">
+                  <TranslatableField 
+                    label="Small Subtitle"
+                    baseValue={{ en: pageData.heroData?.subtitle_en || pageData.heroData?.subtitle, th: pageData.heroData?.subtitle_th, my: pageData.heroData?.subtitle_my, vi: pageData.heroData?.subtitle_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setPageData(prev => ({...prev, heroData: {...prev.heroData, [`subtitle_${lang}`]: val}}))}
+                  />
+                  <TranslatableField 
+                    label="Main Title"
+                    baseValue={{ en: pageData.heroData?.title_en || pageData.heroData?.title, th: pageData.heroData?.title_th, my: pageData.heroData?.title_my, vi: pageData.heroData?.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setPageData(prev => ({...prev, heroData: {...prev.heroData, [`title_${lang}`]: val}}))}
+                  />
+                  <TranslatableField 
+                    label="Description"
+                    isTextArea={true}
+                    baseValue={{ en: pageData.heroData?.description_en || pageData.heroData?.description, th: pageData.heroData?.description_th, my: pageData.heroData?.description_my, vi: pageData.heroData?.description_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setPageData(prev => ({...prev, heroData: {...prev.heroData, [`description_${lang}`]: val}}))}
+                  />
                 </div>
               </div>
             </div>
@@ -272,10 +281,10 @@ export default function AdminArticles() {
         </div>
       </div>
 
-      {/* --- ARTICLE EDITOR MODAL --- */}
+      {/* --- ARTICLE EDITOR MODAL WITH TRANSLATIONS --- */}
       {isModalOpen && editingArticle && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
             
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
               <h2 className="text-xl font-bold text-gray-900">{editingArticle.id ? 'Edit Article' : 'Write New Article'}</h2>
@@ -285,35 +294,42 @@ export default function AdminArticles() {
             <div className="p-6 overflow-y-auto space-y-8 flex-1 bg-gray-50/50 custom-scrollbar">
               
               {/* ARTICLE IDENTITY */}
-              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-3"><h3 className="font-bold text-lg text-[#1B5E20] border-b pb-2">Article Details</h3></div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-bold text-gray-700">Thumbnail Image</label>
-                  <ImageUploader folder="article-covers" preview={editingArticle.imagePreview} onUploadSuccess={(url: string) => setEditingArticle({...editingArticle, imagePreview: url})} />
+              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-12"><h3 className="font-bold text-lg text-[#1B5E20] border-b pb-2">Article Details</h3></div>
+                
+                <div className="lg:col-span-4 space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Thumbnail Image</label>
+                    <div className="aspect-video rounded-xl overflow-hidden shadow-sm">
+                      <ImageUploader folder="article-covers" preview={editingArticle.imagePreview} onUploadSuccess={(url: string) => setEditingArticle({...editingArticle, imagePreview: url})} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Tags (Comma Separated)</label>
+                    <input type="text" value={editingArticle.tags} onChange={(e) => setEditingArticle({...editingArticle, tags: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] text-sm" placeholder="e.g. News, Sustainability" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
+                    <input type="text" value={editingArticle.date} onChange={(e) => setEditingArticle({...editingArticle, date: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] text-sm" placeholder="11 October 2024" />
+                  </div>
                 </div>
-                <div className="md:col-span-2 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Article Title</label>
-                    <input type="text" value={editingArticle.title} onChange={(e) => setEditingArticle({...editingArticle, title: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] font-bold text-lg" placeholder="e.g. The Future of Recycling" required />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">Tags (Comma Separated)</label>
-                      <input type="text" value={editingArticle.tags} onChange={(e) => setEditingArticle({...editingArticle, tags: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="e.g. News, Sustainability" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
-                      <input type="text" value={editingArticle.date} onChange={(e) => setEditingArticle({...editingArticle, date: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="11 October 2024" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Short Excerpt</label>
-                    <textarea rows={2} value={editingArticle.excerpt} onChange={(e) => setEditingArticle({...editingArticle, excerpt: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20]" placeholder="A brief summary for the blog card." />
-                  </div>
+
+                <div className="lg:col-span-8 space-y-5">
+                  <TranslatableField 
+                    label="Article Title"
+                    baseValue={{ en: editingArticle.title_en || editingArticle.title, th: editingArticle.title_th, my: editingArticle.title_my, vi: editingArticle.title_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingArticle((prev: any) => ({...prev, [`title_${lang}`]: val}))}
+                  />
+                  <TranslatableField 
+                    label="Short Excerpt"
+                    isTextArea={true}
+                    baseValue={{ en: editingArticle.excerpt_en || editingArticle.excerpt, th: editingArticle.excerpt_th, my: editingArticle.excerpt_my, vi: editingArticle.excerpt_vi }}
+                    onUpdateTranslation={(lang: string, val: string) => setEditingArticle((prev: any) => ({...prev, [`excerpt_${lang}`]: val}))}
+                  />
                 </div>
               </div>
 
-              {/* ARTICLE BODY BUILDER */}
+              {/* ARTICLE BODY BUILDER WITH TRANSLATIONS */}
               <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                 <div className="flex items-center justify-between border-b pb-4 mb-6">
                   <div>
@@ -341,27 +357,50 @@ export default function AdminArticles() {
                       </div>
                       
                       {block.type === 'text' && (
-                        <div className="space-y-3">
-                          <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="Optional Heading..." />
-                          <textarea rows={6} value={block.text} onChange={(e) => updateContentBlock(block.id, 'text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none" placeholder="Write paragraph text here..." />
+                        <div className="space-y-5">
+                          <TranslatableField 
+                            label="Block Heading (Optional)"
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
+                          />
+                          <TranslatableField 
+                            label="Paragraph Text"
+                            isTextArea={true}
+                            baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
+                          />
                         </div>
                       )}
                       
                       {block.type === 'image' && (
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div className="md:col-span-1"><ImageUploader folder="article-images" preview={block.imagePreview} small onUploadSuccess={(url: string) => updateContentBlock(block.id, 'imagePreview', url)} /></div>
-                          <div className="md:col-span-3 space-y-3">
-                            <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="Image Title (Optional)..." />
-                            <textarea rows={2} value={block.text} onChange={(e) => updateContentBlock(block.id, 'text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none" placeholder="Image Caption/Description..." />
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                          <div className="md:col-span-1">
+                            <label className="block text-xs font-bold text-gray-700 mb-2">Block Image</label>
+                            <ImageUploader folder="article-images" preview={block.imagePreview} small onUploadSuccess={(url: string) => updateContentBlock(block.id, 'imagePreview', url)} />
+                          </div>
+                          <div className="md:col-span-3 space-y-5">
+                            <TranslatableField 
+                              label="Image Title (Optional)"
+                              baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                              onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
+                            />
+                            <TranslatableField 
+                              label="Image Caption / Text"
+                              isTextArea={true}
+                              baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                              onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
+                            />
                           </div>
                         </div>
                       )}
 
                       {block.type === 'video' && (
-                        <div className="space-y-3">
-                          <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="Video Title..." />
-                          
-                          {/* NEW: EMBED INSTRUCTION ALERT BOX */}
+                        <div className="space-y-5">
+                          <TranslatableField 
+                            label="Video Title"
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
+                          />
                           <div className="bg-[#E2552B]/5 border border-[#E2552B]/20 rounded-md p-3 flex items-start gap-2 text-sm text-[#E2552B]">
                             <Info size={16} className="shrink-0 mt-0.5" />
                             <div className="leading-relaxed">
@@ -369,15 +408,23 @@ export default function AdminArticles() {
                               <span className="text-xs opacity-80">Example: <code>https://www.youtube.com/embed/YOUR_VIDEO_ID</code></span>
                             </div>
                           </div>
-
                           <input type="text" value={block.videoUrl} onChange={(e) => updateContentBlock(block.id, 'videoUrl', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none text-[#E2552B]" placeholder="https://youtube.com/embed/..." />
                         </div>
                       )}
 
                       {block.type === 'list' && (
-                        <div className="space-y-3">
-                          <input type="text" value={block.title} onChange={(e) => updateContentBlock(block.id, 'title', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md font-bold focus:outline-none" placeholder="List Title..." />
-                          <textarea rows={5} value={block.text} onChange={(e) => updateContentBlock(block.id, 'text', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none" placeholder="Type bullet points here. Put each point on a new line." />
+                        <div className="space-y-5">
+                          <TranslatableField 
+                            label="List Title"
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
+                          />
+                          <TranslatableField 
+                            label="List Items (One per line)"
+                            isTextArea={true}
+                            baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                            onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
+                          />
                         </div>
                       )}
                     </div>
@@ -388,7 +435,7 @@ export default function AdminArticles() {
 
             <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 shrink-0 bg-white rounded-b-2xl">
               <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSaveArticle} disabled={isSaving || !editingArticle.title} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
+              <Button onClick={handleSaveArticle} disabled={isSaving || !(editingArticle.title_en || editingArticle.title)} className="bg-[#1B5E20] hover:bg-[#2A4B38] text-white">
                 {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={16} className="mr-2" />}
                 {editingArticle.id ? 'Save Changes' : 'Publish Article'}
               </Button>
@@ -436,6 +483,126 @@ function ImageUploader({ preview, small, onUploadSuccess, folder = "misc" }: any
       {isUploading ? <Loader2 className="animate-spin text-[#1B5E20]" size={24} /> : preview ? (
         <><img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" /><div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20]" size={24} /></div></>
       ) : <UploadCloud className="text-gray-400" size={small ? 24 : 32} />}
+    </div>
+  );
+}
+
+// --- REUSABLE AUTO-TRANSLATE FIELD (REAL GOOGLE AI TRANSLATION) ---
+function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea = false }: any) {
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showLanguages, setShowLanguages] = useState(false);
+
+  const handleAutoTranslate = async () => {
+    if (!baseValue.en) return alert("Please enter English text first!");
+    
+    setIsTranslating(true);
+    
+    // PULL THE API KEY FROM YOUR .env FILE
+    const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY; 
+
+    if (!GOOGLE_API_KEY) {
+      alert("Missing Google Translate API Key in .env file!");
+      setIsTranslating(false);
+      return;
+    }
+    
+    try {
+      const translateText = async (text: string, targetLang: string) => {
+        const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            q: text,
+            source: 'en',
+            target: targetLang,
+            format: 'text' 
+          })
+        });
+        
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        // Decode HTML entities automatically
+        const translated = data.data.translations[0].translatedText;
+        const txt = document.createElement("textarea");
+        txt.innerHTML = translated;
+        return txt.value;
+      };
+
+      // Translate all three languages simultaneously
+      const [thText, myText, viText] = await Promise.all([
+        translateText(baseValue.en, 'th'),
+        translateText(baseValue.en, 'my'),
+        translateText(baseValue.en, 'vi')
+      ]);
+      
+      // Save the real translations
+      onUpdateTranslation('th', thText);
+      onUpdateTranslation('my', myText);
+      onUpdateTranslation('vi', viText);
+      
+      setShowLanguages(true); 
+    } catch (error) {
+      console.error("Translation failed", error);
+      alert("Auto-translation failed. Check console for details.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
+        <div className="flex-1 w-full">
+          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
+            🇬🇧 {label} (English base)
+          </label>
+          {isTextArea ? (
+            <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
+          ) : (
+            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
+          )}
+        </div>
+        
+        <div className="flex md:flex-col gap-2 shrink-0 md:pt-5 w-full md:w-auto">
+          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="flex-1 md:flex-none bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
+            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />}
+            Auto-Translate
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="flex-1 md:flex-none h-9 md:h-7 text-xs text-gray-500 bg-gray-200 md:bg-transparent">
+            <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
+          </Button>
+        </div>
+      </div>
+
+      {showLanguages && (
+        <div className="p-3 grid grid-cols-1 gap-3 bg-white">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">TH</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Thai translation..." />
+            ) : (
+               <input type="text" value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Thai translation..." />
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">MY</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Myanmar translation..." />
+            ) : (
+               <input type="text" value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Myanmar translation..." />
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">VN</span>
+            {isTextArea ? (
+               <textarea rows={2} value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Vietnamese translation..." />
+            ) : (
+               <input type="text" value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Vietnamese translation..." />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
