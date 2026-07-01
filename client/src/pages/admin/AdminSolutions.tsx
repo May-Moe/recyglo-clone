@@ -5,7 +5,7 @@ import { doc, getDoc, setDoc, collection, onSnapshot, addDoc, deleteDoc, updateD
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase"; 
 
-// --- ASSET IMPORTS FROM YOUR ORIGINAL PAGE ---
+// --- ASSET IMPORTS ---
 import heroBg from '@/assets/images/about-hero.jpg'; 
 import service1 from '@/assets/images/w1.webp';
 import service2 from '@/assets/images/w2.webp';
@@ -125,7 +125,7 @@ export default function AdminSolutions() {
     saveServiceOrder(newArr); 
   };
 
-  // --- MAGIC MIGRATION BUTTON WITH HERO SECTION DATA & FULL BLOCKS ---
+  // --- MIGRATION BUTTON WITH HERO SECTION DATA REMOVED & FULL BLOCKS ---
   const migrateDefaultServices = async () => {
     setIsSaving(true);
     const defaultServices = [
@@ -311,7 +311,6 @@ export default function AdminSolutions() {
                 <Button onClick={() => { 
                     setEditingService({ 
                       title_en: "", desc_en: "", imagePreview: "", 
-                      heroSubtitle_en: "Our Solution", heroTitle_en: "", heroDescription_en: "", heroImage: "", 
                       contentBlocks: [] 
                     }); 
                     setIsServiceModalOpen(true); 
@@ -405,7 +404,6 @@ export default function AdminSolutions() {
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">YouTube Embed URL</label>
                 
-                {/* INSTRUCTION ALERT BOX */}
                 <div className="bg-[#E2552B]/5 border border-[#E2552B]/20 rounded-md p-3 flex items-start gap-2 text-sm text-[#E2552B] mb-3">
                   <Info size={16} className="shrink-0 mt-0.5" />
                   <div className="leading-relaxed">
@@ -524,43 +522,11 @@ export default function AdminSolutions() {
                 </div>
               </div>
 
-              {/* SECTION 2: PAGE HERO SETTINGS */}
-              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-12">
-                  <h3 className="font-bold text-lg text-[#1B5E20] border-b pb-2">2. Page Hero Section</h3>
-                  <p className="text-xs text-gray-500 mt-1">This controls the big banner at the very top of the specific service page.</p>
-                </div>
-                <div className="lg:col-span-4 space-y-2">
-                  <label className="block text-sm font-bold text-gray-700">Wide Hero Image</label>
-                  <div className="aspect-video w-full rounded-xl overflow-hidden shadow-sm">
-                    <ImageUploader folder="service-heroes" preview={editingService.heroImage} onUploadSuccess={(url: string) => setEditingService((prev: any) => ({...prev, heroImage: url}))} />
-                  </div>
-                </div>
-                <div className="lg:col-span-8 space-y-5">
-                  <TranslatableField 
-                    label="Hero Subtitle"
-                    baseValue={{ en: editingService.heroSubtitle_en || editingService.heroSubtitle, th: editingService.heroSubtitle_th, my: editingService.heroSubtitle_my, vi: editingService.heroSubtitle_vi, ko: editingService.heroSubtitle_ko, id: editingService.heroSubtitle_id, ms: editingService.heroSubtitle_ms, zh: editingService.heroSubtitle_zh }}
-                    onUpdateTranslation={(lang: string, val: string) => setEditingService((prev: any) => ({...prev, [`heroSubtitle_${lang}`]: val}))}
-                  />
-                  <TranslatableField 
-                    label="Hero Title"
-                    baseValue={{ en: editingService.heroTitle_en || editingService.heroTitle, th: editingService.heroTitle_th, my: editingService.heroTitle_my, vi: editingService.heroTitle_vi, ko: editingService.heroTitle_ko, id: editingService.heroTitle_id, ms: editingService.heroTitle_ms, zh: editingService.heroTitle_zh }}
-                    onUpdateTranslation={(lang: string, val: string) => setEditingService((prev: any) => ({...prev, [`heroTitle_${lang}`]: val}))}
-                  />
-                  <TranslatableField 
-                    label="Hero Description"
-                    isTextArea={true}
-                    baseValue={{ en: editingService.heroDescription_en || editingService.heroDescription, th: editingService.heroDescription_th, my: editingService.heroDescription_my, vi: editingService.heroDescription_vi, ko: editingService.heroDescription_ko, id: editingService.heroDescription_id, ms: editingService.heroDescription_ms, zh: editingService.heroDescription_zh }}
-                    onUpdateTranslation={(lang: string, val: string) => setEditingService((prev: any) => ({...prev, [`heroDescription_${lang}`]: val}))}
-                  />
-                </div>
-              </div>
-
-              {/* SECTION 3: MODULAR PAGE BUILDER */}
+              {/* SECTION 2: MODULAR PAGE BUILDER */}
               <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                 <div className="flex items-center justify-between border-b pb-4 mb-6">
                   <div>
-                    <h3 className="font-bold text-lg text-[#1B5E20]">3. Modular Page Builder</h3>
+                    <h3 className="font-bold text-lg text-[#1B5E20]">2. Modular Page Builder</h3>
                     <p className="text-xs text-gray-500">Add text, images, videos, or lists for the main content body.</p>
                   </div>
                   <div className="flex gap-2 flex-wrap">
@@ -632,7 +598,6 @@ export default function AdminSolutions() {
                             onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
                           />
                           
-                          {/* INSTRUCTION ALERT BOX */}
                           <div className="bg-[#E2552B]/5 border border-[#E2552B]/20 rounded-md p-3 flex items-start gap-2 text-sm text-[#E2552B]">
                             <Info size={16} className="shrink-0 mt-0.5" />
                             <div className="leading-relaxed">
@@ -641,7 +606,7 @@ export default function AdminSolutions() {
                             </div>
                           </div>
 
-                          <input type="text" value={block.videoUrl} onChange={(e) => updateContentBlock(block.id, 'videoUrl', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none text-[#E2552B]" placeholder="https://youtube.com/embed/..." />
+                          <input type="text" value={block.videoUrl} onChange={(e) => updateContentBlock(block.id, 'videoUrl', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none" placeholder="https://youtube.com/embed/..." />
                         </div>
                       )}
 
@@ -780,28 +745,53 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col justify-center">
-      <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
-        <div className="flex-1 w-full">
-          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">🇬🇧 {label} (English base)</label>
+    <div className="bg-white border border-gray-100 rounded-xl shadow-sm mb-4">
+      <div className="p-4 flex flex-col md:flex-row gap-4 items-start">
+        
+        <div className="flex-1 w-full min-w-0">
+          <label className="flex items-center gap-1.5 text-[11px] font-bold text-gray-800 mb-1.5 uppercase tracking-wide">
+            🇬🇧 {label} <span className="text-gray-400 font-medium capitalize tracking-normal">(English base)</span>
+          </label>
           {isTextArea ? (
-            <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
+            <textarea 
+              rows={3} 
+              value={baseValue.en || ''} 
+              onChange={(e) => onUpdateTranslation('en', e.target.value)} 
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors resize-y min-w-0" 
+            />
           ) : (
-            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
+            <input 
+              type="text" 
+              value={baseValue.en || ''} 
+              onChange={(e) => onUpdateTranslation('en', e.target.value)} 
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/20 focus:border-[#1B5E20] transition-colors min-w-0" 
+            />
           )}
         </div>
-        <div className="flex md:flex-col gap-2 shrink-0 md:pt-5 w-full md:w-auto">
-          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="flex-1 md:flex-none bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
-            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />} Auto-Translate
+        
+        <div className="w-full md:w-36 shrink-0 flex flex-col gap-1 md:pt-6">
+          <Button 
+            type="button" 
+            onClick={handleAutoTranslate} 
+            disabled={isTranslating} 
+            className="w-full bg-[#76FF03] hover:bg-[#68e002] text-[#0a2e10] font-bold h-9 text-xs shadow-sm transition-colors"
+          >
+            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1.5" />}
+            Auto-Translate
           </Button>
-          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="flex-1 md:flex-none h-9 md:h-7 text-xs text-gray-500 bg-gray-200 md:bg-transparent">
-            <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
-          </Button>
+          <button 
+            type="button" 
+            onClick={() => setShowLanguages(!showLanguages)} 
+            className="w-full flex items-center justify-center gap-1.5 h-8 text-[11px] font-medium text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            <Languages size={14} /> {showLanguages ? 'Hide Languages' : 'Edit Languages'}
+          </button>
         </div>
+
       </div>
 
       {showLanguages && (
-        <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-3 bg-white">
+        <div className="p-4 border-t border-gray-100 bg-gray-50/50 grid grid-cols-1 gap-3">
           {[
             { key: 'th', label: 'TH' },
             { key: 'my', label: 'MY' },
@@ -812,11 +802,11 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
             { key: 'zh', label: 'ZH' }
           ].map(lang => (
             <div key={lang.key} className="flex items-center gap-3">
-              <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded shrink-0">{lang.label}</span>
+              <span className="text-[10px] font-bold w-10 text-center bg-white border border-gray-200 py-1.5 rounded shrink-0 text-gray-600 uppercase tracking-wider">{lang.label}</span>
               {isTextArea ? (
-                 <textarea rows={2} value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />
+                 <textarea rows={2} value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#1B5E20] focus:border-[#1B5E20] min-w-0 bg-white" />
               ) : (
-                 <input type="text" value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />
+                 <input type="text" value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#1B5E20] focus:border-[#1B5E20] min-w-0 bg-white" />
               )}
             </div>
           ))}

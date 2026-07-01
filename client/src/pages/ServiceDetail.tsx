@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useRoute, Link, useLocation } from 'wouter';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { ChevronRight, Play } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from 'react-i18next'; // ✅ IMPORT TRANSLATION
+import { useTranslation } from 'react-i18next'; 
 
 // --- FIREBASE IMPORTS ---
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -19,7 +19,6 @@ export default function ServiceDetail() {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language || 'en';
 
-  // ✅ MAGIC HELPER FUNCTION: Automatically pulls the correct language field from Firebase!
   const tDb = (obj: any, field: string, fallback: string = "") => {
     if (!obj) return fallback;
     return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
@@ -50,15 +49,21 @@ export default function ServiceDetail() {
     fetchService();
   }, [slug]);
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-white">Loading service...</div>;
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-10 h-10 border-4 border-[#1B5E20] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
 
   if (!service) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+    <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
       <Header />
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Service Not Found</h1>
-        <p className="text-gray-500 mb-8">We couldn't find the solution you were looking for.</p>
-        <Link href="/services" className="px-6 py-3 bg-[#1B5E20] text-white rounded-md font-bold">Back to Services</Link>
+      <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Service Not Found</h1>
+        <p className="text-sm text-gray-500 mb-8">We couldn't find the solution you were looking for.</p>
+        <Button onClick={() => { setLocation('/services'); window.scrollTo(0, 0); }} className="bg-[#1B5E20] text-white hover:bg-[#1B5E20]/90 font-bold px-6 py-4 rounded-lg flex items-center gap-2 text-sm">
+          <ArrowLeft size={16} /> Back to Services
+        </Button>
       </div>
       <Footer />
     </div>
@@ -68,106 +73,69 @@ export default function ServiceDetail() {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
 
-      {/* 1. HERO SECTION */}
-      <section className="relative py-12 md:py-24 overflow-hidden bg-[#1B5E20]">
-        <div 
-          className="absolute inset-0 z-0 opacity-60 bg-black/40"
-          style={(service.heroImage || service.imagePreview) ? { 
-            backgroundImage: `url(${service.heroImage || service.imagePreview})`, 
-            backgroundSize: 'cover', 
-            backgroundPosition: 'center' 
-          } : {}}
-        />
-        <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
-          <div className="max-w-xl bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
-             
-             {/* ✅ TRANSLATED SUBTITLE */}
-             <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
-                {tDb(service, 'heroSubtitle', 'Our Solution')}
-             </h2>
-             
-             {/* ✅ TRANSLATED TITLE */}
-             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
-                {tDb(service, 'heroTitle', tDb(service, 'title'))}
-             </h1>
-             
-             {/* ✅ TRANSLATED DESCRIPTION */}
-             <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
-                {tDb(service, 'heroDescription', tDb(service, 'desc'))}
-             </p>
-
-             <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700">
-                <Button 
-                  onClick={() => {
-                    setLocation('/carbon-calculator');
-                    window.scrollTo(0, 0);
-                  }}
-                  className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
-                >
-                  <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span>
-                  {t('home.calcButton', 'Calculate Carbon Footprint')}
-                </Button>
-                
-                <Button 
-                  className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105"
-                  onClick={() => setLocation('/services')}
-                >
-                  {t('nav.services', 'Our Services')}
-                </Button>
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. DYNAMIC CONTENT BLOCKS SECTION */}
-      <section className="py-12 md:py-20">
-        <div className="container px-4 sm:px-8 lg:px-12 max-w-4xl">
+      {/* COMPACT EDITORIAL LAYOUT (No Hero Banner, No Main Hero Image, Cleansed White Space) */}
+      <main className="flex-1 pt-32 pb-24">
+        <article className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Breadcrumb */}
-          <div className="mb-10 text-sm font-medium text-gray-500 flex items-center gap-2">
-            <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.home', 'Home')}</Link>
-            <ChevronRight size={14} className="text-gray-300" />
-            <Link href="/services" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.services', 'Our Services')}</Link>
-            <ChevronRight size={14} className="text-gray-300" />
-            <span className="text-gray-900 font-bold">{tDb(service, 'title')}</span>
-          </div>
+          {/* 1. BREADCRUMB */}
+          <nav className="mb-8 flex items-center gap-2 text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <Link href="/" className="hover:text-[#1B5E20] cursor-pointer transition-colors">{t('nav.home', 'Home')}</Link>
+            <ChevronRight size={14} />
+            <Link href="/services" className="hover:text-[#1B5E20] cursor-pointer transition-colors">{t('nav.services', 'Our Services')}</Link>
+            <ChevronRight size={14} />
+            <span className="text-[#E2552B]">{tDb(service, 'title')}</span>
+          </nav>
 
-          <div className="space-y-16">
+          {/* 2. TITLE & LEAD DESCRIPTION */}
+          <header className="mb-12 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight">
+              {tDb(service, 'title')}
+            </h1>
+            {tDb(service, 'desc') && (
+              <p className="text-sm md:text-base text-gray-600 leading-relaxed font-normal border-l-[3px] border-[#1B5E20] pl-5 py-1">
+                {tDb(service, 'desc')}
+              </p>
+            )}
+          </header>
+
+          {/* 3. DYNAMIC CONTENT BLOCKS */}
+          <div className="space-y-12 text-gray-700">
             {(!service.contentBlocks || service.contentBlocks.length === 0) && (
-              <p className="text-gray-500 text-lg">Detailed information for this service is being updated.</p>
+              <div className="text-center py-16 bg-gray-50 rounded-2xl border border-gray-100">
+                <p className="text-gray-500 font-medium text-sm">Detailed information for this service is currently being updated.</p>
+              </div>
             )}
 
-            {/* DYNAMICALLY RENDER THE BLOCKS YOU BUILT IN THE CMS */}
             {service.contentBlocks?.map((block: any, index: number) => (
-               <div key={block.id || index} className="flex flex-col">
+               <div key={block.id || index} className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
                  
                  {/* TEXT BLOCK */}
                  {block.type === 'text' && (
-                   <div>
-                     {tDb(block, 'title') && <h3 className="text-2xl font-bold text-gray-900 mb-4">{tDb(block, 'title')}</h3>}
-                     {tDb(block, 'text') && <p className="text-gray-600 leading-relaxed text-[15px] md:text-base whitespace-pre-line" dangerouslySetInnerHTML={{ __html: tDb(block, 'text') }}></p>}
+                   <div className="max-w-4xl">
+                     {tDb(block, 'title') && <h3 className="text-xl md:text-2xl font-bold text-[#1B5E20] mb-4 tracking-tight">{tDb(block, 'title')}</h3>}
+                     {tDb(block, 'text') && <div className="leading-relaxed text-sm md:text-base whitespace-pre-line text-gray-600" dangerouslySetInnerHTML={{ __html: tDb(block, 'text') }}></div>}
                    </div>
                  )}
 
                  {/* IMAGE BLOCK */}
                  {block.type === 'image' && (
-                   <div>
-                     {tDb(block, 'title') && <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{tDb(block, 'title')}</h3>}
+                   <div className="w-full">
+                     {tDb(block, 'title') && <h3 className="text-xl md:text-2xl font-bold text-[#1B5E20] mb-4 tracking-tight max-w-4xl">{tDb(block, 'title')}</h3>}
                      {block.imagePreview && (
-                       <div className="w-full h-auto md:h-[400px] overflow-hidden rounded-2xl mb-6 shadow-sm border border-gray-100 bg-gray-100">
-                         <img src={block.imagePreview} alt={tDb(block, 'title') || "Service Image"} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-                       </div>
+                       <figure className="w-full rounded-2xl overflow-hidden mb-5 shadow-sm border border-gray-100 bg-gray-50">
+                         <img src={block.imagePreview} alt={tDb(block, 'title') || "Service Concept"} className="w-full h-auto max-h-[500px] object-cover" />
+                       </figure>
                      )}
-                     {tDb(block, 'text') && <p className="text-gray-600 leading-relaxed text-[15px] md:text-base whitespace-pre-line" dangerouslySetInnerHTML={{ __html: tDb(block, 'text') }}></p>}
+                     {tDb(block, 'text') && <figcaption className="text-gray-500 text-sm leading-relaxed whitespace-pre-line max-w-4xl" dangerouslySetInnerHTML={{ __html: tDb(block, 'text') }}></figcaption>}
                    </div>
                  )}
 
                  {/* VIDEO BLOCK */}
                  {block.type === 'video' && (
-                   <div>
-                     {tDb(block, 'title') && <h3 className="text-2xl font-bold text-gray-900 mb-6">{tDb(block, 'title')}</h3>}
+                   <div className="w-full">
+                     {tDb(block, 'title') && <h3 className="text-xl md:text-2xl font-bold text-[#1B5E20] mb-4 tracking-tight max-w-4xl">{tDb(block, 'title')}</h3>}
                      {block.videoUrl && (
-                       <div className="w-full rounded-3xl aspect-video shadow-xl relative overflow-hidden bg-black border-2 border-gray-100 mb-6">
+                       <div className="w-full rounded-2xl aspect-video shadow-md relative overflow-hidden bg-black border border-gray-100">
                          <iframe className="w-full h-full" src={block.videoUrl} frameBorder="0" allowFullScreen></iframe>
                        </div>
                      )}
@@ -176,28 +144,27 @@ export default function ServiceDetail() {
 
                  {/* LIST BLOCK */}
                  {block.type === 'list' && (
-                   <div className="bg-[#F8F9F7] p-8 rounded-2xl border border-gray-100">
-                     {tDb(block, 'title') && <h3 className="text-xl font-bold text-[#1B5E20] mb-4">{tDb(block, 'title')}</h3>}
+                   <div className="bg-[#F8F9F7] p-8 md:p-10 lg:p-12 rounded-[2rem] border border-gray-100 w-full shadow-sm">
+                     {tDb(block, 'title') && <h3 className="text-xl md:text-2xl font-bold text-[#1B5E20] mb-6">{tDb(block, 'title')}</h3>}
                      {tDb(block, 'text') && (
-                       <ul className="space-y-3 text-gray-700 list-disc pl-5">
+                       <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 text-gray-700">
                          {tDb(block, 'text').split('\n').filter((line: string) => line.trim() !== '').map((line: string, i: number) => (
-                           <li key={i} className="leading-relaxed" dangerouslySetInnerHTML={{ __html: line.replace(/^[-•]\s*/, '') }}></li>
+                           <li key={i} className="flex items-start gap-3 text-sm md:text-[15px] leading-relaxed bg-white p-5 rounded-xl shadow-sm border border-gray-50 hover:shadow-md transition-shadow">
+                             <div className="mt-1.5 min-w-[6px] w-[6px] h-[6px] rounded-full bg-[#E2552B] shrink-0"></div>
+                             <span className="text-gray-600" dangerouslySetInnerHTML={{ __html: line.replace(/^[-•]\s*/, '') }}></span>
+                           </li>
                          ))}
                        </ul>
                      )}
                    </div>
                  )}
-
-                 {/* Separator line between blocks */}
-                 {index !== service.contentBlocks.length - 1 && (
-                   <hr className="mt-16 border-gray-200" />
-                 )}
+                 
                </div>
             ))}
           </div>
 
-        </div>
-      </section>
+        </article>
+      </main>
 
       <Footer />
     </div>

@@ -58,11 +58,11 @@ export default function Header() {
 
   // --- DYNAMIC SERVICES GENERATION ---
   const dynamicServices = [
-    { 
-      title: t('nav.allServices', 'All Services'), 
-      href: '/services', 
-      desc: t('nav.allServicesDesc', 'View all our comprehensive sustainability solutions.') 
-    },
+    // { 
+    //   title: t('nav.allServices', 'All Services'), 
+    //   href: '/services', 
+    //   desc: t('nav.allServicesDesc', 'View all our comprehensive sustainability solutions.') 
+    // },
     ...rawServices.map(data => ({
       title: data[`title_${currentLang}`] || data.title_en || data.title || '',
       href: `/services/${data.slug}`,

@@ -189,7 +189,7 @@ export default function Home() {
                        <h2 className={`text-lg md:text-xl font-semibold mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] leading-snug text-[#76FF03] transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-8'}`}>
                           {tDb(slide, 'subtitle')}
                        </h2>
-                       <h1 className={`text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] leading-tight tracking-tight transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-500' : 'opacity-0 translate-y-8'}`}>
+                       <h1 className={`text-2xl md:text-3xl lg:text-4xl font-extrabold mb-5 text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)] leading-tight tracking-tight transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-500' : 'opacity-0 translate-y-8'}`}>
                           {tDb(slide, 'title')}
                        </h1>
                        <p className={`text-base md:text-lg text-white/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] mb-10 leading-relaxed max-w-2xl font-light transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-700' : 'opacity-0 translate-y-8'}`}>
@@ -226,7 +226,7 @@ export default function Home() {
               <span className="w-8 h-[2px] bg-[#E2552B]"></span>
               {tDb(pageData.servicesHeader, 'subtitle', t('nav.services', 'Services'))}
             </span>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1B5E20] leading-[1.1] tracking-tight">
+            <h2 className="text-2xl md:text-2xl lg:text-4xl font-extrabold text-[#1B5E20] leading-[1.1] tracking-tight">
               {tDb(pageData.servicesHeader, 'title', t('nav.solutions', 'Integrated Sustainability Services'))}
             </h2>
           </div>
@@ -275,7 +275,7 @@ export default function Home() {
               {tDb(pageData.platformsHeader, 'subtitle', t('nav.platforms', 'Technology'))}
               <span className="w-8 h-[2px] bg-[#E2552B]"></span>
             </span>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-[#1B5E20] leading-tight tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#1B5E20] leading-tight tracking-tight">
               {tDb(pageData.platformsHeader, 'title', t('nav.softwarePlatforms', 'Digital Platforms'))}
             </h2>
           </div>
@@ -320,7 +320,7 @@ export default function Home() {
       {partners.length > 0 && (
         <section className="py-16 bg-white border-b border-gray-100 relative overflow-hidden">
           <div className="container px-4 sm:px-8 lg:px-12">
-            <h3 className="text-2xl font-bold text-[#1B5E20] mb-2 text-center lg:text-left">
+            <h3 className="text-2xl font-bold text-[#1B5E20] mb-8 text-center lg:text-left">
               {tDb(pageData.partnersHeader, 'title', t('nav.partnerships', 'Trusted by Global Brands & International Organizations'))}
             </h3>
             {tDb(pageData.partnersHeader, 'description') && (
@@ -438,11 +438,11 @@ export default function Home() {
 
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
            <div className="mb-16 text-center max-w-3xl mx-auto">
-             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+             <h2 className="text-2xl md:text-4xl font-bold text-white mb-6 tracking-tight">
                {tDb(pageData.visionHeader, 'title', 'Our Strategic Vision for a Sustainable Asia-Pacific')}
              </h2>
              {tDb(pageData.visionHeader, 'description') && (
-               <p className="text-white/70 text-lg leading-relaxed">{tDb(pageData.visionHeader, 'description')}</p>
+               <p className="text-white/70 text-sm leading-relaxed">{tDb(pageData.visionHeader, 'description')}</p>
              )}
            </div>
 
@@ -481,7 +481,7 @@ export default function Home() {
                 <span className="w-8 h-[2px] bg-[#E2552B]"></span>
                 {t('nav.impact', 'Impact')}
               </span>
-              <h2 className="text-4xl md:text-5xl font-extrabold text-[#1B5E20] mb-4 tracking-tight">
+              <h2 className="text-2xl md:text-4xl font-extrabold text-[#1B5E20] mb-4 tracking-tight">
                 {tDb(pageData.galleryHeader, 'title', t('nav.impact', 'Impact in Action'))}
               </h2>
               {tDb(pageData.galleryHeader, 'description') && (
@@ -584,7 +584,7 @@ export default function Home() {
                    <span className="w-8 h-[2px] bg-[#E2552B]"></span>
                    {t('nav.articles', 'Articles')}
                  </span>
-                 <h2 className="text-4xl md:text-5xl font-extrabold text-[#1B5E20] tracking-tight">
+                 <h2 className="text-2xl md:text-4xl font-extrabold text-[#1B5E20] tracking-tight">
                    {tDb(pageData.blogHeader, 'title', t('nav.articles', 'Latest News & Insights'))}
                  </h2>
                </div>
