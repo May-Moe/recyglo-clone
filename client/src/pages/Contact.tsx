@@ -103,7 +103,7 @@ export default function Contact() {
 
   // TRANSLATED LOCATIONS
   const locationString = tDb(pageData.contactInfo, 'locations');
-  const locationList = locationString ? locationString.split(',').map(loc => loc.trim()).filter(loc => loc.length > 0) : [];
+  const locationList = locationString ? locationString.split(',').map((loc: string) => loc.trim()).filter((loc: string) => loc.length > 0) : [];
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">

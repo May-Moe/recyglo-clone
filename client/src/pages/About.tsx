@@ -1,10 +1,10 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Play, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
+import { Play, ChevronLeft, ChevronRight, Trophy, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter'; 
-import { useTranslation } from 'react-i18next'; // ✅ IMPORT TRANSLATION
+import { useTranslation } from 'react-i18next';
 
 // --- FIREBASE IMPORTS ---
 import { doc, onSnapshot } from "firebase/firestore";
@@ -72,7 +72,7 @@ export default function About() {
   const prevAward = () => setAwardIndex(prev => Math.max(prev - 1, 0));
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]">Loading content...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
   }
 
   return (
@@ -159,13 +159,13 @@ export default function About() {
                
                <h4 className="font-bold text-lg text-gray-900 mb-4">{t('about.ourCoverage', 'Our Coverage')}</h4>
                <ul className="grid grid-cols-2 gap-y-3 mb-10 text-sm text-gray-700">
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> {t('countries.myanmar', 'Myanmar')}</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-600"></span> {t('countries.thailand', 'Thailand')}</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> {t('countries.malaysia', 'Malaysia')}</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-600"></span> {t('countries.singapore', 'Singapore')}</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> {t('countries.vietnam', 'Vietnam')}</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-800"></span> {t('countries.southKorea', 'South Korea')}</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-700"></span> {t('countries.indonesia', 'Indonesia')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> Myanmar</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-600"></span> Thailand</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> Malaysia</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-600"></span> Singapore</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> Vietnam</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-800"></span> South Korea</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-700"></span> Indonesia</li>
                </ul>
 
                <div className="text-sm text-gray-600 space-y-1 bg-gray-50 p-6 rounded-xl border border-gray-100">

@@ -17,6 +17,7 @@ import {
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
+  NavigationMenuOriginalList, // Fixed typo from original
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
@@ -44,11 +45,9 @@ export default function Header() {
       
       // Sort by the custom `orderIndex` set in the Admin CMS!
       fetchedServices.sort((a, b) => {
-        // If they have an orderIndex, use that
         if (a.orderIndex !== undefined && b.orderIndex !== undefined) {
            return a.orderIndex - b.orderIndex;
         }
-        // Fallback to alphabetical if orderIndex is missing
         return (a.title_en || a.title || '').localeCompare(b.title_en || b.title || '');
       });
 
@@ -58,7 +57,6 @@ export default function Header() {
   }, []);
 
   // --- DYNAMIC SERVICES GENERATION ---
-  // UPDATED: Removed the generic fallback description
   const dynamicServices = [
     { 
       title: t('nav.allServices', 'All Services'), 
@@ -68,7 +66,7 @@ export default function Header() {
     ...rawServices.map(data => ({
       title: data[`title_${currentLang}`] || data.title_en || data.title || '',
       href: `/services/${data.slug}`,
-      desc: data[`desc_${currentLang}`] || data.desc_en || data.desc || "" // Returns empty string if no description exists
+      desc: data[`desc_${currentLang}`] || data.desc_en || data.desc || "" 
     }))
   ];
 
@@ -76,18 +74,18 @@ export default function Header() {
   const navItems = [
     { label: t('nav.home', 'Home'), href: '/' },
     { 
-      label: t('nav.services', 'Services'), 
+      label: t('nav.solutions', 'Our Solutions'), 
       href: '/services', 
       items: dynamicServices 
     },
     {
-      label: t('nav.softwarePlatforms', 'Software Platforms'),
+      label: t('nav.platforms', 'Platforms'),
       href: '#',
       items: [
         { 
-          title: t('nav.wastePlatform', 'Waste Management Software'), 
+          title: t('nav.wasteManagement', 'Waste Management Software'), 
           href: 'https://app.recyglo.net', 
-          desc: t('nav.wasteDesc', 'Track waste streams and manage collection operations.'), 
+          desc: t('nav.wasteDesc', 'Manage your waste operations and compliance workflows.'), 
           external: true 
         },
         { 
@@ -97,9 +95,9 @@ export default function Header() {
           external: true 
         },
         { 
-          title: t('nav.carbonAccounting', 'Carbon Accounting Software'), 
+          title: t('nav.carbonAccounting', 'Carbon Accounting'), 
           href: 'https://sanaterra.co', 
-          desc: t('nav.carbonDesc', 'Measure and manage your enterprise carbon footprint.'), 
+          desc: t('nav.carbonDesc', 'Enterprise carbon footprint tracking and accounting platform.'), 
           external: true 
         },
         { 
@@ -111,13 +109,13 @@ export default function Header() {
       ],
     },
     {
-      label: t('nav.ourImpactTop', 'Our Impact'),
+      label: t('nav.impact', 'See Our Impact'),
       href: '/impact',
       items: [
-        { title: t('nav.ourImpact', 'Our Impact'), href: '/impact', desc: t('nav.impactDesc', 'Read our verified impact report and sustainability milestones.') },
+        { title: t('nav.impact', 'See Our Impact'), href: '/impact', desc: t('nav.impactDesc', 'Pioneering Sustainability in Action.') },
         { title: t('nav.events', 'Events & Webinars'), href: '/events', desc: t('nav.eventsDesc', 'Join our upcoming sustainability events and educational webinars.') },
-        { title: t('nav.blog', 'Blogs'), href: '/articles', desc: t('nav.blogDesc', 'Latest news, insights, and industry updates.') },
-        { title: t('nav.research', 'Resources'), href: '/resources', desc: t('nav.researchDesc', 'Explore our case studies and in-depth academic research.') },
+        { title: t('nav.articles', 'Articles'), href: '/articles', desc: t('nav.blogDesc', 'Latest news, insights, and industry updates.') },
+        { title: t('nav.resources', 'Resources'), href: '/resources', desc: t('nav.researchDesc', 'Explore our case studies and in-depth academic research.') },
       ]
     },
     {
@@ -176,7 +174,6 @@ export default function Header() {
                                 <a href={subItem.href} target="_blank" rel="noopener noreferrer">
                                   <NavigationMenuLink className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/5 hover:text-primary focus:bg-primary/5 focus:text-primary w-full h-full cursor-pointer">
                                     <div className="text-sm font-bold leading-none text-foreground">{subItem.title}</div>
-                                    {/* ✅ UPDATED: Only show description if it exists */}
                                     {subItem.desc && (
                                       <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground mt-2">
                                         {subItem.desc}
@@ -191,7 +188,6 @@ export default function Header() {
                                     onClick={() => handleHashScroll(subItem.href)}
                                   >
                                     <div className="text-sm font-bold leading-none text-foreground">{subItem.title}</div>
-                                    {/* ✅ UPDATED: Only show description if it exists */}
                                     {subItem.desc && (
                                       <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground mt-2">
                                         {subItem.desc}
@@ -237,6 +233,12 @@ export default function Header() {
                 <DropdownMenuItem onClick={() => changeLanguage('th')} className={`cursor-pointer ${currentLang === 'th' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Thai (ภาษาไทย)</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => changeLanguage('my')} className={`cursor-pointer ${currentLang === 'my' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Myanmar (မြန်မာ)</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => changeLanguage('vi')} className={`cursor-pointer ${currentLang === 'vi' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Vietnamese (Tiếng Việt)</DropdownMenuItem>
+                
+                {/* NEW LANGUAGES */}
+                <DropdownMenuItem onClick={() => changeLanguage('ko')} className={`cursor-pointer ${currentLang === 'ko' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Korean (한국어)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('id')} className={`cursor-pointer ${currentLang === 'id' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Indonesian (Bahasa Indonesia)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('ms')} className={`cursor-pointer ${currentLang === 'ms' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Malay (Bahasa Melayu)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('zh')} className={`cursor-pointer ${currentLang === 'zh' ? 'font-bold text-primary bg-primary/5' : 'focus:bg-primary/5'}`}>Chinese (中文)</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -280,7 +282,6 @@ export default function Header() {
                             onClick={() => setIsOpen(false)}
                           >
                             <span>{subItem.title}</span>
-                            {/* ✅ UPDATED FOR MOBILE TOO */}
                             {subItem.desc && <span className="text-[10px] leading-snug mt-1 opacity-70">{subItem.desc}</span>}
                           </a>
                         ) : (
@@ -294,7 +295,6 @@ export default function Header() {
                             }}
                           >
                             <span>{subItem.title}</span>
-                            {/* ✅ UPDATED FOR MOBILE TOO */}
                             {subItem.desc && <span className="text-[10px] leading-snug mt-1 opacity-70">{subItem.desc}</span>}
                           </Link>
                         )
@@ -324,6 +324,12 @@ export default function Header() {
                   <Badge className="cursor-pointer" variant={currentLang === 'th' ? 'default' : 'outline'} onClick={() => changeLanguage('th')}>TH</Badge>
                   <Badge className="cursor-pointer" variant={currentLang === 'my' ? 'default' : 'outline'} onClick={() => changeLanguage('my')}>MY</Badge>
                   <Badge className="cursor-pointer" variant={currentLang === 'vi' ? 'default' : 'outline'} onClick={() => changeLanguage('vi')}>VN</Badge>
+                  
+                  {/* NEW LANGUAGES */}
+                  <Badge className="cursor-pointer" variant={currentLang === 'ko' ? 'default' : 'outline'} onClick={() => changeLanguage('ko')}>KR</Badge>
+                  <Badge className="cursor-pointer" variant={currentLang === 'id' ? 'default' : 'outline'} onClick={() => changeLanguage('id')}>ID</Badge>
+                  <Badge className="cursor-pointer" variant={currentLang === 'ms' ? 'default' : 'outline'} onClick={() => changeLanguage('ms')}>MS</Badge>
+                  <Badge className="cursor-pointer" variant={currentLang === 'zh' ? 'default' : 'outline'} onClick={() => changeLanguage('zh')}>ZH</Badge>
                </div>
             </div>
 
@@ -338,7 +344,7 @@ export default function Header() {
                 }}
               >
                 <Lock size={16} />
-                {t('nav.adminLogin', 'Login')}
+                {t('nav.adminLogin', 'Admin Login')}
               </Button>
 
               <Button

@@ -12,12 +12,6 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 // --- ASSET IMPORTS ---
-import service1 from '@/assets/images/w1.webp';
-import service2 from '@/assets/images/w2.webp';
-import service3 from '@/assets/images/w3.webp';
-import service4 from '@/assets/images/w4.webp';
-import service5 from '@/assets/images/w5.webp';
-import service6 from '@/assets/images/w6.webp';
 import blog1 from '@/assets/images/blog1.png';
 import blog2 from '@/assets/images/blog2.png';
 import blog3 from '@/assets/images/blog3.png';
@@ -200,10 +194,10 @@ export default function Home() {
                        </p>
                        <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-700 transform ${isActive ? 'opacity-100 translate-y-0 delay-1000' : 'opacity-0 translate-y-8'}`}>
                           <Button onClick={() => { window.open(slide.button1Link || '/carbon-calculator', '_blank'); }} className="bg-white text-[#1B5E20] border border-gray-200 hover:bg-gray-50 font-bold px-8 py-6 rounded-md shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105">
-                            <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> {slide.button1Text || t('home.calcButton', 'Calculate Carbon Footprint')}
+                            <span className="bg-[#1B5E20] p-1 rounded-sm"><Play size={14} className="text-white fill-white" /></span> {slide.button1Text || t('nav.carbonAccounting', 'Carbon Accounting')}
                           </Button>
-                          <Button className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" onClick={() => { setLocation(slide.button2Link || '/solutions'); window.scrollTo(0, 0); }}>
-                            {slide.button2Text || t('home.solutionsButton', 'Our Solutions')}
+                          <Button className="bg-[#E2552B] text-white hover:bg-[#E2552B]/90 font-bold px-10 py-6 rounded-md shadow-md flex items-center justify-center transition-all hover:scale-105" onClick={() => { setLocation(slide.button2Link || '/services'); window.scrollTo(0, 0); }}>
+                            {slide.button2Text || t('nav.solutions', 'Our Solutions')}
                           </Button>
                        </div>
                     </div>
@@ -226,7 +220,7 @@ export default function Home() {
           <div className="container px-4 sm:px-8 lg:px-12">
             <h3 className="text-2xl font-bold text-[#1B5E20] mb-2 text-center lg:text-left">
               {/* ✅ APPLIED TRANSLATION HELPER */}
-              {tDb(pageData.partnersHeader, 'title', t('home.trustedBrands', 'Trusted by Global Brands & International Organizations'))}
+              {tDb(pageData.partnersHeader, 'title', t('nav.partnerships', 'Trusted by Global Brands & International Organizations'))}
             </h3>
             {tDb(pageData.partnersHeader, 'description') && (
               <p className="text-gray-600 mb-10 text-center lg:text-left">{tDb(pageData.partnersHeader, 'description')}</p>
@@ -282,11 +276,11 @@ export default function Home() {
                 <div className="lg:col-span-5 pr-8">
                    <h2 className="text-4xl font-bold text-[#1B5E20] mb-6 leading-tight">
                      {/* ✅ APPLIED TRANSLATION HELPER */}
-                     {tDb(pageData.testimonialsHeader, 'title', t('home.testimonialsTitle', 'What Our Clients Say'))}
+                     {tDb(pageData.testimonialsHeader, 'title', 'What Our Clients Say')}
                    </h2>
                    <p className="text-gray-600 mb-8 text-lg">
                      {/* ✅ APPLIED TRANSLATION HELPER */}
-                     {tDb(pageData.testimonialsHeader, 'description', t('home.testimonialsDesc', ''))}
+                     {tDb(pageData.testimonialsHeader, 'description', '')}
                    </p>
                    <div className="inline-block p-4 border border-gray-200 rounded-2xl relative">
                       <Quote className="text-gray-300 w-12 h-12" />
@@ -343,11 +337,11 @@ export default function Home() {
           <div className="max-w-3xl mb-16">
             <span className="text-[#E2552B] font-bold tracking-wider uppercase text-sm mb-3 block">
               {/* ✅ APPLIED TRANSLATION HELPER */}
-              {tDb(pageData.servicesHeader, 'subtitle', 'Services')}
+              {tDb(pageData.servicesHeader, 'subtitle', t('nav.services', 'Services'))}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1B5E20] leading-tight">
               {/* ✅ APPLIED TRANSLATION HELPER */}
-              {tDb(pageData.servicesHeader, 'title', 'Integrated Sustainability Services')}
+              {tDb(pageData.servicesHeader, 'title', t('nav.solutions', 'Integrated Sustainability Services'))}
             </h2>
           </div>
           
@@ -359,7 +353,7 @@ export default function Home() {
                return (
                  <Card 
                    key={idx} 
-                   onClick={() => { setLocation(service.link || '/solutions'); window.scrollTo(0, 0); }} 
+                   onClick={() => { setLocation(service.link || `/services/${service.slug}`); window.scrollTo(0, 0); }} 
                    className="overflow-hidden border border-gray-300 rounded-xl group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 bg-white flex flex-row h-full items-stretch"
                  >
                     <div className="w-2/5 sm:w-1/3 relative shrink-0 aspect-square sm:aspect-auto">
@@ -376,7 +370,7 @@ export default function Home() {
                          <p className="text-sm text-gray-600 line-clamp-3 mb-4 leading-relaxed">{serviceDesc}</p>
                        </div>
                        <div className="flex items-center justify-end text-gray-900 font-medium text-sm mt-4 group-hover:text-[#E2552B] transition-colors">
-                         Explore {serviceTitle} <ArrowRight size={16} className="ml-2 group-hover:translate-x-2 transition-transform" />
+                         {t('nav.learnMore', 'Explore')} <ArrowRight size={16} className="ml-2 group-hover:translate-x-2 transition-transform" />
                        </div>
                     </CardContent>
                  </Card>
@@ -392,11 +386,11 @@ export default function Home() {
           <div className="max-w-3xl mb-16">
             <span className="text-[#E2552B] font-bold tracking-wider uppercase text-sm mb-3 block">
               {/* ✅ APPLIED TRANSLATION HELPER */}
-              {tDb(pageData.platformsHeader, 'subtitle', t('home.platformsSubtitle', 'Technology'))}
+              {tDb(pageData.platformsHeader, 'subtitle', t('nav.platforms', 'Technology'))}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1B5E20] leading-tight">
               {/* ✅ APPLIED TRANSLATION HELPER */}
-              {tDb(pageData.platformsHeader, 'title', t('home.platformsTitle', 'Digital Platforms'))}
+              {tDb(pageData.platformsHeader, 'title', t('nav.softwarePlatforms', 'Digital Platforms'))}
             </h2>
           </div>
 
@@ -425,7 +419,7 @@ export default function Home() {
                     <p className="text-base text-gray-600 mb-8 leading-relaxed flex-grow">{platDesc}</p>
                     <div className="mt-auto flex justify-end">
                       <Button variant="outline" className="border-2 border-[#1B5E20] text-[#1B5E20] bg-transparent hover:bg-[#1B5E20] hover:text-white transition-all font-bold px-5 py-5 rounded-md flex items-center gap-2 group-hover:bg-[#1B5E20] group-hover:text-white">
-                        {t('home.explorePlatform', 'Explore Platform')} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                        {t('nav.learnMore', 'Explore Platform')} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </div>
                   </CardContent>
@@ -443,7 +437,7 @@ export default function Home() {
             <div className="mb-12">
               <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
                 {/* ✅ APPLIED TRANSLATION HELPER */}
-                {tDb(pageData.valuesHeader, 'title', t('home.valuesTitle', 'Our Values'))}
+                {tDb(pageData.valuesHeader, 'title', 'Our Values')}
               </h2>
               {tDb(pageData.valuesHeader, 'description') && (
                 <p className="text-gray-600 max-w-3xl">{tDb(pageData.valuesHeader, 'description')}</p>
@@ -478,7 +472,7 @@ export default function Home() {
            <div className="mb-12">
              <h2 className="text-3xl font-bold text-[#76FF03] mb-4">
                {/* ✅ APPLIED TRANSLATION HELPER */}
-               {tDb(pageData.visionHeader, 'title', t('home.visionTitle', 'Our Strategic Vision for a Sustainable Asia-Pacific'))}
+               {tDb(pageData.visionHeader, 'title', 'Our Strategic Vision for a Sustainable Asia-Pacific')}
              </h2>
              {tDb(pageData.visionHeader, 'description') && (
                <p className="text-white/80 max-w-2xl">{tDb(pageData.visionHeader, 'description')}</p>
@@ -487,17 +481,17 @@ export default function Home() {
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-[#1B5E20]/80 backdrop-blur-md p-8 rounded-2xl border border-white/10 text-white">
-                 <h3 className="text-2xl font-bold mb-4">{t('home.mission', 'Our Mission')}</h3>
+                 <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
                  {/* ✅ APPLIED TRANSLATION HELPER */}
                  <p className="text-white/80 leading-relaxed text-sm">{tDb(pageData.visionData, 'mission')}</p>
               </div>
               <div className="bg-[#1B5E20]/80 backdrop-blur-md p-8 rounded-2xl border border-white/10 text-white">
-                 <h3 className="text-2xl font-bold mb-4">{t('home.vision', 'Our Vision')}</h3>
+                 <h3 className="text-2xl font-bold mb-4">Our Vision</h3>
                  {/* ✅ APPLIED TRANSLATION HELPER */}
                  <p className="text-white/80 leading-relaxed text-sm">{tDb(pageData.visionData, 'vision')}</p>
               </div>
               <div className="bg-[#1B5E20]/80 backdrop-blur-md p-8 rounded-2xl border border-white/10 text-white">
-                 <h3 className="text-2xl font-bold mb-4">{t('home.goal', 'Our Goal')}</h3>
+                 <h3 className="text-2xl font-bold mb-4">Our Goal</h3>
                  {/* ✅ APPLIED TRANSLATION HELPER */}
                  <p className="text-white/80 leading-relaxed text-sm whitespace-pre-line">{tDb(pageData.visionData, 'goal')}</p>
               </div>
@@ -512,7 +506,7 @@ export default function Home() {
             <div className="mb-12">
               <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
                 {/* ✅ APPLIED TRANSLATION HELPER */}
-                {tDb(pageData.galleryHeader, 'title', t('home.impactGalleryTitle', 'Impact in Action'))}
+                {tDb(pageData.galleryHeader, 'title', t('nav.impact', 'Impact in Action'))}
               </h2>
               {tDb(pageData.galleryHeader, 'description') && (
                 <p className="text-gray-600 max-w-3xl">{tDb(pageData.galleryHeader, 'description')}</p>
@@ -541,7 +535,7 @@ export default function Home() {
                      </div>
                      <div className="rounded-xl overflow-hidden bg-gray-200 h-full relative group flex items-center justify-center cursor-pointer" onClick={() => { setGalleryIndex(4); setIsGalleryOpen(true); }}>
                        <img src={getGalleryImg(4)} alt={getGalleryAlt(4)} className="absolute inset-0 w-full h-full object-cover blur-[2px] hover:blur-none transition-all" />
-                       <Button className="relative z-10 bg-white text-[#1B5E20] hover:bg-gray-100 font-bold pointer-events-none">{t('home.seeGallery', 'See Gallery')}</Button>
+                       <Button className="relative z-10 bg-white text-[#1B5E20] hover:bg-gray-100 font-bold pointer-events-none">See Gallery</Button>
                      </div>
                   </div>
                </div>
@@ -583,8 +577,8 @@ export default function Home() {
       <section className="py-24 bg-white">
          <div className="container px-4 sm:px-8 lg:px-12">
             <div className="flex justify-between items-end mb-12">
-               <h2 className="text-3xl font-bold text-[#1B5E20]">{t('home.blogTitle', 'Blog')}</h2>
-               <Button variant="link" className="text-[#E2552B] font-bold p-0 hidden sm:flex" onClick={() => { setLocation('/articles'); window.scrollTo(0, 0); }}>{t('home.seeAll', 'See All >')}</Button>
+               <h2 className="text-3xl font-bold text-[#1B5E20]">{t('nav.articles', 'Blog')}</h2>
+               <Button variant="link" className="text-[#E2552B] font-bold p-0 hidden sm:flex" onClick={() => { setLocation('/articles'); window.scrollTo(0, 0); }}>See All &gt;</Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                {blogPosts.map((post, idx) => (
@@ -600,7 +594,7 @@ export default function Home() {
                     </div>
                     <p className="text-gray-500 text-sm mb-4 line-clamp-4 flex-grow leading-relaxed">{post.excerpt}</p>
                     <div className="text-gray-400 text-xs mb-4">{post.date}</div>
-                    <span className="text-[#E2552B] font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all mt-auto">{t('home.readMore', 'Read More')} <ArrowRight size={14} /></span>
+                    <span className="text-[#E2552B] font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all mt-auto">Read More <ArrowRight size={14} /></span>
                  </div>
                ))}
             </div>

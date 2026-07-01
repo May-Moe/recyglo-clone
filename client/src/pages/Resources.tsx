@@ -153,10 +153,10 @@ export default function Resources() {
            <div className="mb-8 text-sm font-medium text-gray-500 flex items-center gap-2">
              <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.home', 'Home')}</Link>
              <ChevronRight size={14} className="text-gray-300" />
-             <span className="text-gray-900 font-bold">{t('nav.research', 'Resources')}</span>
+             <span className="text-gray-900 font-bold">{t('nav.resources', 'Resources')}</span>
            </div>
 
-           <h2 className="text-4xl font-bold text-[#1B5E20] mb-12">{t('nav.research', 'Resources')}</h2>
+           <h2 className="text-4xl font-bold text-[#1B5E20] mb-12">{t('nav.resources', 'Resources')}</h2>
 
            {/* Case Studies Section */}
            {pageData.caseStudies.length > 0 && (
@@ -185,7 +185,7 @@ export default function Resources() {
                               {/* ✅ TRANSLATED TITLE */}
                               {tDb(item, 'title')}
                             </span>
-                            <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded shrink-0">Missing PDF</span>
+                            <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded shrink-0">{t('resources.missingPdf', 'Missing PDF')}</span>
                           </div>
                         )}
                       </div>
@@ -221,7 +221,7 @@ export default function Resources() {
                               {/* ✅ TRANSLATED TITLE */}
                               {tDb(item, 'title')}
                             </span>
-                            <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded shrink-0">Missing PDF</span>
+                            <span className="text-xs text-red-500 font-bold bg-red-50 px-3 py-1 rounded shrink-0">{t('resources.missingPdf', 'Missing PDF')}</span>
                           </div>
                         )}
                       </div>
@@ -250,7 +250,7 @@ export default function Resources() {
                   className="flex items-center gap-2 text-sm font-bold text-white bg-[#1B5E20] hover:bg-[#2A4B38] px-4 py-2 rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} 
-                  {isDownloading ? 'Downloading...' : 'Download File'}
+                  {isDownloading ? t('resources.downloading', 'Downloading...') : t('resources.download', 'Download File')}
                 </button>
 
                 <button 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Target, Globe, Briefcase, Loader2, UploadCloud, Users, CheckSquare, Languages, Wand2, Trash2, Plus } from "lucide-react";
+import { Save, Image as ImageIcon, Layout, Target, Globe, Briefcase, Loader2, UploadCloud, Users, CheckSquare, Languages, Wand2, Trash2, Plus, GripVertical } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -19,9 +19,9 @@ export default function AdminImpact() {
       imagePreview: ""
     },
     bigNumbers: [
-      { value: "1M+", label_en: "Lives Impacted" },
-      { value: "100K+", label_en: "Tonnes Recycled" },
-      { value: "$2M+", label_en: "Invested in Communities" }
+      { value_en: "1M+", label_en: "Lives Impacted" },
+      { value_en: "100K+", label_en: "Tonnes Recycled" },
+      { value_en: "$2M+", label_en: "Invested in Communities" }
     ],
     regional: {
       title_en: "ESG Operations in 8 Countries",
@@ -104,7 +104,7 @@ export default function AdminImpact() {
         if (docSnap.exists() && Object.keys(docSnap.data()).length > 0) {
           const dbData = docSnap.data();
           
-          // Data Migration to ensure arrays are valid objects
+          // Data Migration to ensure arrays are valid objects instead of flat strings
           if (dbData.lever1 && Array.isArray(dbData.lever1.checklist) && typeof dbData.lever1.checklist[0] === 'string') {
             dbData.lever1.checklist = dbData.lever1.checklist.map((item: string) => ({ text_en: item }));
           }
@@ -214,17 +214,17 @@ export default function AdminImpact() {
                   <div className="md:col-span-8 space-y-4 pt-1">
                     <TranslatableField 
                       label="Small Subtitle"
-                      baseValue={{ en: data.hero.subtitle_en || data.hero.subtitle, th: data.hero.subtitle_th, my: data.hero.subtitle_my, vi: data.hero.subtitle_vi }}
+                      baseValue={{ en: data.hero.subtitle_en || data.hero.subtitle, th: data.hero.subtitle_th, my: data.hero.subtitle_my, vi: data.hero.subtitle_vi, ko: data.hero.subtitle_ko, id: data.hero.subtitle_id, ms: data.hero.subtitle_ms, zh: data.hero.subtitle_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('hero', `subtitle_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Main Title"
-                      baseValue={{ en: data.hero.title_en || data.hero.title, th: data.hero.title_th, my: data.hero.title_my, vi: data.hero.title_vi }}
+                      baseValue={{ en: data.hero.title_en || data.hero.title, th: data.hero.title_th, my: data.hero.title_my, vi: data.hero.title_vi, ko: data.hero.title_ko, id: data.hero.title_id, ms: data.hero.title_ms, zh: data.hero.title_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('hero', `title_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Description (Bullets)"
-                      baseValue={{ en: data.hero.desc_en || data.hero.desc, th: data.hero.desc_th, my: data.hero.desc_my, vi: data.hero.desc_vi }}
+                      baseValue={{ en: data.hero.desc_en || data.hero.desc, th: data.hero.desc_th, my: data.hero.desc_my, vi: data.hero.desc_vi, ko: data.hero.desc_ko, id: data.hero.desc_id, ms: data.hero.desc_ms, zh: data.hero.desc_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('hero', `desc_${lang}`, val)}
                     />
                   </div>
@@ -235,14 +235,15 @@ export default function AdminImpact() {
                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">The Big 3 Numbers</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {data.bigNumbers.map((stat: any, idx: number) => (
-                    <div key={idx} className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Value</label>
-                        <input type="text" value={stat.value} onChange={(e) => handleRootArrayChange('bigNumbers', idx, 'value', e.target.value)} className="w-full px-3 py-2 text-xl font-bold border border-gray-200 rounded focus:outline-none focus:border-[#1B5E20]" />
-                      </div>
+                    <div key={idx} className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-4">
+                      <TranslatableField 
+                        label="Value"
+                        baseValue={{ en: stat.value_en || stat.value, th: stat.value_th, my: stat.value_my, vi: stat.value_vi, ko: stat.value_ko, id: stat.value_id, ms: stat.value_ms, zh: stat.value_zh }}
+                        onUpdateTranslation={(lang: string, val: string) => handleRootArrayChange('bigNumbers', idx, `value_${lang}`, val)}
+                      />
                       <TranslatableField 
                         label="Label"
-                        baseValue={{ en: stat.label_en || stat.label, th: stat.label_th, my: stat.label_my, vi: stat.label_vi }}
+                        baseValue={{ en: stat.label_en || stat.label, th: stat.label_th, my: stat.label_my, vi: stat.label_vi, ko: stat.label_ko, id: stat.label_id, ms: stat.label_ms, zh: stat.label_zh }}
                         onUpdateTranslation={(lang: string, val: string) => handleRootArrayChange('bigNumbers', idx, `label_${lang}`, val)}
                       />
                     </div>
@@ -255,19 +256,19 @@ export default function AdminImpact() {
                 <div className="space-y-4">
                   <TranslatableField 
                     label="Box Title"
-                    baseValue={{ en: data.regional.title_en || data.regional.title, th: data.regional.title_th, my: data.regional.title_my, vi: data.regional.title_vi }}
+                    baseValue={{ en: data.regional.title_en || data.regional.title, th: data.regional.title_th, my: data.regional.title_my, vi: data.regional.title_vi, ko: data.regional.title_ko, id: data.regional.title_id, ms: data.regional.title_ms, zh: data.regional.title_zh }}
                     onUpdateTranslation={(lang: string, val: string) => handleSectionChange('regional', `title_${lang}`, val)}
                   />
                   <TranslatableField 
                     label="Description"
                     isTextArea={true}
-                    baseValue={{ en: data.regional.desc_en || data.regional.desc, th: data.regional.desc_th, my: data.regional.desc_my, vi: data.regional.desc_vi }}
+                    baseValue={{ en: data.regional.desc_en || data.regional.desc, th: data.regional.desc_th, my: data.regional.desc_my, vi: data.regional.desc_vi, ko: data.regional.desc_ko, id: data.regional.desc_id, ms: data.regional.desc_ms, zh: data.regional.desc_zh }}
                     onUpdateTranslation={(lang: string, val: string) => handleSectionChange('regional', `desc_${lang}`, val)}
                   />
                   <TranslatableField 
                     label="Countries (Comma separated tags)"
                     isTextArea={true}
-                    baseValue={{ en: data.regional.countries_en || data.regional.countries, th: data.regional.countries_th, my: data.regional.countries_my, vi: data.regional.countries_vi }}
+                    baseValue={{ en: data.regional.countries_en || data.regional.countries, th: data.regional.countries_th, my: data.regional.countries_my, vi: data.regional.countries_vi, ko: data.regional.countries_ko, id: data.regional.countries_id, ms: data.regional.countries_ms, zh: data.regional.countries_zh }}
                     onUpdateTranslation={(lang: string, val: string) => handleSectionChange('regional', `countries_${lang}`, val)}
                   />
                 </div>
@@ -275,7 +276,7 @@ export default function AdminImpact() {
             </div>
           )}
 
-          {/* TAB 3: LEVER 2 (WORKERS) */}
+          {/* TAB 2: LEVER 2 (WORKERS) */}
           {activeTab === 'lever2' && (
             <div className="space-y-8 animate-in fade-in">
               <div>
@@ -290,23 +291,23 @@ export default function AdminImpact() {
                   <div className="md:col-span-8 space-y-4">
                     <TranslatableField 
                       label="Small Top Label (Orange)"
-                      baseValue={{ en: data.lever2.label_en || data.lever2.label, th: data.lever2.label_th, my: data.lever2.label_my, vi: data.lever2.label_vi }}
+                      baseValue={{ en: data.lever2.label_en || data.lever2.label, th: data.lever2.label_th, my: data.lever2.label_my, vi: data.lever2.label_vi, ko: data.lever2.label_ko, id: data.lever2.label_id, ms: data.lever2.label_ms, zh: data.lever2.label_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever2', `label_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Main Title"
-                      baseValue={{ en: data.lever2.title_en || data.lever2.title, th: data.lever2.title_th, my: data.lever2.title_my, vi: data.lever2.title_vi }}
+                      baseValue={{ en: data.lever2.title_en || data.lever2.title, th: data.lever2.title_th, my: data.lever2.title_my, vi: data.lever2.title_vi, ko: data.lever2.title_ko, id: data.lever2.title_id, ms: data.lever2.title_ms, zh: data.lever2.title_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever2', `title_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Description Paragraph"
                       isTextArea={true}
-                      baseValue={{ en: data.lever2.desc_en || data.lever2.desc, th: data.lever2.desc_th, my: data.lever2.desc_my, vi: data.lever2.desc_vi }}
+                      baseValue={{ en: data.lever2.desc_en || data.lever2.desc, th: data.lever2.desc_th, my: data.lever2.desc_my, vi: data.lever2.desc_vi, ko: data.lever2.desc_ko, id: data.lever2.desc_id, ms: data.lever2.desc_ms, zh: data.lever2.desc_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever2', `desc_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Highlight Box Text (Bottom)"
-                      baseValue={{ en: data.lever2.highlight_en || data.lever2.highlight, th: data.lever2.highlight_th, my: data.lever2.highlight_my, vi: data.lever2.highlight_vi }}
+                      baseValue={{ en: data.lever2.highlight_en || data.lever2.highlight, th: data.lever2.highlight_th, my: data.lever2.highlight_my, vi: data.lever2.highlight_vi, ko: data.lever2.highlight_ko, id: data.lever2.highlight_id, ms: data.lever2.highlight_ms, zh: data.lever2.highlight_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever2', `highlight_${lang}`, val)}
                     />
                   </div>
@@ -325,13 +326,13 @@ export default function AdminImpact() {
                       <div className="flex-1 space-y-4">
                         <TranslatableField 
                           label="Step Title"
-                          baseValue={{ en: step.title_en || step.title, th: step.title_th, my: step.title_my, vi: step.title_vi }}
+                          baseValue={{ en: step.title_en || step.title, th: step.title_th, my: step.title_my, vi: step.title_vi, ko: step.title_ko, id: step.title_id, ms: step.title_ms, zh: step.title_zh }}
                           onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever2', 'steps', idx, `title_${lang}`, val)}
                         />
                         <TranslatableField 
                           label="Step Description"
                           isTextArea={true}
-                          baseValue={{ en: step.desc_en || step.desc, th: step.desc_th, my: step.desc_my, vi: step.desc_vi }}
+                          baseValue={{ en: step.desc_en || step.desc, th: step.desc_th, my: step.desc_my, vi: step.desc_vi, ko: step.desc_ko, id: step.desc_id, ms: step.desc_ms, zh: step.desc_zh }}
                           onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever2', 'steps', idx, `desc_${lang}`, val)}
                         />
                       </div>
@@ -342,7 +343,7 @@ export default function AdminImpact() {
             </div>
           )}
 
-          {/* TAB 4: LEVER 3 (OCEAN) */}
+          {/* TAB 3: LEVER 3 (OCEAN) */}
           {activeTab === 'lever3' && (
             <div className="space-y-8 animate-in fade-in">
               <div>
@@ -357,24 +358,24 @@ export default function AdminImpact() {
                   <div className="md:col-span-8 space-y-4">
                     <TranslatableField 
                       label="Small Top Label (Orange)"
-                      baseValue={{ en: data.lever3.label_en || data.lever3.label, th: data.lever3.label_th, my: data.lever3.label_my, vi: data.lever3.label_vi }}
+                      baseValue={{ en: data.lever3.label_en || data.lever3.label, th: data.lever3.label_th, my: data.lever3.label_my, vi: data.lever3.label_vi, ko: data.lever3.label_ko, id: data.lever3.label_id, ms: data.lever3.label_ms, zh: data.lever3.label_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever3', `label_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Main Title"
-                      baseValue={{ en: data.lever3.title_en || data.lever3.title, th: data.lever3.title_th, my: data.lever3.title_my, vi: data.lever3.title_vi }}
+                      baseValue={{ en: data.lever3.title_en || data.lever3.title, th: data.lever3.title_th, my: data.lever3.title_my, vi: data.lever3.title_vi, ko: data.lever3.title_ko, id: data.lever3.title_id, ms: data.lever3.title_ms, zh: data.lever3.title_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever3', `title_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Paragraph 1"
                       isTextArea={true}
-                      baseValue={{ en: data.lever3.desc1_en || data.lever3.desc1, th: data.lever3.desc1_th, my: data.lever3.desc1_my, vi: data.lever3.desc1_vi }}
+                      baseValue={{ en: data.lever3.desc1_en || data.lever3.desc1, th: data.lever3.desc1_th, my: data.lever3.desc1_my, vi: data.lever3.desc1_vi, ko: data.lever3.desc1_ko, id: data.lever3.desc1_id, ms: data.lever3.desc1_ms, zh: data.lever3.desc1_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever3', `desc1_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Paragraph 2"
                       isTextArea={true}
-                      baseValue={{ en: data.lever3.desc2_en || data.lever3.desc2, th: data.lever3.desc2_th, my: data.lever3.desc2_my, vi: data.lever3.desc2_vi }}
+                      baseValue={{ en: data.lever3.desc2_en || data.lever3.desc2, th: data.lever3.desc2_th, my: data.lever3.desc2_my, vi: data.lever3.desc2_vi, ko: data.lever3.desc2_ko, id: data.lever3.desc2_id, ms: data.lever3.desc2_ms, zh: data.lever3.desc2_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever3', `desc2_${lang}`, val)}
                     />
                   </div>
@@ -383,17 +384,17 @@ export default function AdminImpact() {
 
               <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Small Statistics Grid & Note</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   {data.lever3.stats.map((stat: any, idx: number) => (
-                    <div key={idx} className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
+                    <div key={idx} className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-4">
                       <TranslatableField 
                         label="Value (e.g. 11K+)"
-                        baseValue={{ en: stat.value_en || stat.value, th: stat.value_th, my: stat.value_my, vi: stat.value_vi }}
+                        baseValue={{ en: stat.value_en || stat.value, th: stat.value_th, my: stat.value_my, vi: stat.value_vi, ko: stat.value_ko, id: stat.value_id, ms: stat.value_ms, zh: stat.value_zh }}
                         onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever3', 'stats', idx, `value_${lang}`, val)}
                       />
                       <TranslatableField 
                         label="Label"
-                        baseValue={{ en: stat.label_en || stat.label, th: stat.label_th, my: stat.label_my, vi: stat.label_vi }}
+                        baseValue={{ en: stat.label_en || stat.label, th: stat.label_th, my: stat.label_my, vi: stat.label_vi, ko: stat.label_ko, id: stat.label_id, ms: stat.label_ms, zh: stat.label_zh }}
                         onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever3', 'stats', idx, `label_${lang}`, val)}
                       />
                     </div>
@@ -401,14 +402,14 @@ export default function AdminImpact() {
                 </div>
                 <TranslatableField 
                   label="Italic Footer Note"
-                  baseValue={{ en: data.lever3.note_en || data.lever3.note, th: data.lever3.note_th, my: data.lever3.note_my, vi: data.lever3.note_vi }}
+                  baseValue={{ en: data.lever3.note_en || data.lever3.note, th: data.lever3.note_th, my: data.lever3.note_my, vi: data.lever3.note_vi, ko: data.lever3.note_ko, id: data.lever3.note_id, ms: data.lever3.note_ms, zh: data.lever3.note_zh }}
                   onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever3', `note_${lang}`, val)}
                 />
               </div>
             </div>
           )}
 
-          {/* TAB 5: LEVER 1 (SHEWORKS) */}
+          {/* TAB 4: LEVER 1 (SHEWORKS) */}
           {activeTab === 'lever1' && (
             <div className="space-y-8 animate-in fade-in">
               <div>
@@ -416,12 +417,12 @@ export default function AdminImpact() {
                 <div className="space-y-4">
                   <TranslatableField 
                     label="Small Top Label (Orange)"
-                    baseValue={{ en: data.lever1.label_en || data.lever1.label, th: data.lever1.label_th, my: data.lever1.label_my, vi: data.lever1.label_vi }}
+                    baseValue={{ en: data.lever1.label_en || data.lever1.label, th: data.lever1.label_th, my: data.lever1.label_my, vi: data.lever1.label_vi, ko: data.lever1.label_ko, id: data.lever1.label_id, ms: data.lever1.label_ms, zh: data.lever1.label_zh }}
                     onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever1', `label_${lang}`, val)}
                   />
                   <TranslatableField 
                     label="Main Title"
-                    baseValue={{ en: data.lever1.title_en || data.lever1.title, th: data.lever1.title_th, my: data.lever1.title_my, vi: data.lever1.title_vi }}
+                    baseValue={{ en: data.lever1.title_en || data.lever1.title, th: data.lever1.title_th, my: data.lever1.title_my, vi: data.lever1.title_vi, ko: data.lever1.title_ko, id: data.lever1.title_id, ms: data.lever1.title_ms, zh: data.lever1.title_zh }}
                     onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever1', `title_${lang}`, val)}
                   />
                 </div>
@@ -439,13 +440,13 @@ export default function AdminImpact() {
                   <div className="md:col-span-8 space-y-4">
                     <TranslatableField 
                       label="Box Title"
-                      baseValue={{ en: data.lever1.featureTitle_en || data.lever1.featureTitle, th: data.lever1.featureTitle_th, my: data.lever1.featureTitle_my, vi: data.lever1.featureTitle_vi }}
+                      baseValue={{ en: data.lever1.featureTitle_en || data.lever1.featureTitle, th: data.lever1.featureTitle_th, my: data.lever1.featureTitle_my, vi: data.lever1.featureTitle_vi, ko: data.lever1.featureTitle_ko, id: data.lever1.featureTitle_id, ms: data.lever1.featureTitle_ms, zh: data.lever1.featureTitle_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever1', `featureTitle_${lang}`, val)}
                     />
                     <TranslatableField 
                       label="Box Story"
                       isTextArea={true}
-                      baseValue={{ en: data.lever1.featureDesc_en || data.lever1.featureDesc, th: data.lever1.featureDesc_th, my: data.lever1.featureDesc_my, vi: data.lever1.featureDesc_vi }}
+                      baseValue={{ en: data.lever1.featureDesc_en || data.lever1.featureDesc, th: data.lever1.featureDesc_th, my: data.lever1.featureDesc_my, vi: data.lever1.featureDesc_vi, ko: data.lever1.featureDesc_ko, id: data.lever1.featureDesc_id, ms: data.lever1.featureDesc_ms, zh: data.lever1.featureDesc_zh }}
                       onUpdateTranslation={(lang: string, val: string) => handleSectionChange('lever1', `featureDesc_${lang}`, val)}
                     />
                     
@@ -456,12 +457,12 @@ export default function AdminImpact() {
                       </div>
                       <div className="space-y-3">
                         {data.lever1.checklist.map((item: any, idx: number) => (
-                          <div key={idx} className="flex gap-2 items-start">
-                            <CheckSquare size={18} className="text-[#E2552B] shrink-0 mt-2" />
+                          <div key={idx} className="flex gap-2 items-start bg-white p-3 border border-gray-200 rounded-lg">
+                            <CheckSquare size={18} className="text-[#E2552B] shrink-0 mt-3" />
                             <div className="flex-1">
                               <TranslatableField 
                                 label={`Checklist Item ${idx + 1}`}
-                                baseValue={{ en: item.text_en || item.text, th: item.text_th, my: item.text_my, vi: item.text_vi }}
+                                baseValue={{ en: item.text_en || item.text, th: item.text_th, my: item.text_my, vi: item.text_vi, ko: item.text_ko, id: item.text_id, ms: item.text_ms, zh: item.text_zh }}
                                 onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever1', 'checklist', idx, `text_${lang}`, val)}
                               />
                             </div>
@@ -476,28 +477,30 @@ export default function AdminImpact() {
 
               <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">The 3 Women Grid</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   {data.lever1.women.map((woman: any, idx: number) => (
-                    <div key={idx} className="p-4 bg-gray-50 border border-gray-200 rounded-lg flex flex-col gap-4">
-                      <div className="w-24 h-24 mx-auto shrink-0 shadow-sm rounded-full overflow-hidden">
+                    <div key={idx} className="p-6 bg-gray-50 border border-gray-200 rounded-lg flex flex-col md:flex-row gap-6 items-center md:items-start">
+                      <div className="w-24 h-24 shrink-0 shadow-sm rounded-full overflow-hidden">
                         <ImageUploader circle small preview={woman.imagePreview} onUploadSuccess={(url: string) => handleArrayChange('lever1', 'women', idx, 'imagePreview', url)} />
                       </div>
-                      <TranslatableField 
-                        label="Name"
-                        baseValue={{ en: woman.name_en || woman.name, th: woman.name_th, my: woman.name_my, vi: woman.name_vi }}
-                        onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever1', 'women', idx, `name_${lang}`, val)}
-                      />
-                      <TranslatableField 
-                        label="Orange Role/Project"
-                        baseValue={{ en: woman.role_en || woman.role, th: woman.role_th, my: woman.role_my, vi: woman.role_vi }}
-                        onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever1', 'women', idx, `role_${lang}`, val)}
-                      />
-                      <TranslatableField 
-                        label="Short Bio"
-                        isTextArea={true}
-                        baseValue={{ en: woman.desc_en || woman.desc, th: woman.desc_th, my: woman.desc_my, vi: woman.desc_vi }}
-                        onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever1', 'women', idx, `desc_${lang}`, val)}
-                      />
+                      <div className="flex-1 w-full space-y-4">
+                        <TranslatableField 
+                          label="Name"
+                          baseValue={{ en: woman.name_en || woman.name, th: woman.name_th, my: woman.name_my, vi: woman.name_vi, ko: woman.name_ko, id: woman.name_id, ms: woman.name_ms, zh: woman.name_zh }}
+                          onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever1', 'women', idx, `name_${lang}`, val)}
+                        />
+                        <TranslatableField 
+                          label="Orange Role/Project"
+                          baseValue={{ en: woman.role_en || woman.role, th: woman.role_th, my: woman.role_my, vi: woman.role_vi, ko: woman.role_ko, id: woman.role_id, ms: woman.role_ms, zh: woman.role_zh }}
+                          onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever1', 'women', idx, `role_${lang}`, val)}
+                        />
+                        <TranslatableField 
+                          label="Short Bio"
+                          isTextArea={true}
+                          baseValue={{ en: woman.desc_en || woman.desc, th: woman.desc_th, my: woman.desc_my, vi: woman.desc_vi, ko: woman.desc_ko, id: woman.desc_id, ms: woman.desc_ms, zh: woman.desc_zh }}
+                          onUpdateTranslation={(lang: string, val: string) => handleArrayChange('lever1', 'women', idx, `desc_${lang}`, val)}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -505,7 +508,7 @@ export default function AdminImpact() {
             </div>
           )}
 
-          {/* TAB 6: GOALS & SDGS */}
+          {/* TAB 5: GOALS & SDGS */}
           {activeTab === 'goals' && (
             <div className="space-y-8 animate-in fade-in">
               <div>
@@ -513,22 +516,22 @@ export default function AdminImpact() {
                 <div className="mb-6">
                   <TranslatableField 
                     label="Section Title"
-                    baseValue={{ en: data.goals.title_en || data.goals.title, th: data.goals.title_th, my: data.goals.title_my, vi: data.goals.title_vi }}
+                    baseValue={{ en: data.goals.title_en || data.goals.title, th: data.goals.title_th, my: data.goals.title_my, vi: data.goals.title_vi, ko: data.goals.title_ko, id: data.goals.title_id, ms: data.goals.title_ms, zh: data.goals.title_zh }}
                     onUpdateTranslation={(lang: string, val: string) => handleSectionChange('goals', `title_${lang}`, val)}
                   />
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   {data.goals.items.map((goal: any, idx: number) => (
                     <div key={idx} className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-4">
                       <TranslatableField 
                         label="Target Value"
-                        baseValue={{ en: goal.value_en || goal.value, th: goal.value_th, my: goal.value_my, vi: goal.value_vi }}
+                        baseValue={{ en: goal.value_en || goal.value, th: goal.value_th, my: goal.value_my, vi: goal.value_vi, ko: goal.value_ko, id: goal.value_id, ms: goal.value_ms, zh: goal.value_zh }}
                         onUpdateTranslation={(lang: string, val: string) => handleArrayChange('goals', 'items', idx, `value_${lang}`, val)}
                       />
                       <TranslatableField 
                         label="Detail Text"
                         isTextArea={true}
-                        baseValue={{ en: goal.desc_en || goal.desc, th: goal.desc_th, my: goal.desc_my, vi: goal.desc_vi }}
+                        baseValue={{ en: goal.desc_en || goal.desc, th: goal.desc_th, my: goal.desc_my, vi: goal.desc_vi, ko: goal.desc_ko, id: goal.desc_id, ms: goal.desc_ms, zh: goal.desc_zh }}
                         onUpdateTranslation={(lang: string, val: string) => handleArrayChange('goals', 'items', idx, `desc_${lang}`, val)}
                       />
                     </div>
@@ -541,21 +544,21 @@ export default function AdminImpact() {
                 <div className="mb-6">
                   <TranslatableField 
                     label="Section Title"
-                    baseValue={{ en: data.sdgs.title_en || data.sdgs.title, th: data.sdgs.title_th, my: data.sdgs.title_my, vi: data.sdgs.title_vi }}
+                    baseValue={{ en: data.sdgs.title_en || data.sdgs.title, th: data.sdgs.title_th, my: data.sdgs.title_my, vi: data.sdgs.title_vi, ko: data.sdgs.title_ko, id: data.sdgs.title_id, ms: data.sdgs.title_ms, zh: data.sdgs.title_zh }}
                     onUpdateTranslation={(lang: string, val: string) => handleSectionChange('sdgs', `title_${lang}`, val)}
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {data.sdgs.items.map((sdg: any, idx: number) => (
                     <div key={idx} className="p-4 bg-gray-50 border border-gray-200 rounded-lg flex gap-4">
-                      <div className="w-16">
+                      <div className="w-20">
                         <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">SDG #</label>
-                        <input type="text" value={sdg.num} onChange={(e) => handleArrayChange('sdgs', 'items', idx, 'num', e.target.value)} className="w-full px-2 py-2 text-center font-bold border border-gray-200 rounded focus:outline-none focus:border-[#1B5E20]" />
+                        <input type="text" value={sdg.num} onChange={(e) => handleArrayChange('sdgs', 'items', idx, 'num', e.target.value)} className="w-full px-3 py-2 text-center font-bold border border-gray-200 rounded focus:outline-none focus:border-[#1B5E20]" />
                       </div>
                       <div className="flex-1">
                         <TranslatableField 
                           label="Name"
-                          baseValue={{ en: sdg.name_en || sdg.name, th: sdg.name_th, my: sdg.name_my, vi: sdg.name_vi }}
+                          baseValue={{ en: sdg.name_en || sdg.name, th: sdg.name_th, my: sdg.name_my, vi: sdg.name_vi, ko: sdg.name_ko, id: sdg.name_id, ms: sdg.name_ms, zh: sdg.name_zh }}
                           onUpdateTranslation={(lang: string, val: string) => handleArrayChange('sdgs', 'items', idx, `name_${lang}`, val)}
                         />
                       </div>
@@ -573,10 +576,16 @@ export default function AdminImpact() {
 }
 
 // --- REUSABLE UI COMPONENTS ---
+
 function TabButton({ id, label, icon, activeTab, onClick }: any) {
   const isActive = activeTab === id;
   return (
-    <button onClick={() => onClick(id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left ${isActive ? 'bg-[#1B5E20] text-white shadow-md' : 'bg-transparent text-gray-600 hover:bg-gray-100'}`}>
+    <button
+      onClick={() => onClick(id)}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left ${
+        isActive ? 'bg-[#1B5E20] text-white shadow-md' : 'bg-transparent text-gray-600 hover:bg-gray-100'
+      }`}
+    >
       <span className={isActive ? 'text-[#76FF03]' : 'text-gray-400'}>{icon}</span>
       {label}
     </button>
@@ -589,6 +598,7 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     setIsUploading(true);
     try {
       const fileRef = ref(storage, `impact-page/${Date.now()}_${file.name}`);
@@ -604,16 +614,43 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
   };
 
   return (
-    <div className={`border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors w-full h-full ${circle ? 'rounded-full aspect-square' : 'rounded-xl min-h-[120px]'}`}>
-      <input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-      {isUploading ? <Loader2 className="animate-spin mb-2 text-[#1B5E20]" size={small ? 20 : 32} /> : preview ? (
-        <><img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" /><div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} /></div></>
-      ) : <UploadCloud className="text-gray-400" size={small ? 20 : 32} />}
+    <div className={`
+      border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors w-full h-full
+      ${circle ? 'rounded-full aspect-square' : 'rounded-xl min-h-[120px]'}
+    `}>
+      <input 
+        type="file" 
+        accept="image/*"
+        onChange={handleFileChange}
+        disabled={isUploading}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+      />
+
+      {isUploading ? (
+        <div className="flex flex-col items-center justify-center p-2 text-[#1B5E20]">
+          <Loader2 className="animate-spin mb-2" size={small ? 20 : 32} />
+          {!small && <span className="text-xs font-bold">Uploading...</span>}
+        </div>
+      ) : preview ? (
+        <>
+          <img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity">
+            <UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} />
+            {!small && <span className="text-xs font-bold text-[#1B5E20]">Change</span>}
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center p-2 text-center text-gray-400">
+          <ImageIcon size={small ? 20 : 32} className="mb-1" />
+          {!small && <span className="text-xs font-medium">Upload Image</span>}
+        </div>
+      )}
     </div>
   );
 }
 
-// --- REUSABLE AUTO-TRANSLATE FIELD ---
+// --- REUSABLE AUTO-TRANSLATE FIELD (FULL 8 LANGUAGES) ---
+// ✅ FIXED: Removed layout stretching bug classes
 function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea = false }: any) {
   const [isTranslating, setIsTranslating] = useState(false);
   const [showLanguages, setShowLanguages] = useState(false);
@@ -646,15 +683,23 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
         return txt.value;
       };
 
-      const [thText, myText, viText] = await Promise.all([
+      const [thText, myText, viText, koText, idText, msText, zhText] = await Promise.all([
         translateText(baseValue.en, 'th'),
         translateText(baseValue.en, 'my'),
-        translateText(baseValue.en, 'vi')
+        translateText(baseValue.en, 'vi'),
+        translateText(baseValue.en, 'ko'),
+        translateText(baseValue.en, 'id'),
+        translateText(baseValue.en, 'ms'),
+        translateText(baseValue.en, 'zh-CN')
       ]);
       
       onUpdateTranslation('th', thText);
       onUpdateTranslation('my', myText);
       onUpdateTranslation('vi', viText);
+      onUpdateTranslation('ko', koText);
+      onUpdateTranslation('id', idText);
+      onUpdateTranslation('ms', msText);
+      onUpdateTranslation('zh', zhText);
       setShowLanguages(true); 
     } catch (error) {
       console.error("Translation failed", error);
@@ -686,19 +731,25 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
       </div>
 
       {showLanguages && (
-        <div className="p-3 grid grid-cols-1 gap-3 bg-white">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">TH</span>
-            {isTextArea ? <textarea rows={2} value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">MY</span>
-            {isTextArea ? <textarea rows={2} value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">VN</span>
-            {isTextArea ? <textarea rows={2} value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" /> : <input type="text" value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />}
-          </div>
+        <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-3 bg-white">
+          {[
+            { key: 'th', label: 'TH' },
+            { key: 'my', label: 'MY' },
+            { key: 'vi', label: 'VN' },
+            { key: 'ko', label: 'KO' },
+            { key: 'id', label: 'ID' },
+            { key: 'ms', label: 'MS' },
+            { key: 'zh', label: 'ZH' }
+          ].map(lang => (
+            <div key={lang.key} className="flex items-center gap-3">
+              <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded shrink-0">{lang.label}</span>
+              {isTextArea ? (
+                 <textarea rows={2} value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />
+              ) : (
+                 <input type="text" value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
