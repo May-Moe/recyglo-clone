@@ -17,7 +17,7 @@ export default function AdminArticles() {
   const [isLoading, setIsLoading] = useState(true);
 
   // --- 1. STATE FOR THE MAIN LANDING PAGE ---
-  const [pageData, setPageData] = useState({
+  const [pageData, setPageData] = useState<any>({
     heroData: { 
       subtitle_en: "Insights on Sustainability and ESG Reporting", 
       title_en: "RecyGlo Blogs", 
@@ -74,7 +74,7 @@ export default function AdminArticles() {
     const defaultArticles = [
       { 
         title_en: "RecyGlo Publishes Report on Thailand's Battle With Climate Change", 
-        title: "RecyGlo Publishes Report on Thailand's Battle With Climate Change", // Fallback
+        title: "RecyGlo Publishes Report on Thailand's Battle With Climate Change", 
         slug: "thailand-climate-change-report",
         imagePreview: blog1, 
         tags: "Sustainability",
@@ -259,18 +259,18 @@ export default function AdminArticles() {
                 <div className="md:col-span-8 space-y-5">
                   <TranslatableField 
                     label="Small Subtitle"
-                    baseValue={{ en: pageData.heroData?.subtitle_en || pageData.heroData?.subtitle, th: pageData.heroData?.subtitle_th, my: pageData.heroData?.subtitle_my, vi: pageData.heroData?.subtitle_vi }}
+                    baseValue={{ en: pageData.heroData?.subtitle_en || pageData.heroData?.subtitle, th: pageData.heroData?.subtitle_th, my: pageData.heroData?.subtitle_my, vi: pageData.heroData?.subtitle_vi, ko: pageData.heroData?.subtitle_ko, id: pageData.heroData?.subtitle_id, ms: pageData.heroData?.subtitle_ms, zh: pageData.heroData?.subtitle_zh }}
                     onUpdateTranslation={(lang: string, val: string) => setPageData(prev => ({...prev, heroData: {...prev.heroData, [`subtitle_${lang}`]: val}}))}
                   />
                   <TranslatableField 
                     label="Main Title"
-                    baseValue={{ en: pageData.heroData?.title_en || pageData.heroData?.title, th: pageData.heroData?.title_th, my: pageData.heroData?.title_my, vi: pageData.heroData?.title_vi }}
+                    baseValue={{ en: pageData.heroData?.title_en || pageData.heroData?.title, th: pageData.heroData?.title_th, my: pageData.heroData?.title_my, vi: pageData.heroData?.title_vi, ko: pageData.heroData?.title_ko, id: pageData.heroData?.title_id, ms: pageData.heroData?.title_ms, zh: pageData.heroData?.title_zh }}
                     onUpdateTranslation={(lang: string, val: string) => setPageData(prev => ({...prev, heroData: {...prev.heroData, [`title_${lang}`]: val}}))}
                   />
                   <TranslatableField 
                     label="Description"
                     isTextArea={true}
-                    baseValue={{ en: pageData.heroData?.description_en || pageData.heroData?.description, th: pageData.heroData?.description_th, my: pageData.heroData?.description_my, vi: pageData.heroData?.description_vi }}
+                    baseValue={{ en: pageData.heroData?.description_en || pageData.heroData?.description, th: pageData.heroData?.description_th, my: pageData.heroData?.description_my, vi: pageData.heroData?.description_vi, ko: pageData.heroData?.description_ko, id: pageData.heroData?.description_id, ms: pageData.heroData?.description_ms, zh: pageData.heroData?.description_zh }}
                     onUpdateTranslation={(lang: string, val: string) => setPageData(prev => ({...prev, heroData: {...prev.heroData, [`description_${lang}`]: val}}))}
                   />
                 </div>
@@ -317,13 +317,13 @@ export default function AdminArticles() {
                 <div className="lg:col-span-8 space-y-5">
                   <TranslatableField 
                     label="Article Title"
-                    baseValue={{ en: editingArticle.title_en || editingArticle.title, th: editingArticle.title_th, my: editingArticle.title_my, vi: editingArticle.title_vi }}
+                    baseValue={{ en: editingArticle.title_en || editingArticle.title, th: editingArticle.title_th, my: editingArticle.title_my, vi: editingArticle.title_vi, ko: editingArticle.title_ko, id: editingArticle.title_id, ms: editingArticle.title_ms, zh: editingArticle.title_zh }}
                     onUpdateTranslation={(lang: string, val: string) => setEditingArticle((prev: any) => ({...prev, [`title_${lang}`]: val}))}
                   />
                   <TranslatableField 
                     label="Short Excerpt"
                     isTextArea={true}
-                    baseValue={{ en: editingArticle.excerpt_en || editingArticle.excerpt, th: editingArticle.excerpt_th, my: editingArticle.excerpt_my, vi: editingArticle.excerpt_vi }}
+                    baseValue={{ en: editingArticle.excerpt_en || editingArticle.excerpt, th: editingArticle.excerpt_th, my: editingArticle.excerpt_my, vi: editingArticle.excerpt_vi, ko: editingArticle.excerpt_ko, id: editingArticle.excerpt_id, ms: editingArticle.excerpt_ms, zh: editingArticle.excerpt_zh }}
                     onUpdateTranslation={(lang: string, val: string) => setEditingArticle((prev: any) => ({...prev, [`excerpt_${lang}`]: val}))}
                   />
                 </div>
@@ -356,17 +356,18 @@ export default function AdminArticles() {
                         <button type="button" onClick={() => removeContentBlock(block.id)} className="text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
                       </div>
                       
+                      {/* DYNAMIC RENDER BASED ON BLOCK TYPE */}
                       {block.type === 'text' && (
                         <div className="space-y-5">
                           <TranslatableField 
                             label="Block Heading (Optional)"
-                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi, ko: block.title_ko, id: block.title_id, ms: block.title_ms, zh: block.title_zh }}
                             onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
                           />
                           <TranslatableField 
                             label="Paragraph Text"
                             isTextArea={true}
-                            baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                            baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi, ko: block.text_ko, id: block.text_id, ms: block.text_ms, zh: block.text_zh }}
                             onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
                           />
                         </div>
@@ -381,13 +382,13 @@ export default function AdminArticles() {
                           <div className="md:col-span-3 space-y-5">
                             <TranslatableField 
                               label="Image Title (Optional)"
-                              baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                              baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi, ko: block.title_ko, id: block.title_id, ms: block.title_ms, zh: block.title_zh }}
                               onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
                             />
                             <TranslatableField 
                               label="Image Caption / Text"
                               isTextArea={true}
-                              baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                              baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi, ko: block.text_ko, id: block.text_id, ms: block.text_ms, zh: block.text_zh }}
                               onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
                             />
                           </div>
@@ -398,7 +399,7 @@ export default function AdminArticles() {
                         <div className="space-y-5">
                           <TranslatableField 
                             label="Video Title"
-                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi, ko: block.title_ko, id: block.title_id, ms: block.title_ms, zh: block.title_zh }}
                             onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
                           />
                           <div className="bg-[#E2552B]/5 border border-[#E2552B]/20 rounded-md p-3 flex items-start gap-2 text-sm text-[#E2552B]">
@@ -416,13 +417,13 @@ export default function AdminArticles() {
                         <div className="space-y-5">
                           <TranslatableField 
                             label="List Title"
-                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi }}
+                            baseValue={{ en: block.title_en || block.title, th: block.title_th, my: block.title_my, vi: block.title_vi, ko: block.title_ko, id: block.title_id, ms: block.title_ms, zh: block.title_zh }}
                             onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `title_${lang}`, val)}
                           />
                           <TranslatableField 
                             label="List Items (One per line)"
                             isTextArea={true}
-                            baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi }}
+                            baseValue={{ en: block.text_en || block.text, th: block.text_th, my: block.text_my, vi: block.text_vi, ko: block.text_ko, id: block.text_id, ms: block.text_ms, zh: block.text_zh }}
                             onUpdateTranslation={(lang: string, val: string) => updateContentBlock(block.id, `text_${lang}`, val)}
                           />
                         </div>
@@ -487,7 +488,7 @@ function ImageUploader({ preview, small, onUploadSuccess, folder = "misc" }: any
   );
 }
 
-// --- REUSABLE AUTO-TRANSLATE FIELD (REAL GOOGLE AI TRANSLATION) ---
+// --- REUSABLE AUTO-TRANSLATE FIELD (FULL 8 LANGUAGES) ---
 function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea = false }: any) {
   const [isTranslating, setIsTranslating] = useState(false);
   const [showLanguages, setShowLanguages] = useState(false);
@@ -496,8 +497,6 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
     if (!baseValue.en) return alert("Please enter English text first!");
     
     setIsTranslating(true);
-    
-    // PULL THE API KEY FROM YOUR .env FILE
     const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY; 
 
     if (!GOOGLE_API_KEY) {
@@ -511,36 +510,33 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
         const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            q: text,
-            source: 'en',
-            target: targetLang,
-            format: 'text' 
-          })
+          body: JSON.stringify({ q: text, source: 'en', target: targetLang, format: 'html' })
         });
-        
         const data = await response.json();
         if (data.error) throw new Error(data.error.message);
-        
-        // Decode HTML entities automatically
         const translated = data.data.translations[0].translatedText;
         const txt = document.createElement("textarea");
         txt.innerHTML = translated;
         return txt.value;
       };
 
-      // Translate all three languages simultaneously
-      const [thText, myText, viText] = await Promise.all([
+      const [thText, myText, viText, koText, idText, msText, zhText] = await Promise.all([
         translateText(baseValue.en, 'th'),
         translateText(baseValue.en, 'my'),
-        translateText(baseValue.en, 'vi')
+        translateText(baseValue.en, 'vi'),
+        translateText(baseValue.en, 'ko'),
+        translateText(baseValue.en, 'id'),
+        translateText(baseValue.en, 'ms'),
+        translateText(baseValue.en, 'zh-CN')
       ]);
       
-      // Save the real translations
       onUpdateTranslation('th', thText);
       onUpdateTranslation('my', myText);
       onUpdateTranslation('vi', viText);
-      
+      onUpdateTranslation('ko', koText);
+      onUpdateTranslation('id', idText);
+      onUpdateTranslation('ms', msText);
+      onUpdateTranslation('zh', zhText);
       setShowLanguages(true); 
     } catch (error) {
       console.error("Translation failed", error);
@@ -551,23 +547,19 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col justify-center">
       <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
         <div className="flex-1 w-full">
-          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
-            🇬🇧 {label} (English base)
-          </label>
+          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">🇬🇧 {label} (English base)</label>
           {isTextArea ? (
             <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
           ) : (
             <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
           )}
         </div>
-        
         <div className="flex md:flex-col gap-2 shrink-0 md:pt-5 w-full md:w-auto">
           <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="flex-1 md:flex-none bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
-            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />}
-            Auto-Translate
+            {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />} Auto-Translate
           </Button>
           <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="flex-1 md:flex-none h-9 md:h-7 text-xs text-gray-500 bg-gray-200 md:bg-transparent">
             <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
@@ -576,31 +568,25 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
       </div>
 
       {showLanguages && (
-        <div className="p-3 grid grid-cols-1 gap-3 bg-white">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">TH</span>
-            {isTextArea ? (
-               <textarea rows={2} value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Thai translation..." />
-            ) : (
-               <input type="text" value={baseValue.th || ''} onChange={(e) => onUpdateTranslation('th', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Thai translation..." />
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">MY</span>
-            {isTextArea ? (
-               <textarea rows={2} value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Myanmar translation..." />
-            ) : (
-               <input type="text" value={baseValue.my || ''} onChange={(e) => onUpdateTranslation('my', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Myanmar translation..." />
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded">VN</span>
-            {isTextArea ? (
-               <textarea rows={2} value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Vietnamese translation..." />
-            ) : (
-               <input type="text" value={baseValue.vi || ''} onChange={(e) => onUpdateTranslation('vi', e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" placeholder="Vietnamese translation..." />
-            )}
-          </div>
+        <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-3 bg-white">
+          {[
+            { key: 'th', label: 'TH' },
+            { key: 'my', label: 'MY' },
+            { key: 'vi', label: 'VN' },
+            { key: 'ko', label: 'KO' },
+            { key: 'id', label: 'ID' },
+            { key: 'ms', label: 'MS' },
+            { key: 'zh', label: 'ZH' }
+          ].map(lang => (
+            <div key={lang.key} className="flex items-center gap-3">
+              <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded shrink-0">{lang.label}</span>
+              {isTextArea ? (
+                 <textarea rows={2} value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />
+              ) : (
+                 <input type="text" value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

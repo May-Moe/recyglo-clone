@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users, Briefcase, Monitor, ArrowLeft, ArrowRight, Languages, Wand2 } from "lucide-react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { Save, Image as ImageIcon, Layout, Target, Heart, MessageSquareQuote, Plus, Trash2, UploadCloud, GripVertical, Quote, Loader2, Users, Briefcase, Monitor, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Languages, Wand2, FileText, ExternalLink } from "lucide-react";
+import { doc, getDoc, setDoc, collection, onSnapshot, query, limit } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
+import { Link } from 'wouter';
 
 export default function AdminHome() {
   const [activeTab, setActiveTab] = useState('hero'); 
@@ -13,22 +14,24 @@ export default function AdminHome() {
   // --- LIVE DATABASE STATE ---
   const [visionData, setVisionData] = useState<any>({ mission: "", vision: "", goal: "" });
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
-  const [values, setValues] = useState<any[]>([]);
   
   // ALL SECTION HEADERS
   const [partnersHeader, setPartnersHeader] = useState<any>({ title: "", description: "" });
   const [testimonialsHeader, setTestimonialsHeader] = useState<any>({ title: "", description: "" });
-  const [valuesHeader, setValuesHeader] = useState<any>({ title: "", description: "" });
   const [visionHeader, setVisionHeader] = useState<any>({ title: "", description: "" });
   const [galleryHeader, setGalleryHeader] = useState<any>({ title: "", description: "" });
   const [servicesHeader, setServicesHeader] = useState<any>({ subtitle: "What We Do", title: "Comprehensive Waste & ESG Services" });
   const [platformsHeader, setPlatformsHeader] = useState<any>({ subtitle: "Technology", title: "Digital Platforms" });
+  const [blogHeader, setBlogHeader] = useState<any>({ title: "Blog" }); 
 
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [partners, setPartners] = useState<any[]>([]); 
   const [featuredServices, setFeaturedServices] = useState<any[]>([]);
   const [digitalPlatforms, setDigitalPlatforms] = useState<any[]>([]);
+  
+  // --- FETCHED LIVE BLOGS ---
+  const [latestArticles, setLatestArticles] = useState<any[]>([]);
 
   // --- 1. FETCH INITIAL DATA FROM FIREBASE ON LOAD ---
   useEffect(() => {
@@ -41,7 +44,6 @@ export default function AdminHome() {
           const data = docSnap.data();
           if (data.visionData) setVisionData(data.visionData);
           if (data.heroSlides) setHeroSlides(data.heroSlides);
-          if (data.values) setValues(data.values);
           if (data.testimonials) setTestimonials(data.testimonials);
           if (data.galleryImages) setGalleryImages(data.galleryImages);
           if (data.partners) setPartners(data.partners); 
@@ -52,10 +54,19 @@ export default function AdminHome() {
 
           if (data.partnersHeader) setPartnersHeader(data.partnersHeader);
           if (data.testimonialsHeader) setTestimonialsHeader(data.testimonialsHeader);
-          if (data.valuesHeader) setValuesHeader(data.valuesHeader);
           if (data.visionHeader) setVisionHeader(data.visionHeader);
           if (data.galleryHeader) setGalleryHeader(data.galleryHeader);
+          if (data.blogHeader) setBlogHeader(data.blogHeader); 
         }
+
+        // Fetch the 3 most recent articles for the preview
+        const q = query(collection(db, "articles"));
+        const unsubArticles = onSnapshot(q, (snapshot) => {
+          const loaded: any[] = [];
+          snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
+          setLatestArticles(loaded.reverse().slice(0, 3));
+        });
+
       } catch (error) {
         console.error("Error fetching home page data:", error);
       } finally {
@@ -71,9 +82,9 @@ export default function AdminHome() {
     try {
       const docRef = doc(db, "website_content", "home_page");
       await setDoc(docRef, {
-        visionData, heroSlides, values, testimonials, galleryImages, partners, 
+        visionData, heroSlides, testimonials, galleryImages, partners, 
         servicesHeader, featuredServices, platformsHeader, digitalPlatforms,
-        partnersHeader, testimonialsHeader, valuesHeader, visionHeader, galleryHeader,
+        partnersHeader, testimonialsHeader, visionHeader, galleryHeader, blogHeader,
         lastUpdated: new Date()
       }, { merge: true });
 
@@ -87,41 +98,85 @@ export default function AdminHome() {
   };
 
   // --- HANDLERS FOR UPDATING LOCAL STATE ---
+  
+  // HERO SLIDES
   const addHeroSlide = () => setHeroSlides(prev => [...prev, { id: `slide-${Date.now()}` }]);
   const removeHeroSlide = (id: string) => setHeroSlides(prev => prev.filter(s => s.id !== id));
   const updateHeroSlide = (id: string, field: string, value: string) => setHeroSlides(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
+  const moveHeroSlide = (index: number, direction: 'up' | 'down') => {
+    setHeroSlides(prev => {
+      const newArr = [...prev];
+      if (direction === 'up' && index > 0) [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
+      else if (direction === 'down' && index < newArr.length - 1) [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
+      return newArr;
+    });
+  };
 
-  const addValue = () => setValues(prev => [...prev, { id: `val-${Date.now()}` }]);
-  const removeValue = (id: string) => setValues(prev => prev.filter(v => v.id !== id));
-  const updateValue = (id: string, field: string, value: string) => setValues(prev => prev.map(v => v.id === id ? { ...v, [field]: value } : v));
-
+  // TESTIMONIALS
   const addTestimonial = () => setTestimonials(prev => [...prev, { id: `test-${Date.now()}` }]);
   const removeTestimonial = (id: string) => setTestimonials(prev => prev.filter(t => t.id !== id));
   const updateTestimonial = (id: string, field: string, value: string) => setTestimonials(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+  const moveTestimonial = (index: number, direction: 'up' | 'down') => {
+    setTestimonials(prev => {
+      const newArr = [...prev];
+      if (direction === 'up' && index > 0) [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
+      else if (direction === 'down' && index < newArr.length - 1) [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
+      return newArr;
+    });
+  };
 
+  // GALLERY IMAGES
   const addGalleryImage = () => setGalleryImages(prev => [...prev, { id: `img-${Date.now()}` }]);
   const removeGalleryImage = (id: string) => setGalleryImages(prev => prev.filter(img => img.id !== id));
   const updateGalleryImage = (id: string, field: string, value: string) => setGalleryImages(prev => prev.map(img => img.id === id ? { ...img, [field]: value } : img));
+  const moveGalleryImage = (index: number, direction: 'left' | 'right') => {
+    setGalleryImages(prev => {
+      const newArr = [...prev];
+      if (direction === 'left' && index > 0) [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
+      else if (direction === 'right' && index < newArr.length - 1) [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
+      return newArr;
+    });
+  };
 
+  // PARTNERS
   const addPartner = () => setPartners(prev => [...prev, { id: `partner-${Date.now()}` }]);
   const removePartner = (id: string) => setPartners(prev => prev.filter(p => p.id !== id));
   const updatePartner = (id: string, field: string, value: string) => setPartners(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
   const movePartner = (index: number, direction: 'left' | 'right') => {
     setPartners(prev => {
-      const newPartners = [...prev];
-      if (direction === 'left' && index > 0) [newPartners[index - 1], newPartners[index]] = [newPartners[index], newPartners[index - 1]];
-      else if (direction === 'right' && index < newPartners.length - 1) [newPartners[index + 1], newPartners[index]] = [newPartners[index], newPartners[index + 1]];
-      return newPartners;
+      const newArr = [...prev];
+      if (direction === 'left' && index > 0) [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
+      else if (direction === 'right' && index < newArr.length - 1) [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
+      return newArr;
     });
   };
 
+  // SERVICES
   const addService = () => setFeaturedServices(prev => [...prev, { id: `service-${Date.now()}` }]);
   const removeService = (id: string) => setFeaturedServices(prev => prev.filter(s => s.id !== id));
   const updateService = (id: string, field: string, value: string) => setFeaturedServices(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
+  const moveService = (index: number, direction: 'up' | 'down') => {
+    setFeaturedServices(prev => {
+      const newArr = [...prev];
+      if (direction === 'up' && index > 0) [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
+      else if (direction === 'down' && index < newArr.length - 1) [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
+      return newArr;
+    });
+  };
 
+  // PLATFORMS
   const addPlatform = () => setDigitalPlatforms(prev => [...prev, { id: `plat-${Date.now()}` }]);
   const removePlatform = (id: string) => setDigitalPlatforms(prev => prev.filter(p => p.id !== id));
   const updatePlatform = (id: string, field: string, value: string) => setDigitalPlatforms(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  const movePlatform = (index: number, direction: 'up' | 'down') => {
+    setDigitalPlatforms(prev => {
+      const newArr = [...prev];
+      if (direction === 'up' && index > 0) [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
+      else if (direction === 'down' && index < newArr.length - 1) [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
+      return newArr;
+    });
+  };
+
 
   if (isLoading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-[#1B5E20] w-8 h-8" /></div>;
 
@@ -147,9 +202,9 @@ export default function AdminHome() {
           <TabButton id="platforms" label="Digital Platforms" icon={<Monitor size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="partners" label="Trusted Partners" icon={<Users size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="vision" label="Strategic Vision" icon={<Target size={18} />} activeTab={activeTab} onClick={setActiveTab} />
-          <TabButton id="values" label="Our Values" icon={<Heart size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="testimonials" label="Testimonials" icon={<MessageSquareQuote size={18} />} activeTab={activeTab} onClick={setActiveTab} />
           <TabButton id="gallery" label="Impact Gallery" icon={<ImageIcon size={18} />} activeTab={activeTab} onClick={setActiveTab} />
+          <TabButton id="blog" label="Blog Section" icon={<FileText size={18} />} activeTab={activeTab} onClick={setActiveTab} />
         </div>
 
         {/* RIGHT SIDE: Editor Area */}
@@ -170,9 +225,13 @@ export default function AdminHome() {
                 {heroSlides.length === 0 && <p className="text-gray-400 text-center py-8">No slides added yet.</p>}
                 {heroSlides.map((slide, index) => (
                   <div key={slide.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group">
+                    
                     <div className="flex items-center justify-between mb-6 border-b border-gray-200 pb-4">
                       <div className="flex items-center gap-3">
-                        <GripVertical className="text-gray-400 cursor-grab" size={20} />
+                        <div className="flex flex-col gap-1 pr-3 border-r border-gray-200 opacity-30 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => moveHeroSlide(index, 'up')} disabled={index === 0} className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"><ArrowUp size={16}/></button>
+                          <button onClick={() => moveHeroSlide(index, 'down')} disabled={index === heroSlides.length - 1} className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"><ArrowDown size={16}/></button>
+                        </div>
                         <h3 className="font-bold text-gray-700 text-lg">Slide {index + 1}</h3>
                       </div>
                       <button onClick={() => removeHeroSlide(slide.id)} className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50"><Trash2 size={18} /></button>
@@ -265,9 +324,15 @@ export default function AdminHome() {
 
               <div className="space-y-6">
                 {featuredServices.length === 0 && <p className="text-gray-400 text-center py-8">No services added yet.</p>}
-                {featuredServices.map((service) => (
+                {featuredServices.map((service, index) => (
                   <div key={service.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group">
-                    <button onClick={() => removeService(service.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors z-10"><Trash2 size={18} /></button>
+                    <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20 bg-white shadow-sm border border-gray-100 rounded-lg p-1">
+                      <button onClick={() => moveService(index, 'up')} disabled={index === 0} className="text-gray-400 hover:text-[#1B5E20] p-1.5 rounded disabled:opacity-30"><ArrowUp size={16} /></button>
+                      <button onClick={() => moveService(index, 'down')} disabled={index === featuredServices.length - 1} className="text-gray-400 hover:text-[#1B5E20] p-1.5 rounded disabled:opacity-30"><ArrowDown size={16} /></button>
+                      <div className="w-[1px] bg-gray-200 mx-1"></div>
+                      <button onClick={() => removeService(service.id)} className="text-gray-400 hover:text-red-500 p-1.5 rounded"><Trash2 size={16} /></button>
+                    </div>
+
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                       <div className="lg:col-span-4 flex flex-col gap-4">
                         <div>
@@ -328,9 +393,15 @@ export default function AdminHome() {
 
               <div className="space-y-6">
                 {digitalPlatforms.length === 0 && <p className="text-gray-400 text-center py-8">No platforms added yet.</p>}
-                {digitalPlatforms.map((plat) => (
+                {digitalPlatforms.map((plat, index) => (
                   <div key={plat.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group">
-                    <button onClick={() => removePlatform(plat.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors z-10"><Trash2 size={18} /></button>
+                    <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20 bg-white shadow-sm border border-gray-100 rounded-lg p-1">
+                      <button onClick={() => movePlatform(index, 'up')} disabled={index === 0} className="text-gray-400 hover:text-[#1B5E20] p-1.5 rounded disabled:opacity-30"><ArrowUp size={16} /></button>
+                      <button onClick={() => movePlatform(index, 'down')} disabled={index === digitalPlatforms.length - 1} className="text-gray-400 hover:text-[#1B5E20] p-1.5 rounded disabled:opacity-30"><ArrowDown size={16} /></button>
+                      <div className="w-[1px] bg-gray-200 mx-1"></div>
+                      <button onClick={() => removePlatform(plat.id)} className="text-gray-400 hover:text-red-500 p-1.5 rounded"><Trash2 size={16} /></button>
+                    </div>
+
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                       <div className="lg:col-span-5 flex flex-col gap-4">
                         <div>
@@ -370,9 +441,11 @@ export default function AdminHome() {
               <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Trusted Partners & Brands</h2>
-                  <p className="text-sm text-gray-500 mt-1">Upload logos and specify SEO Alt text for each brand.</p>
+                  <p className="text-sm text-gray-500 mt-1">Upload logos of the brands and organizations you work with. Use arrows to reorder.</p>
                 </div>
-                <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Logo</Button>
+                <Button onClick={addPartner} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
+                  <Plus size={16} className="mr-2" /> Add Logo
+                </Button>
               </div>
 
               <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
@@ -395,6 +468,8 @@ export default function AdminHome() {
                   <div key={partner.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
                     <div className="aspect-video relative overflow-hidden rounded-lg">
                       <ImageUploader preview={partner.imagePreview} onUploadSuccess={(url: string, fileName: string) => { updatePartner(partner.id, 'imagePreview', url); if(fileName) updatePartner(partner.id, 'fileName', fileName); }} />
+                      
+                      {/* REORDER ARROWS - LEFT/RIGHT */}
                       <div className="absolute top-0 right-0 left-0 p-1 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
                         <div className="flex gap-1">
                           <button onClick={() => movePartner(index, 'left')} disabled={index === 0} className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"><ArrowLeft size={14} /></button>
@@ -457,60 +532,7 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 6: OUR VALUES */}
-          {activeTab === 'values' && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="flex justify-between items-center mb-6 border-b pb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Our Values</h2>
-                  <p className="text-sm text-gray-500 mt-1">Manage the section title and the core values grid displayed on your home page.</p>
-                </div>
-                <Button onClick={addValue} variant="outline" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10"><Plus size={16} className="mr-2" /> Add Value</Button>
-              </div>
-              <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
-                <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Section Headings</h3>
-                <TranslatableField 
-                  label="Main Title"
-                  baseValue={{ en: valuesHeader.title_en || valuesHeader.title, th: valuesHeader.title_th, my: valuesHeader.title_my, vi: valuesHeader.title_vi, ko: valuesHeader.title_ko, id: valuesHeader.title_id, ms: valuesHeader.title_ms, zh: valuesHeader.title_zh }}
-                  onUpdateTranslation={(lang: string, val: string) => setValuesHeader({...valuesHeader, [`title_${lang}`]: val})}
-                />
-                <TranslatableField 
-                  label="Description"
-                  isTextArea={true}
-                  baseValue={{ en: valuesHeader.description_en || valuesHeader.description, th: valuesHeader.description_th, my: valuesHeader.description_my, vi: valuesHeader.description_vi, ko: valuesHeader.description_ko, id: valuesHeader.description_id, ms: valuesHeader.description_ms, zh: valuesHeader.description_zh }}
-                  onUpdateTranslation={(lang: string, val: string) => setValuesHeader({...valuesHeader, [`description_${lang}`]: val})}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {values.length === 0 && <p className="text-gray-400 py-8 col-span-2 text-center">No values added yet.</p>}
-                {values.map((val) => (
-                  <div key={val.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group flex flex-col">
-                    <button onClick={() => removeValue(val.id)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition-colors z-10"><Trash2 size={16} /></button>
-                    <div className="mb-6 flex justify-center">
-                      <div className="w-16 h-16 flex-shrink-0">
-                        <ImageUploader preview={val.iconPreview} circle small onUploadSuccess={(url: string) => updateValue(val.id, 'iconPreview', url)}/>
-                      </div>
-                    </div>
-                    <div className="space-y-5">
-                      <TranslatableField 
-                        label="Value Title"
-                        baseValue={{ en: val.title_en || val.title, th: val.title_th, my: val.title_my, vi: val.title_vi, ko: val.title_ko, id: val.title_id, ms: val.title_ms, zh: val.title_zh }}
-                        onUpdateTranslation={(lang: string, v: string) => updateValue(val.id, `title_${lang}`, v)}
-                      />
-                      <TranslatableField 
-                        label="Description"
-                        isTextArea={true}
-                        baseValue={{ en: val.desc_en || val.desc, th: val.desc_th, my: val.desc_my, vi: val.desc_vi, ko: val.desc_ko, id: val.desc_id, ms: val.desc_ms, zh: val.desc_zh }}
-                        onUpdateTranslation={(lang: string, v: string) => updateValue(val.id, `desc_${lang}`, v)}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 7: TESTIMONIALS */}
+          {/* TAB 6: TESTIMONIALS */}
           {activeTab === 'testimonials' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -536,7 +558,7 @@ export default function AdminHome() {
               </div>
               <div className="space-y-6">
                 {testimonials.length === 0 && <p className="text-gray-400 py-8 text-center">No testimonials added yet.</p>}
-                {testimonials.map((test) => (
+                {testimonials.map((test, index) => (
                   <div key={test.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 relative group flex flex-col lg:flex-row gap-8">
                     <div className="w-24 h-24 flex-shrink-0 mx-auto lg:mx-0">
                       <ImageUploader preview={test.imagePreview} circle onUploadSuccess={(url: string) => updateTestimonial(test.id, 'imagePreview', url)} />
@@ -555,7 +577,14 @@ export default function AdminHome() {
                             onUpdateTranslation={(lang: string, val: string) => updateTestimonial(test.id, `organization_${lang}`, val)}
                           />
                         </div>
-                        <button onClick={() => removeTestimonial(test.id)} className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"><Trash2 size={18} /></button>
+                        
+                        {/* REORDER ARROWS - UP/DOWN */}
+                        <div className="flex gap-1 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => moveTestimonial(index, 'up')} disabled={index === 0} className="text-gray-400 hover:text-[#1B5E20] p-1.5 rounded disabled:opacity-30 bg-white shadow-sm border border-gray-100"><ArrowUp size={16} /></button>
+                          <button onClick={() => moveTestimonial(index, 'down')} disabled={index === testimonials.length - 1} className="text-gray-400 hover:text-[#1B5E20] p-1.5 rounded disabled:opacity-30 bg-white shadow-sm border border-gray-100"><ArrowDown size={16} /></button>
+                          <div className="w-[1px] bg-gray-200 mx-1"></div>
+                          <button onClick={() => removeTestimonial(test.id)} className="text-gray-400 hover:text-red-500 p-1.5 rounded bg-white shadow-sm border border-gray-100"><Trash2 size={18} /></button>
+                        </div>
                       </div>
                       <TranslatableField 
                         label="Quote"
@@ -570,7 +599,7 @@ export default function AdminHome() {
             </div>
           )}
 
-          {/* TAB 8: IMPACT GALLERY */}
+          {/* TAB 7: IMPACT GALLERY */}
           {activeTab === 'gallery' && (
             <div className="space-y-6 animate-in fade-in">
               <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -597,7 +626,7 @@ export default function AdminHome() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {galleryImages.map((img) => (
+                {galleryImages.map((img, index) => (
                   <div key={img.id} className="relative group bg-gray-50 rounded-xl border border-gray-200 p-2 flex flex-col gap-2">
                     <div className="aspect-square relative overflow-hidden rounded-lg">
                       <ImageUploader 
@@ -607,7 +636,16 @@ export default function AdminHome() {
                           if(fileName) updateGalleryImage(img.id, 'fileName', fileName);
                         }}
                       />
-                      <button onClick={() => removeGalleryImage(img.id)} className="absolute top-2 right-2 bg-white text-red-500 p-1.5 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"><Trash2 size={16} /></button>
+                      
+                      {/* REORDER ARROWS - LEFT/RIGHT */}
+                      <div className="absolute top-0 right-0 left-0 p-1 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        <div className="flex gap-1">
+                          <button onClick={() => moveGalleryImage(index, 'left')} disabled={index === 0} className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"><ArrowLeft size={14} /></button>
+                          <button onClick={() => moveGalleryImage(index, 'right')} disabled={index === galleryImages.length - 1} className="bg-white/90 backdrop-blur text-gray-600 p-1.5 rounded-md shadow-sm hover:bg-[#1B5E20] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 transition-all"><ArrowRight size={14} /></button>
+                        </div>
+                        <button onClick={() => removeGalleryImage(img.id)} className="bg-white/90 backdrop-blur text-red-500 p-1.5 rounded-md shadow-sm hover:bg-red-500 hover:text-white transition-all"><Trash2 size={14} /></button>
+                      </div>
+
                     </div>
                     <input type="text" value={img.altText || ''} onChange={(e) => updateGalleryImage(img.id, 'altText', e.target.value)} className="w-full text-xs text-center px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-white text-gray-900 font-medium" placeholder="Alt Text (SEO)" />
                     <input type="text" value={img.fileName || ''} onChange={(e) => updateGalleryImage(img.id, 'fileName', e.target.value)} className="w-full text-[10px] text-center px-2 py-1 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] bg-transparent text-gray-400" placeholder="Upload to see filename" />
@@ -615,6 +653,53 @@ export default function AdminHome() {
                 ))}
                 <div onClick={addGalleryImage} className="aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#1B5E20] transition-colors text-gray-400 hover:text-[#1B5E20]"><Plus size={32} className="mb-2" /><span className="text-sm font-medium">Add Image Box</span></div>
               </div>
+            </div>
+          )}
+          
+          {/* TAB 8: BLOG SECTION WITH LIVE FETCHED ARTICLES */}
+          {activeTab === 'blog' && (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Blog Section Header</h2>
+                  <p className="text-sm text-gray-500 mt-1">Manage the title for the latest articles section on the home page.</p>
+                </div>
+              </div>
+
+              {/* Title Editor */}
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-4">
+                <TranslatableField 
+                  label="Blog Section Title"
+                  baseValue={{ en: blogHeader?.title_en || blogHeader?.title || "Blog", th: blogHeader?.title_th, my: blogHeader?.title_my, vi: blogHeader?.title_vi, ko: blogHeader?.title_ko, id: blogHeader?.title_id, ms: blogHeader?.title_ms, zh: blogHeader?.title_zh }}
+                  onUpdateTranslation={(lang: string, val: string) => setBlogHeader((prev: any) => ({...prev, [`title_${lang}`]: val}))}
+                />
+              </div>
+
+              {/* Preview of Live Blogs */}
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                 <div className="flex justify-between items-center mb-6">
+                   <h3 className="font-bold text-gray-900 text-lg">Latest Articles (Live on Home Page)</h3>
+                   <Link href="/admin/articles">
+                     <Button variant="outline" size="sm" className="text-[#1B5E20] border-[#1B5E20] hover:bg-[#1B5E20]/10">
+                       <FileText size={16} className="mr-2" /> Manage Articles
+                     </Button>
+                   </Link>
+                 </div>
+                 
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                   {latestArticles.map(article => (
+                      <div key={article.id} className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm group">
+                        <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative">
+                          {article.imagePreview && <img src={article.imagePreview} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />}
+                        </div>
+                        <h4 className="font-bold text-sm text-[#1B5E20] line-clamp-2 leading-snug">{article.title_en || article.title}</h4>
+                        <p className="text-xs text-gray-500">{article.date}</p>
+                      </div>
+                   ))}
+                   {latestArticles.length === 0 && <p className="text-gray-400 italic">No articles found. Go to the Articles tab to add some.</p>}
+                 </div>
+              </div>
+
             </div>
           )}
 
@@ -629,7 +714,12 @@ export default function AdminHome() {
 function TabButton({ id, label, icon, activeTab, onClick }: any) {
   const isActive = activeTab === id;
   return (
-    <button onClick={() => onClick(id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left ${isActive ? 'bg-[#1B5E20] text-white shadow-md' : 'bg-transparent text-gray-600 hover:bg-gray-100'}`}>
+    <button
+      onClick={() => onClick(id)}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left ${
+        isActive ? 'bg-[#1B5E20] text-white shadow-md' : 'bg-transparent text-gray-600 hover:bg-gray-100'
+      }`}
+    >
       <span className={isActive ? 'text-[#76FF03]' : 'text-gray-400'}>{icon}</span>
       {label}
     </button>
@@ -658,17 +748,36 @@ function ImageUploader({ preview, circle, small, onUploadSuccess }: any) {
   };
 
   return (
-    <div className={`border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors w-full h-full ${circle ? 'rounded-full aspect-square' : 'rounded-xl min-h-[100px]'}`}>
-      <input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+    <div className={`
+      border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center relative overflow-hidden group/upload cursor-pointer hover:border-[#1B5E20] transition-colors w-full h-full
+      ${circle ? 'rounded-full aspect-square' : 'rounded-xl min-h-[120px]'}
+    `}>
+      <input 
+        type="file" 
+        accept="image/*"
+        onChange={handleFileChange}
+        disabled={isUploading}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+      />
+
       {isUploading ? (
-        <div className="flex flex-col items-center justify-center p-2 text-[#1B5E20]"><Loader2 className="animate-spin mb-2" size={small ? 20 : 32} />{!small && <span className="text-xs font-bold">Uploading...</span>}</div>
+        <div className="flex flex-col items-center justify-center p-2 text-[#1B5E20]">
+          <Loader2 className="animate-spin mb-2" size={small ? 20 : 32} />
+          {!small && <span className="text-xs font-bold">Uploading...</span>}
+        </div>
       ) : preview ? (
         <>
           <img src={preview} className="w-full h-full object-cover opacity-80 group-hover/upload:opacity-40 transition-opacity" alt="Preview" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"><UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} />{!small && <span className="text-xs font-bold text-[#1B5E20]">Change</span>}</div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity">
+            <UploadCloud className="text-[#1B5E20] mb-1" size={small ? 16 : 24} />
+            {!small && <span className="text-xs font-bold text-[#1B5E20]">Change</span>}
+          </div>
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center p-2 text-center text-gray-400"><ImageIcon size={small ? 20 : 32} className="mb-1" />{!small && <span className="text-xs font-medium">Upload Image</span>}</div>
+        <div className="flex flex-col items-center justify-center p-2 text-center text-gray-400">
+          <ImageIcon size={small ? 20 : 32} className="mb-1" />
+          {!small && <span className="text-xs font-medium">Upload Image</span>}
+        </div>
       )}
     </div>
   );
@@ -684,7 +793,6 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
     
     setIsTranslating(true);
     
-    // PULL THE API KEY FROM YOUR .env FILE
     const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_API_KEY; 
 
     if (!GOOGLE_API_KEY) {
@@ -715,7 +823,6 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
         return txt.value;
       };
 
-      // Translate all 7 additional languages simultaneously
       const [thText, myText, viText, koText, idText, msText, zhText] = await Promise.all([
         translateText(baseValue.en, 'th'),
         translateText(baseValue.en, 'my'),
@@ -723,17 +830,16 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
         translateText(baseValue.en, 'ko'),
         translateText(baseValue.en, 'id'),
         translateText(baseValue.en, 'ms'),
-        translateText(baseValue.en, 'zh-CN') // Google uses zh-CN for Simplified Chinese
+        translateText(baseValue.en, 'zh-CN') 
       ]);
       
-      // Save all translations
       onUpdateTranslation('th', thText);
       onUpdateTranslation('my', myText);
       onUpdateTranslation('vi', viText);
       onUpdateTranslation('ko', koText);
       onUpdateTranslation('id', idText);
       onUpdateTranslation('ms', msText);
-      onUpdateTranslation('zh', zhText); // Saving as 'zh' to match i18n
+      onUpdateTranslation('zh', zhText); 
       
       setShowLanguages(true); 
     } catch (error) {
@@ -745,32 +851,33 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-      <div className="p-3 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
-        <div className="flex-1 w-full">
-          <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm w-full mb-4">
+      <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row items-start gap-4">
+        
+        <div className="flex-1 w-full min-w-0">
+          <label className="block text-xs font-bold text-gray-700 mb-2 flex items-center gap-1">
             🇬🇧 {label} (English base)
           </label>
           {isTextArea ? (
-            <textarea rows={2} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm" />
+            <textarea rows={3} value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] focus:border-transparent text-sm min-w-0 shadow-sm" />
           ) : (
-            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:border-[#1B5E20] text-sm font-medium" />
+            <input type="text" value={baseValue.en || ''} onChange={(e) => onUpdateTranslation('en', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] focus:border-transparent text-sm font-medium min-w-0 shadow-sm" />
           )}
         </div>
         
-        <div className="flex md:flex-col gap-2 shrink-0 md:pt-5 w-full md:w-auto">
-          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="flex-1 md:flex-none bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs">
+        <div className="flex flex-col gap-2 w-full md:w-auto shrink-0 md:pt-6">
+          <Button type="button" onClick={handleAutoTranslate} disabled={isTranslating} className="w-full md:w-auto bg-[#76FF03] hover:bg-[#5dbb02] text-[#1B5E20] font-bold h-9 text-xs shadow-sm px-4">
             {isTranslating ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} className="mr-1" />}
             Auto-Translate
           </Button>
-          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="flex-1 md:flex-none h-9 md:h-7 text-xs text-gray-500 bg-gray-200 md:bg-transparent">
-            <Languages size={12} className="mr-1" /> {showLanguages ? 'Hide' : 'Edit'} Languages
+          <Button type="button" variant="ghost" onClick={() => setShowLanguages(!showLanguages)} className="w-full md:w-auto h-9 text-xs text-gray-600 hover:text-gray-900 bg-transparent hover:bg-gray-200 border-none shadow-none px-4">
+            <Languages size={14} className="mr-2" /> {showLanguages ? 'Hide' : 'Edit Languages'}
           </Button>
         </div>
       </div>
 
       {showLanguages && (
-        <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-3 bg-white">
+        <div className="p-4 grid grid-cols-1 gap-4 bg-white">
           {[
             { key: 'th', label: 'TH' },
             { key: 'my', label: 'MY' },
@@ -780,13 +887,15 @@ function TranslatableField({ label, baseValue, onUpdateTranslation, isTextArea =
             { key: 'ms', label: 'MS' },
             { key: 'zh', label: 'ZH' }
           ].map(lang => (
-            <div key={lang.key} className="flex items-center gap-3">
-              <span className="text-xs font-bold w-8 text-center bg-gray-100 p-1 rounded shrink-0">{lang.label}</span>
-              {isTextArea ? (
-                 <textarea rows={2} value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />
-              ) : (
-                 <input type="text" value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 px-3 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1B5E20]" />
-              )}
+            <div key={lang.key} className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider pl-1">{lang.label} Translation</label>
+              <div className="flex items-start gap-2">
+                {isTextArea ? (
+                   <textarea rows={2} value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#1B5E20] focus:border-[#1B5E20] min-w-0 bg-gray-50" />
+                ) : (
+                   <input type="text" value={baseValue[lang.key] || ''} onChange={(e) => onUpdateTranslation(lang.key, e.target.value)} className="flex-1 w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#1B5E20] focus:border-[#1B5E20] min-w-0 bg-gray-50" />
+                )}
+              </div>
             </div>
           ))}
         </div>

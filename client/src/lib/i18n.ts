@@ -12,6 +12,7 @@ i18n
         translation: {
           nav: {
             home: "Home",
+            services: "Services",
             solutions: "Our Solutions",
             allServices: "All Services",
             allServicesDesc: "View all our comprehensive sustainability solutions.",
@@ -25,6 +26,8 @@ i18n
             carbonDesc: "Enterprise carbon footprint tracking and accounting platform.",
             esgReporting: "ESG Reporting Software",
             esgDesc: "Centralize ESG data and automate sustainability reporting.",
+            ourImpactTop: "Our Impact",
+            ourImpact: "Our Impact",
             impact: "See Our Impact",
             impactDesc: "Pioneering Sustainability in Action.",
             events: "Events & Webinars",
@@ -46,6 +49,25 @@ i18n
             language: "Language",
             adminLogin: "Admin Login",
             bookConsultation: "Book a Consultation"
+          },
+          footer: {
+            tagline: "Fostering a more sustainable future through innovative waste, energy, and carbon management solutions across the Asia-Pacific region.",
+            information: "Information",
+            services: "Services",
+            location: "Location",
+            quickContact: "Quick Contact",
+            rights: "© Copyright 2026 by RecyGlo Company Pte. Ltd. All rights reserved.",
+            terms: "Terms & Conditions",
+            privacy: "Privacy Policy"
+          },
+          countries: {
+            thailand: "Thailand",
+            vietnam: "Vietnam",
+            myanmar: "Myanmar",
+            indonesia: "Indonesia",
+            southKorea: "South Korea",
+            singapore: "Singapore",
+            malaysia: "Malaysia"
           }
         }
       },
@@ -54,19 +76,22 @@ i18n
         translation: {
           nav: {
             home: "หน้าหลัก",
-            solutions: "บริการของเรา",
+            services: "บริการ",
+            solutions: "โซลูชันของเรา",
             allServices: "บริการทั้งหมด",
             allServicesDesc: "ดูโซลูชันความยั่งยืนที่ครอบคลุมของเราทั้งหมด",
             learnMore: "เรียนรู้เพิ่มเติมเกี่ยวกับบริการนี้",
             platforms: "แพลตฟอร์ม",
             wasteManagement: "ซอฟต์แวร์การจัดการขยะ",
-            wasteDesc: "จัดการการดำเนินงานด้านขยะและขั้นตอนการปฏิบัติตามข้อกำหนดของคุณ",
+            wasteDesc: "ติดตามกระแสขยะและจัดการการดำเนินงานเก็บรวบรวม",
             eprPlatform: "แพลตฟอร์ม EPR และการจัดการขยะ",
             eprDesc: "โซลูชันการติดตาม EPR และการจัดการขยะขั้นสูง",
             carbonAccounting: "การบัญชีคาร์บอน",
             carbonDesc: "แพลตฟอร์มติดตามและจัดการคาร์บอนฟุตพริ้นท์สำหรับองค์กร",
             esgReporting: "ซอฟต์แวร์การรายงาน ESG",
             esgDesc: "รวมศูนย์ข้อมูล ESG และจัดทำรายงานความยั่งยืนอัตโนมัติ",
+            ourImpactTop: "ผลกระทบของเรา",
+            ourImpact: "ผลกระทบของเรา",
             impact: "ดูผลกระทบของเรา",
             impactDesc: "บุกเบิกความยั่งยืนในการปฏิบัติจริง",
             events: "กิจกรรมและสัมมนาออนไลน์",
@@ -88,6 +113,25 @@ i18n
             language: "ภาษา",
             adminLogin: "เข้าสู่ระบบผู้ดูแล",
             bookConsultation: "จองเวลาปรึกษา"
+          },
+          footer: {
+            tagline: "ส่งเสริมอนาคตที่ยั่งยืนผ่านโซลูชันนวัตกรรมการจัดการขยะ พลังงาน และคาร์บอนทั่วภูมิภาคเอเชียแปซิฟิก",
+            information: "ข้อมูล",
+            services: "บริการ",
+            location: "สถานที่ตั้ง",
+            quickContact: "ติดต่อด่วน",
+            rights: "© ลิขสิทธิ์ 2026 โดย RecyGlo Company Pte. Ltd. สงวนลิขสิทธิ์",
+            terms: "ข้อกำหนดและเงื่อนไข",
+            privacy: "นโยบายความเป็นส่วนตัว"
+          },
+          countries: {
+            thailand: "ไทย",
+            vietnam: "เวียดนาม",
+            myanmar: "เมียนมา",
+            indonesia: "อินโดนีเซีย",
+            southKorea: "เกาหลีใต้",
+            singapore: "สิงคโปร์",
+            malaysia: "มาเลเซีย"
           }
         }
       },
@@ -96,6 +140,7 @@ i18n
         translation: {
           nav: {
             home: "ပင်မစာမျက်နှာ",
+            services: "ဝန်ဆောင်မှုများ",
             solutions: "ဖြေရှင်းချက်များ",
             allServices: "ဝန်ဆောင်မှုအားလုံး",
             allServicesDesc: "ကျွန်ုပ်တို့၏ ပြည့်စုံသော ရေရှည်တည်တံ့ခိုင်မြဲရေး ဖြေရှင်းချက်များကို ကြည့်ပါ။",
@@ -109,6 +154,8 @@ i18n
             carbonDesc: "လုပ်ငန်းသုံး ကာဗွန်ခြေရာခံခြင်းနှင့် စာရင်းကိုင်ပလပ်ဖောင်း။",
             esgReporting: "ESG အစီရင်ခံခြင်း ဆော့ဖ်ဝဲလ်",
             esgDesc: "ESG ဒေတာများကို ဗဟိုပြုပြီး ရေရှည်တည်တံ့ခိုင်မြဲရေး အစီရင်ခံခြင်းကို အလိုအလျောက်လုပ်ဆောင်ပါ။",
+            ourImpactTop: "ကျွန်ုပ်တို့၏ သက်ရောက်မှု",
+            ourImpact: "ကျွန်ုပ်တို့၏ သက်ရောက်မှု",
             impact: "ကျွန်ုပ်တို့၏ သက်ရောက်မှုကို ကြည့်ရန်",
             impactDesc: "လက်တွေ့တွင် ရေရှည်တည်တံ့ခိုင်မြဲရေးကို ဦးဆောင်နေခြင်း။",
             events: "ပွဲများနှင့် ဝက်ဘ်ဆွေးနွေးပွဲများ",
@@ -130,6 +177,25 @@ i18n
             language: "ဘာသာစကား",
             adminLogin: "အက်ဒမင် အကောင့်ဝင်ရန်",
             bookConsultation: "တိုင်ပင်ဆွေးနွေးရန် စာရင်းသွင်းမည်"
+          },
+          footer: {
+            tagline: "အာရှ-ပစိဖိတ်ဒေသတစ်ဝှမ်းရှိ ဆန်းသစ်သော စွန့်ပစ်ပစ္စည်း၊ စွမ်းအင်နှင့် ကာဗွန်စီမံခန့်ခွဲမှု ဖြေရှင်းချက်များမှတစ်ဆင့် ပိုမိုရေရှည်တည်တံ့သော အနာဂတ်ကို ဖော်ဆောင်ပေးပါသည်။",
+            information: "သတင်းအချက်အလက်",
+            services: "ဝန်ဆောင်မှုများ",
+            location: "တည်နေရာ",
+            quickContact: "အမြန်ဆက်သွယ်ရန်",
+            rights: "© မူပိုင်ခွင့် 2026 RecyGlo Company Pte. Ltd. မူပိုင်ခွင့်များရယူပြီး။",
+            terms: "စည်းကမ်းချက်များနှင့် သတ်မှတ်ချက်များ",
+            privacy: "ကိုယ်ရေးကိုယ်တာ မူဝါဒ"
+          },
+          countries: {
+            thailand: "ထိုင်း",
+            vietnam: "ဗီယက်နမ်",
+            myanmar: "မြန်မာ",
+            indonesia: "အင်ဒိုနီးရှား",
+            southKorea: "တောင်ကိုရီးယား",
+            singapore: "စင်္ကာပူ",
+            malaysia: "မလေးရှား"
           }
         }
       },
@@ -138,6 +204,7 @@ i18n
         translation: {
           nav: {
             home: "Trang chủ",
+            services: "Dịch vụ",
             solutions: "Giải pháp",
             allServices: "Tất cả dịch vụ",
             allServicesDesc: "Xem tất cả các giải pháp bền vững toàn diện của chúng tôi.",
@@ -151,6 +218,8 @@ i18n
             carbonDesc: "Nền tảng theo dõi và kế toán dấu chân carbon cho doanh nghiệp.",
             esgReporting: "Phần mềm Báo cáo ESG",
             esgDesc: "Tập trung dữ liệu ESG và tự động hóa báo cáo phát triển bền vững.",
+            ourImpactTop: "Tác động của chúng",
+            ourImpact: "Tác động của chúng",
             impact: "Xem Tác Động Của Chúng",
             impactDesc: "Tiên phong về Bền vững trong Thực tiễn.",
             events: "Sự kiện & Hội thảo trực tuyến",
@@ -172,6 +241,25 @@ i18n
             language: "Ngôn ngữ",
             adminLogin: "Đăng nhập Admin",
             bookConsultation: "Đặt lịch tư vấn"
+          },
+          footer: {
+            tagline: "Thúc đẩy một tương lai bền vững hơn thông qua các giải pháp quản lý chất thải, năng lượng và carbon sáng tạo trên toàn khu vực Châu Á - Thái Bình Dương.",
+            information: "Thông tin",
+            services: "Dịch vụ",
+            location: "Vị trí",
+            quickContact: "Liên hệ nhanh",
+            rights: "© Bản quyền 2026 thuộc về RecyGlo Company Pte. Ltd. Mọi quyền được bảo lưu.",
+            terms: "Điều khoản & Điều kiện",
+            privacy: "Chính sách Bảo mật"
+          },
+          countries: {
+            thailand: "Thái Lan",
+            vietnam: "Việt Nam",
+            myanmar: "Myanmar",
+            indonesia: "Indonesia",
+            southKorea: "Hàn Quốc",
+            singapore: "Singapore",
+            malaysia: "Malaysia"
           }
         }
       },
@@ -180,7 +268,8 @@ i18n
         translation: {
           nav: {
             home: "홈",
-            solutions: "솔루션",
+            services: "서비스",
+            solutions: "우리의 솔루션",
             allServices: "모든 서비스",
             allServicesDesc: "모든 지속 가능성 솔루션을 확인하세요.",
             learnMore: "이 서비스에 대해 더 알아보기",
@@ -193,6 +282,8 @@ i18n
             carbonDesc: "기업 탄소 발자국 추적 및 회계 플랫폼.",
             esgReporting: "ESG 보고 소프트웨어",
             esgDesc: "ESG 데이터를 중앙 집중화하고 지속 가능성 보고를 자동화하세요.",
+            ourImpactTop: "우리의 영향력",
+            ourImpact: "우리의 영향력",
             impact: "영향 보기",
             impactDesc: "검증된 영향 보고서 및 지속 가능성 마일스톤 읽기.",
             events: "이벤트 및 웨비나",
@@ -214,6 +305,25 @@ i18n
             language: "언어",
             adminLogin: "관리자 로그인",
             bookConsultation: "상담 예약"
+          },
+          footer: {
+            tagline: "아시아 태평양 전역에 걸친 혁신적인 폐기물, 에너지 및 탄소 관리 솔루션을 통해 지속 가능한 미래를 조성합니다.",
+            information: "정보",
+            services: "서비스",
+            location: "위치",
+            quickContact: "빠른 연락",
+            rights: "© Copyright 2026 by RecyGlo Company Pte. Ltd. 모든 권리 보유.",
+            terms: "이용 약관",
+            privacy: "개인정보 처리방침"
+          },
+          countries: {
+            thailand: "태국",
+            vietnam: "베트남",
+            myanmar: "미얀마",
+            indonesia: "인도네시아",
+            southKorea: "대한민국",
+            singapore: "싱가포르",
+            malaysia: "말레이시아"
           }
         }
       },
@@ -222,6 +332,7 @@ i18n
         translation: {
           nav: {
             home: "Beranda",
+            services: "Layanan",
             solutions: "Solusi Kami",
             allServices: "Semua Layanan",
             allServicesDesc: "Lihat semua solusi keberlanjutan komprehensif kami.",
@@ -235,6 +346,8 @@ i18n
             carbonDesc: "Platform pelacakan dan akuntansi jejak karbon perusahaan.",
             esgReporting: "Perangkat Lunak Pelaporan ESG",
             esgDesc: "Pusatkan data ESG dan otomatiskan pelaporan keberlanjutan.",
+            ourImpactTop: "Dampak Kami",
+            ourImpact: "Dampak Kami",
             impact: "Lihat Dampak Kami",
             impactDesc: "Baca laporan dampak dan pencapaian keberlanjutan kami yang terverifikasi.",
             events: "Acara & Webinar",
@@ -256,6 +369,25 @@ i18n
             language: "Bahasa",
             adminLogin: "Login Admin",
             bookConsultation: "Pesan Konsultasi"
+          },
+          footer: {
+            tagline: "Mendorong masa depan yang lebih berkelanjutan melalui solusi manajemen limbah, energi, dan karbon yang inovatif di seluruh kawasan Asia-Pasifik.",
+            information: "Informasi",
+            services: "Layanan",
+            location: "Lokasi",
+            quickContact: "Kontak Cepat",
+            rights: "© Hak Cipta 2026 oleh RecyGlo Company Pte. Ltd. Semua hak dilindungi undang-undang.",
+            terms: "Syarat & Ketentuan",
+            privacy: "Kebijakan Privasi"
+          },
+          countries: {
+            thailand: "Thailand",
+            vietnam: "Vietnam",
+            myanmar: "Myanmar",
+            indonesia: "Indonesia",
+            southKorea: "Korea Selatan",
+            singapore: "Singapura",
+            malaysia: "Malaysia"
           }
         }
       },
@@ -264,6 +396,7 @@ i18n
         translation: {
           nav: {
             home: "Utama",
+            services: "Perkhidmatan",
             solutions: "Penyelesaian Kami",
             allServices: "Semua Perkhidmatan",
             allServicesDesc: "Lihat semua penyelesaian kelestarian komprehensif kami.",
@@ -277,6 +410,8 @@ i18n
             carbonDesc: "Platform penjejakan dan perakaunan jejak karbon perusahaan.",
             esgReporting: "Perisian Pelaporan ESG",
             esgDesc: "Pusatkan data ESG dan mengautomasikan pelaporan kelestarian.",
+            ourImpactTop: "Impak Kami",
+            ourImpact: "Impak Kami",
             impact: "Lihat Impak Kami",
             impactDesc: "Baca laporan impak kami yang disahkan dan pencapaian kelestarian.",
             events: "Acara & Webinar",
@@ -298,6 +433,25 @@ i18n
             language: "Bahasa",
             adminLogin: "Log Masuk Pentadbir",
             bookConsultation: "Tempah Konsultasi"
+          },
+          footer: {
+            tagline: "Memupuk masa depan yang lebih mampan melalui penyelesaian pengurusan sisa, tenaga, dan karbon yang inovatif di seluruh rantau Asia-Pasifik.",
+            information: "Maklumat",
+            services: "Perkhidmatan",
+            location: "Lokasi",
+            quickContact: "Hubungan Pantas",
+            rights: "© Hak Cipta 2026 oleh RecyGlo Company Pte. Ltd. Hak cipta terpelihara.",
+            terms: "Terma & Syarat",
+            privacy: "Dasar Privasi"
+          },
+          countries: {
+            thailand: "Thailand",
+            vietnam: "Vietnam",
+            myanmar: "Myanmar",
+            indonesia: "Indonesia",
+            southKorea: "Korea Selatan",
+            singapore: "Singapura",
+            malaysia: "Malaysia"
           }
         }
       },
@@ -306,6 +460,7 @@ i18n
         translation: {
           nav: {
             home: "首页",
+            services: "服务",
             solutions: "我们的解决方案",
             allServices: "所有服务",
             allServicesDesc: "查看我们全面的可持续发展解决方案。",
@@ -319,6 +474,8 @@ i18n
             carbonDesc: "企业碳足迹跟踪和核算平台。",
             esgReporting: "ESG报告软件",
             esgDesc: "集中ESG数据并自动化可持续发展报告。",
+            ourImpactTop: "我们的影响",
+            ourImpact: "我们的影响",
             impact: "查看我们的影响",
             impactDesc: "阅读我们经过验证的影响报告和可持续发展里程碑。",
             events: "活动和网络研讨会",
@@ -340,6 +497,25 @@ i18n
             language: "语言",
             adminLogin: "管理员登录",
             bookConsultation: "预约咨询"
+          },
+          footer: {
+            tagline: "通过整个亚太地区创新的废物、能源和碳管理解决方案，培养更加可持续的未来。",
+            information: "信息",
+            services: "服务",
+            location: "位置",
+            quickContact: "快速联系",
+            rights: "© 版权所有 2026 RecyGlo Company Pte. Ltd. 保留所有权利。",
+            terms: "条款和条件",
+            privacy: "隐私政策"
+          },
+          countries: {
+            thailand: "泰国",
+            vietnam: "越南",
+            myanmar: "缅甸",
+            indonesia: "印度尼西亚",
+            southKorea: "韩国",
+            singapore: "新加坡",
+            malaysia: "马来西亚"
           }
         }
       }

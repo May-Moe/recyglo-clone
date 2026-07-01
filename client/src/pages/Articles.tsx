@@ -141,13 +141,13 @@ export default function Articles() {
           <div className="mb-10 text-sm font-medium text-gray-500 flex items-center gap-2">
             <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.home', 'Home')}</Link>
             <ChevronRight size={14} className="text-gray-300" />
-            <span className="text-gray-900 font-bold">{t('nav.blog', 'Articles')}</span>
+            <span className="text-gray-900 font-bold">{t('nav.articles', 'Articles')}</span>
           </div>
 
-          <h2 className="text-4xl font-bold text-[#1B5E20] mb-8">{t('nav.blog', 'Blogs')}</h2>
+          <h2 className="text-4xl font-bold text-[#1B5E20] mb-8">{t('nav.articles', 'Articles')}</h2>
 
           <div className="flex flex-wrap gap-3 mb-10">
-             <button className="bg-[#E2552B] text-white px-5 py-2.5 rounded-md text-sm font-semibold shadow-sm transition-all">All Articles</button>
+             <button className="bg-[#E2552B] text-white px-5 py-2.5 rounded-md text-sm font-semibold shadow-sm transition-all">{t('nav.articles', 'All Articles')}</button>
              <button className="bg-white border border-[#E2552B] text-[#E2552B] hover:bg-[#E2552B]/5 px-5 py-2.5 rounded-md text-sm font-semibold transition-all">Sustainability</button>
              <button className="bg-white border border-[#E2552B] text-[#E2552B] hover:bg-[#E2552B]/5 px-5 py-2.5 rounded-md text-sm font-semibold transition-all">Circular Economy</button>
              <button className="bg-white border border-[#E2552B] text-[#E2552B] hover:bg-[#E2552B]/5 px-5 py-2.5 rounded-md text-sm font-semibold transition-all">News</button>

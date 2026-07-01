@@ -31,9 +31,11 @@ export default function About() {
     teamMembers: [] as any[],
     awards: [] as any[],
     partners: [] as any[],
+    values: [] as any[], // ✅ VALUES ADDED TO STATE
     teamHeader: { title: "", description: "" },
     awardsHeader: { title: "", description: "" },
-    partnersHeader: { title: "", description: "" }
+    partnersHeader: { title: "", description: "" },
+    valuesHeader: { title: "", description: "" } // ✅ VALUES HEADER ADDED TO STATE
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -52,9 +54,11 @@ export default function About() {
           teamMembers: data.teamMembers || [],
           awards: data.awards || [],
           partners: data.partners || [],
+          values: data.values || [], // ✅ LOAD VALUES FROM FIREBASE
           teamHeader: data.teamHeader || { title: "", description: "" },
           awardsHeader: data.awardsHeader || { title: "", description: "" },
-          partnersHeader: data.partnersHeader || { title: "", description: "" }
+          partnersHeader: data.partnersHeader || { title: "", description: "" },
+          valuesHeader: data.valuesHeader || { title: "", description: "" } // ✅ LOAD HEADER FROM FIREBASE
         });
       }
       setIsLoading(false);
@@ -93,17 +97,12 @@ export default function About() {
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
           <div className="max-w-xl bg-white/90 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl border border-white/20">
              
-             {/* ✅ TRANSLATED SUBTITLE */}
              <h2 className="text-lg md:text-xl font-semibold mb-3 text-gray-800 leading-snug">
                {tDb(pageData.heroData, 'subtitle')}
              </h2>
-             
-             {/* ✅ TRANSLATED TITLE */}
              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 text-[#1B5E20] leading-tight tracking-tight">
                {tDb(pageData.heroData, 'title')}
              </h1>
-             
-             {/* ✅ TRANSLATED DESCRIPTION */}
              <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed font-light">
                {tDb(pageData.heroData, 'description')}
              </p>
@@ -140,37 +139,32 @@ export default function About() {
       <section id="introducing" className="py-24 bg-white scroll-mt-24">
         <div className="container px-4 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            
-            {/* Left Content */}
             <div>
                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 block">
                  {t('about.aboutUs', 'About Us')}
                </span>
                <h2 className="text-4xl md:text-5xl font-bold text-[#1B5E20] mb-8 leading-tight">
-                 {/* ✅ TRANSLATED */}
                  {tDb(pageData.introData, 'title')}
                </h2>
                
                <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('about.whoWeAre', 'Who We Are')}</h3>
                <p className="text-gray-600 mb-8 leading-relaxed text-sm md:text-base whitespace-pre-line">
-                 {/* ✅ TRANSLATED */}
                  {tDb(pageData.introData, 'description')}
                </p>
                
                <h4 className="font-bold text-lg text-gray-900 mb-4">{t('about.ourCoverage', 'Our Coverage')}</h4>
                <ul className="grid grid-cols-2 gap-y-3 mb-10 text-sm text-gray-700">
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> Myanmar</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-600"></span> Thailand</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> Malaysia</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-600"></span> Singapore</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> Vietnam</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-800"></span> South Korea</li>
-                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-700"></span> Indonesia</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> {t('countries.myanmar', 'Myanmar')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-600"></span> {t('countries.thailand', 'Thailand')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> {t('countries.malaysia', 'Malaysia')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-600"></span> {t('countries.singapore', 'Singapore')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-500"></span> {t('countries.vietnam', 'Vietnam')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-blue-800"></span> {t('countries.southKorea', 'South Korea')}</li>
+                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-red-700"></span> {t('countries.indonesia', 'Indonesia')}</li>
                </ul>
 
                <div className="text-sm text-gray-600 space-y-1 bg-gray-50 p-6 rounded-xl border border-gray-100">
                  <p className="font-bold text-gray-900 mb-2">{t('about.getInTouch', 'Get in touch:')}</p>
-                 {/* ✅ TRANSLATED ADDRESS */}
                  <p>{tDb(pageData.introData, 'address')}</p>
                  <p>Email: {pageData.introData.email}</p>
                  <p>Phone: {pageData.introData.phone}</p>
@@ -178,7 +172,6 @@ export default function About() {
                </div>
             </div>
 
-            {/* Right Content (Image) */}
             <div className="relative">
                <div className="absolute -inset-4 bg-[#F8F9F7] rounded-3xl -z-10 transform rotate-3"></div>
                {pageData.introData.imagePreview ? (
@@ -201,7 +194,6 @@ export default function About() {
         <div className="container px-4 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
              
-             {/* CEO Photo with Organic Shape */}
              <div className="lg:col-span-4 flex flex-col items-center text-center">
                 <div className="relative mb-6">
                    <div 
@@ -218,21 +210,17 @@ export default function About() {
                      <div className="w-56 h-56 rounded-full border-8 border-white shadow-md bg-gray-200"></div>
                    )}
                 </div>
-                {/* ✅ TRANSLATED NAME AND TITLE */}
                 <h4 className="font-bold text-xl text-gray-900 mb-1">{tDb(pageData.storyData, 'ceoName')}</h4>
                 <p className="text-sm font-semibold text-[#E2552B] uppercase tracking-wide">{tDb(pageData.storyData, 'ceoTitle')}</p>
              </div>
              
-             {/* Story Text */}
              <div className="lg:col-span-8">
                 <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-8 relative">
                   <span className="text-[#76FF03] text-6xl font-serif absolute -top-4 -left-6 opacity-50">"</span>
-                  {/* ✅ TRANSLATED HEADING */}
                   {tDb(pageData.storyData, 'title')}
                   <span className="text-[#76FF03] text-6xl font-serif absolute -top-4 -ml-2 opacity-50">"</span>
                 </h2>
                 <div className="space-y-6 text-gray-600 leading-relaxed">
-                  {/* ✅ TRANSLATED PARAGRAPHS */}
                   {tDb(pageData.storyData, 'paragraph1') && <p>{tDb(pageData.storyData, 'paragraph1')}</p>}
                   {tDb(pageData.storyData, 'paragraph2') && <p>{tDb(pageData.storyData, 'paragraph2')}</p>}
                   {tDb(pageData.storyData, 'paragraph3') && <p>{tDb(pageData.storyData, 'paragraph3')}</p>}
@@ -269,13 +257,44 @@ export default function About() {
          </div>
       </section>
 
-      {/* 5. OUR TEAM */}
+      {/* 5. OUR VALUES (✅ RENDERED FROM FIREBASE) */}
+      {pageData.values.length > 0 && (
+        <section className="py-24 bg-white border-y border-gray-100">
+          <div className="container px-4 sm:px-8 lg:px-12">
+            <div className="mb-12">
+              <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
+                {tDb(pageData.valuesHeader, 'title', 'Our Values')}
+              </h2>
+              {tDb(pageData.valuesHeader, 'description') && (
+                <p className="text-gray-600 max-w-3xl">{tDb(pageData.valuesHeader, 'description')}</p>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {pageData.values.map((val: any, i: number) => (
+                <div key={i} className="bg-[#F8F9F7] p-8 rounded-xl border border-gray-100 shadow-sm text-center flex flex-col items-center hover:shadow-md transition-shadow">
+                   <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-6 border border-gray-200 overflow-hidden p-3 shadow-sm">
+                      {val.iconPreview && <img src={val.iconPreview} alt={tDb(val, 'title')} className="w-full h-full object-contain" />}
+                   </div>
+                   <h4 className="font-bold text-[#1B5E20] mb-3">
+                     {tDb(val, 'title')}
+                   </h4>
+                   <p className="text-sm text-gray-500">
+                     {tDb(val, 'desc')}
+                   </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 6. OUR TEAM */}
       {pageData.teamMembers.length > 0 && (
-        <section id="team" className="py-24 bg-white border-t border-gray-100 scroll-mt-24">
+        <section id="team" className="py-24 bg-[#F8F9F7] border-t border-gray-100 scroll-mt-24">
            <div className="container px-4 sm:px-8 lg:px-12">
               <div className="text-center mb-20">
                 <h2 className="text-4xl font-bold text-[#1B5E20] mb-4">
-                  {/* ✅ TRANSLATED HEADING */}
                   {tDb(pageData.teamHeader, 'title', t('about.ourTeam', 'Our Team'))}
                 </h2>
                 {tDb(pageData.teamHeader, 'description') && (
@@ -301,7 +320,6 @@ export default function About() {
                            <div className="w-44 h-44 rounded-full border-4 border-white shadow-md bg-gray-200"></div>
                          )}
                        </div>
-                       {/* ✅ TRANSLATED MEMBER INFO */}
                        <h4 className="font-bold text-xl text-gray-900 mb-1">{tDb(member, 'name')}</h4>
                        <p className="text-sm font-medium text-gray-500">{tDb(member, 'title')}</p>
                     </div>
@@ -311,13 +329,13 @@ export default function About() {
         </section>
       )}
 
-      {/* 6. SEE OUR IMPACT (YOUTUBE VIDEO SECTION) */}
-      <section id="impact" className="py-24 bg-[#F8F9F7] scroll-mt-24">
+      {/* 7. SEE OUR IMPACT (YOUTUBE VIDEO SECTION) */}
+      <section id="impact" className="py-24 bg-white scroll-mt-24">
         <div className="container px-4 sm:px-8 lg:px-12 text-center">
            <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-12">
              {t('about.impactVideoTitle', 'See Our Impact: Pioneering Sustainability In Action')}
            </h2>
-           <div className="w-full max-w-5xl mx-auto rounded-3xl aspect-video shadow-2xl flex items-center justify-center relative overflow-hidden bg-black">
+           <div className="w-full max-w-5xl mx-auto rounded-3xl aspect-video shadow-2xl flex items-center justify-center relative overflow-hidden bg-black border-4 border-gray-50">
               <iframe 
                 className="w-full h-full"
                 src="https://www.youtube.com/embed/OEwDwHcl8kY?si=hMttULggZ-bkTeTq" 
@@ -331,13 +349,12 @@ export default function About() {
         </div>
       </section>
 
-      {/* 7. AWARDS & RECOGNITION CAROUSEL (PROFESSIONAL SAAS DESIGN) */}
+      {/* 8. AWARDS & RECOGNITION CAROUSEL */}
       {pageData.awards.length > 0 && (
-        <section id="awards" className="py-24 bg-white border-t border-gray-100 scroll-mt-24">
+        <section id="awards" className="py-24 bg-[#F8F9F7] border-t border-gray-100 scroll-mt-24">
           <div className="container px-4 sm:px-8 lg:px-12">
              <div className="text-center md:text-left mb-12">
                <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-4">
-                 {/* ✅ TRANSLATED HEADING */}
                  {tDb(pageData.awardsHeader, 'title', t('about.awardsTitle', 'Award-Winning Excellence & Global Recognition'))}
                </h2>
                {tDb(pageData.awardsHeader, 'description') && (
@@ -361,32 +378,20 @@ export default function About() {
                    >
                       {pageData.awards.map((award: any, i: number) => (
                         <div key={award.id || i} className="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] flex-shrink-0">
-                           
-                           {/* PROFESSIONAL AWARD CARD */}
                            <div className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl shadow-gray-200/40 transition-all duration-300 flex flex-col overflow-hidden h-full">
-                              
-                              {/* TOP: Image Canvas */}
                               <div className="h-48 w-full bg-[#F8F9F7] relative flex items-center justify-center p-6 border-b border-gray-100 overflow-hidden">
-                                 {/* Floating Year Badge */}
                                  <div className="absolute top-3 right-3 bg-white px-2.5 py-1 rounded text-[10px] font-black tracking-widest text-[#E2552B] border border-gray-100 flex items-center gap-1.5 z-20 shadow-sm">
                                      <Trophy size={12} className="text-[#E2552B]" /> {award.year}
                                  </div>
-                                 
-                                 {/* Subtle Hover Glow */}
                                  <div className="absolute inset-0 bg-gradient-to-tr from-[#1B5E20]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                 
-                                 {/* Image */}
                                  {award.imagePreview ? (
                                    <img src={award.imagePreview} alt={tDb(award, 'title')} className="max-w-full max-h-full object-contain relative z-10 drop-shadow-md group-hover:scale-110 transition-transform duration-500" />
                                  ) : (
                                    <div className="w-16 h-16 bg-gray-200 rounded-full border-2 border-dashed border-gray-300 relative z-10"></div>
                                  )}
                               </div>
-                              
-                              {/* BOTTOM: Structured Typography */}
                               <div className="p-5 flex flex-col flex-grow bg-white justify-between">
                                  <h3 className="font-bold text-gray-900 group-hover:text-[#1B5E20] transition-colors leading-snug line-clamp-3 text-sm md:text-base">
-                                     {/* ✅ TRANSLATED AWARD INFO */}
                                      {tDb(award, 'title')}
                                  </h3>
                                   {tDb(award, 'description') && (
@@ -396,7 +401,6 @@ export default function About() {
                                 )}
                                  <div className="w-8 h-1 bg-[#1B5E20]/20 mt-4 rounded-full group-hover:bg-[#76FF03] group-hover:w-12 transition-all duration-300"></div>
                               </div>
-
                            </div>
                         </div>
                       ))}
@@ -415,13 +419,12 @@ export default function About() {
         </section>
       )}
 
-      {/* 8. STRATEGIC PARTNERSHIPS (DYNAMIC) */}
+      {/* 9. STRATEGIC PARTNERSHIPS */}
       {pageData.partners.length > 0 && (
-        <section id="partnerships" className="py-24 bg-[#F8F9F7] border-t border-gray-100 scroll-mt-24">
+        <section id="partnerships" className="py-24 bg-white border-t border-gray-100 scroll-mt-24">
           <div className="container px-4 sm:px-8 lg:px-12 text-center">
              <div className="mb-12">
                <h2 className="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-4">
-                 {/* ✅ TRANSLATED HEADING */}
                  {tDb(pageData.partnersHeader, 'title', t('about.partnersTitle', 'Strategic Partnerships & Industry Memberships'))}
                </h2>
                {tDb(pageData.partnersHeader, 'description') && (

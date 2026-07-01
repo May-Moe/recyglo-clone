@@ -11,7 +11,6 @@ import { doc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase"; 
 
 // --- HELPER COMPONENT FOR EXPANDABLE CARDS ---
-// ✅ FIX: Passed the english rawTitle to this component so the icon matcher doesn't break on translation!
 function SolutionCard({ title, desc, rawTitle, isDark }: { title: string, desc: string, rawTitle: string, isDark: boolean }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -85,7 +84,6 @@ export default function Solutions() {
       const loadedServices: any[] = [];
       snapshot.forEach((doc) => loadedServices.push({ id: doc.id, ...doc.data() }));
       
-      // Keep it sorted just like the admin side
       loadedServices.sort((a, b) => {
         if (a.orderIndex !== undefined && b.orderIndex !== undefined) return a.orderIndex - b.orderIndex;
         return ((a.title_en || a.title) || "").localeCompare((b.title_en || b.title) || "");
@@ -181,7 +179,7 @@ export default function Solutions() {
                         onClick={() => { setLocation(`/services/${service.slug}`); window.scrollTo(0,0); }}
                         className="bg-[#E2552B] hover:bg-[#E2552B]/90 text-white font-bold px-8 py-6 rounded-md shadow-md transition-transform hover:-translate-y-1"
                       >
-                         View More
+                         {t('nav.learnMore', 'View More')}
                       </Button>
                    </div>
                 </div>

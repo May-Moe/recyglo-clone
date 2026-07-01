@@ -3,6 +3,7 @@ import { useRoute, Link } from 'wouter';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ChevronRight, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next'; // ✅ IMPORT TRANSLATION
 
 // --- FIREBASE IMPORTS ---
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -11,6 +12,16 @@ import { db } from "@/lib/firebase";
 export default function ArticleDetail() {
   const [match, params] = useRoute('/articles/:slug');
   const slug = params?.slug;
+
+  // --- TRANSLATION SETUP ---
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+
+  // ✅ MAGIC HELPER FUNCTION
+  const tDb = (obj: any, field: string, fallback: string = "") => {
+    if (!obj) return fallback;
+    return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
+  };
 
   const [currentArticle, setCurrentArticle] = useState<any>(null);
   const [otherBlogs, setOtherBlogs] = useState<any[]>([]);
@@ -73,11 +84,11 @@ export default function ArticleDetail() {
           
           {/* Breadcrumb */}
           <div className="mb-10 text-sm font-medium text-gray-500 flex items-center gap-2 flex-wrap">
-            <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">Home</Link>
+            <Link href="/" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.home', 'Home')}</Link>
             <ChevronRight size={14} className="text-gray-300" />
-            <Link href="/articles" className="hover:text-gray-900 cursor-pointer transition-colors">Articles</Link>
+            <Link href="/articles" className="hover:text-gray-900 cursor-pointer transition-colors">{t('nav.articles', 'Articles')}</Link>
             <ChevronRight size={14} className="text-gray-300" />
-            <span className="text-gray-900 font-bold">{currentArticle.title}</span>
+            <span className="text-gray-900 font-bold">{tDb(currentArticle, 'title')}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
@@ -86,7 +97,8 @@ export default function ArticleDetail() {
              <div className="lg:col-span-8">
                 
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1B5E20] mb-6 leading-tight">
-                  {currentArticle.title}
+                  {/* ✅ TRANSLATED */}
+                  {tDb(currentArticle, 'title')}
                 </h1>
                 
                 <div className="flex flex-wrap gap-2 mb-6">
@@ -106,7 +118,7 @@ export default function ArticleDetail() {
                 {/* Main Thumbnail Image */}
                 {currentArticle.imagePreview && (
                   <div className="w-full h-auto md:h-[450px] overflow-hidden rounded-2xl mb-10 shadow-sm border border-gray-100 bg-gray-100">
-                    <img src={currentArticle.imagePreview} alt={currentArticle.title} className="w-full h-full object-cover" />
+                    <img src={currentArticle.imagePreview} alt={tDb(currentArticle, 'title')} className="w-full h-full object-cover" />
                   </div>
                 )}
 
@@ -120,18 +132,18 @@ export default function ArticleDetail() {
                     <div key={block.id || index}>
                       {block.type === 'text' && (
                         <div>
-                          {block.title && <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">{block.title}</h3>}
-                          {block.text && <p className="whitespace-pre-line">{block.text}</p>}
+                          {tDb(block, 'title') && <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">{tDb(block, 'title')}</h3>}
+                          {tDb(block, 'text') && <p className="whitespace-pre-line" dangerouslySetInnerHTML={{ __html: tDb(block, 'text') }}></p>}
                         </div>
                       )}
                       
                       {block.type === 'list' && (
                         <div>
-                          {block.title && <h3 className="text-xl font-bold text-gray-900 mt-8 mb-4">{block.title}</h3>}
-                          {block.text && (
+                          {tDb(block, 'title') && <h3 className="text-xl font-bold text-gray-900 mt-8 mb-4">{tDb(block, 'title')}</h3>}
+                          {tDb(block, 'text') && (
                             <ul className="list-decimal pl-6 space-y-2">
-                              {block.text.split('\n').filter((line: string) => line.trim() !== '').map((line: string, i: number) => (
-                                <li key={i}>{line.replace(/^[-•]\s*/, '')}</li>
+                              {tDb(block, 'text').split('\n').filter((line: string) => line.trim() !== '').map((line: string, i: number) => (
+                                <li key={i} dangerouslySetInnerHTML={{ __html: line.replace(/^[-•]\s*/, '') }}></li>
                               ))}
                             </ul>
                           )}
@@ -140,9 +152,9 @@ export default function ArticleDetail() {
 
                       {block.type === 'image' && (
                         <div className="my-8">
-                          {block.title && <h3 className="text-xl font-bold text-gray-900 mb-4">{block.title}</h3>}
+                          {tDb(block, 'title') && <h3 className="text-xl font-bold text-gray-900 mb-4">{tDb(block, 'title')}</h3>}
                           {block.imagePreview && <img src={block.imagePreview} alt="Blog Asset" className="rounded-xl shadow-sm w-full" />}
-                          {block.text && <p className="text-sm text-gray-500 italic mt-3">{block.text}</p>}
+                          {tDb(block, 'text') && <p className="text-sm text-gray-500 italic mt-3" dangerouslySetInnerHTML={{ __html: tDb(block, 'text') }}></p>}
                         </div>
                       )}
 
@@ -166,18 +178,24 @@ export default function ArticleDetail() {
                           return (
                             <Link key={blog.id} href={`/articles/${blog.slug}`} onClick={() => window.scrollTo(0, 0)} className="group cursor-pointer flex flex-col">
                               <div className="rounded-2xl overflow-hidden mb-5 h-[220px] relative shrink-0 shadow-sm bg-gray-100">
-                                 {blog.imagePreview && <img src={blog.imagePreview} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={blog.title} />}
+                                 {blog.imagePreview && <img src={blog.imagePreview} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={tDb(blog, 'title')} />}
                               </div>
-                              <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 group-hover:text-[#1B5E20] transition-colors leading-snug">{blog.title}</h3>
+                              <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 group-hover:text-[#1B5E20] transition-colors leading-snug">
+                                {/* ✅ TRANSLATED */}
+                                {tDb(blog, 'title')}
+                              </h3>
                               <div className="flex flex-wrap gap-2 mb-4">
-                                 {blogTags.map((tag: string) => (
+                                 {blogTags.slice(0, 2).map((tag: string) => (
                                    <span key={tag} className="border border-gray-300 rounded-full px-3 py-1 text-[11px] font-medium text-gray-600 bg-white">{tag}</span>
                                  ))}
                               </div>
-                              <p className="text-gray-500 text-sm mb-4 line-clamp-3 leading-relaxed">{blog.excerpt}</p>
+                              <p className="text-gray-500 text-sm mb-4 line-clamp-3 leading-relaxed">
+                                {/* ✅ TRANSLATED */}
+                                {tDb(blog, 'excerpt')}
+                              </p>
                               <div className="text-gray-400 text-xs mb-4">{blog.date}</div>
                               <span className="text-[#E2552B] font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
-                                Read More <ArrowRight size={14} />
+                                {t('home.readMore', 'Read More')} <ArrowRight size={14} />
                               </span>
                             </Link>
                           )
@@ -199,10 +217,13 @@ export default function ArticleDetail() {
                         return (
                           <Link key={blog.id} href={`/articles/${blog.slug}`} onClick={() => window.scrollTo(0, 0)} className="group flex gap-4 cursor-pointer items-start">
                              <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden shadow-sm bg-gray-100">
-                               {blog.imagePreview && <img src={blog.imagePreview} alt={blog.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />}
+                               {blog.imagePreview && <img src={blog.imagePreview} alt={tDb(blog, 'title')} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />}
                              </div>
                              <div className="flex flex-col">
-                               <h4 className="font-bold text-sm text-gray-900 group-hover:text-[#1B5E20] transition-colors mb-2 line-clamp-2 leading-tight">{blog.title}</h4>
+                               <h4 className="font-bold text-sm text-gray-900 group-hover:text-[#1B5E20] transition-colors mb-2 line-clamp-2 leading-tight">
+                                 {/* ✅ TRANSLATED */}
+                                 {tDb(blog, 'title')}
+                               </h4>
                                <div className="flex flex-wrap gap-1.5 mb-2">
                                  {blogTags.slice(0, 2).map((tag: string) => (
                                    <span key={tag} className="border border-gray-200 rounded-full px-2 py-0.5 text-[10px] font-medium text-gray-500 bg-white">{tag}</span>
