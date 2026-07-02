@@ -334,7 +334,7 @@ export default function Header() {
             </div>
 
             <div className="flex flex-col gap-3 mt-6">
-              <Button
+              {/* <Button
                 variant="outline"
                 className="w-full border-[#1B5E20] text-[#1B5E20] font-semibold h-12 flex items-center justify-center gap-2"
                 onClick={() => {
@@ -345,7 +345,7 @@ export default function Header() {
               >
                 <Lock size={16} />
                 {t('nav.adminLogin', 'Admin Login')}
-              </Button>
+              </Button> */}
 
               <Button
                 className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-12"

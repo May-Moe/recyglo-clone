@@ -169,7 +169,7 @@ export default function Home() {
 
       {/* 1. ORIGINAL HERO SECTION (Restored Typography) */}
       {pageData.heroSlides.length > 0 && (
-        <section className="relative h-[650px] md:h-[800px] w-full overflow-hidden bg-[#1B5E20]">
+        <section className="relative h-[550px] md:h-[600px] w-full overflow-hidden bg-[#1B5E20]">
           <div className="flex w-full h-full transition-transform duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)]" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
             {pageData.heroSlides.map((slide: any, index: number) => {
               const isActive = index === currentSlide;

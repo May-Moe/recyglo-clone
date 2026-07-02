@@ -5,13 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Search, Calendar, User, Play, X, Clock, ExternalLink, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useTranslation } from 'react-i18next'; // ✅ IMPORT TRANSLATION
+import { useTranslation } from 'react-i18next';
 
 // --- FIREBASE IMPORTS ---
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-// Custom Mini-Slider Component for the Event Cards AND Modals
 function EventImageSlider({ images, className = "h-48 w-full" }: { images: string[], className?: string }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -65,7 +64,6 @@ export default function Events() {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language || 'en';
 
-  // ✅ MAGIC HELPER FUNCTION
   const tDb = (obj: any, field: string, fallback: string = "") => {
     if (!obj) return fallback;
     return obj[`${field}_${currentLang}`] || obj[`${field}_en`] || obj[field] || fallback;
@@ -74,12 +72,10 @@ export default function Events() {
   const [timeLeft, setTimeLeft] = useState({ days: '00', hours: '00', minutes: '00', seconds: '00' });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  const [showAll, setShowAll] = useState(false);
+  const [showAllPast, setShowAllPast] = useState(false);
   
   const [selectedEvent, setSelectedEvent] = useState<any>(null); 
   const [selectedInPersonEvent, setSelectedInPersonEvent] = useState<any>(null); 
-  
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('past');
 
   // --- FETCH DATA ---
   useEffect(() => {
@@ -97,6 +93,7 @@ export default function Events() {
 
   const now = new Date().getTime();
   
+  // Separate Lists cleanly by date comparison thresholds
   const allUpcoming = events
     .filter(e => new Date(e.date).getTime() > now)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -106,17 +103,11 @@ export default function Events() {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const heroEvent = allUpcoming.length > 0 ? allUpcoming[0] : null;
-  const gridUpcoming = allUpcoming.slice(1);
+  const secondaryUpcoming = allUpcoming.slice(1);
 
-  // Categories based on English values for filtering logic
   const categories = ['All Categories', ...Array.from(new Set(events.map(e => e.category_en || e.category).filter(Boolean)))];
 
-  useEffect(() => {
-    if (!isLoading && gridUpcoming.length > 0) {
-      setActiveTab('upcoming');
-    }
-  }, [isLoading, gridUpcoming.length]);
-
+  // Countdown timer lifecycle for top live event module
   useEffect(() => {
     if (!heroEvent) return;
     const targetDate = new Date(heroEvent.date).getTime();
@@ -138,16 +129,14 @@ export default function Events() {
     return () => clearInterval(interval);
   }, [heroEvent]);
 
-  const activeEventsList = activeTab === 'upcoming' ? gridUpcoming : pastEvents;
-
-  const filteredEvents = activeEventsList.filter(event => {
-    // Search translation strings
+  // Filter conditions targeting past historical library array entries exclusively
+  const filteredPastEvents = pastEvents.filter(event => {
     const titleMatch = tDb(event, 'title').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All Categories' || (event.category_en || event.category) === selectedCategory;
     return titleMatch && matchesCategory;
   });
 
-  const displayedEvents = showAll ? filteredEvents : filteredEvents.slice(0, 3);
+  const displayedPastEvents = showAllPast ? filteredPastEvents : filteredPastEvents.slice(0, 3);
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#F8F9F7]">Loading Events...</div>;
@@ -157,12 +146,10 @@ export default function Events() {
     <div className="min-h-screen flex flex-col bg-[#F8F9F7]">
       <Header />
 
-      {/* 1. PROFESSIONAL LIGHT HERO SECTION (CLEAN & WHITE) */}
+      {/* 1. HERO LIVE BLOCK (TOPPING COMING SESSIONS MODULE) */}
       <section className="bg-white py-20 lg:py-28 relative overflow-hidden border-b border-gray-100">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#000000 1px, transparent 1px), linear-gradient(90deg, #000000 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
-        
         <div className="container px-4 sm:px-8 lg:px-12 relative z-10">
-          
           {heroEvent ? (
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
               <div className="lg:w-[55%] text-gray-900">
@@ -170,15 +157,12 @@ export default function Events() {
                   <span className="w-2 h-2 rounded-full bg-[#E2552B] animate-pulse"></span>
                   {t('events.nextLive', 'Next Live Webinar')}
                 </div>
-                
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-gray-900 tracking-tight">
                   {tDb(heroEvent, 'title')}
                 </h1>
-                
                 <p className="text-lg text-gray-600 mb-10 leading-relaxed font-light line-clamp-3 max-w-xl">
                   {tDb(heroEvent, 'description')}
                 </p>
-
                 <div className="flex items-center gap-6 sm:gap-8 mb-12">
                   <div className="flex flex-col items-center sm:items-start">
                     <span className="text-4xl sm:text-5xl font-bold leading-none text-gray-900">{timeLeft.days}</span>
@@ -194,19 +178,15 @@ export default function Events() {
                     <span className="text-4xl sm:text-5xl font-bold leading-none text-gray-900">{timeLeft.minutes}</span>
                     <span className="text-xs text-gray-500 uppercase tracking-widest mt-2 font-medium">{t('events.mins', 'Mins')}</span>
                   </div>
-                  <div className="w-[1px] h-12 bg-[#E2552B]/40"></div>
+                  <div className="w-[1px] h-12 bg-gray-200"></div>
                   <div className="flex flex-col items-center sm:items-start">
                     <span className="text-4xl sm:text-5xl font-bold leading-none text-[#E2552B]">{timeLeft.seconds}</span>
                     <span className="text-xs text-[#E2552B]/70 uppercase tracking-widest mt-2 font-medium">{t('events.secs', 'Secs')}</span>
                   </div>
                 </div>
-
                 <div className="flex flex-col sm:flex-row sm:items-center gap-6 pt-8 border-t border-gray-100">
                   {heroEvent.link ? (
-                    <Button 
-                      onClick={() => window.open(heroEvent.link, '_blank')}
-                      className="bg-[#E2552B] hover:bg-[#c94b26] text-white font-bold py-6 px-8 text-md rounded-lg shadow-lg flex items-center gap-2 shrink-0"
-                    >
+                    <Button onClick={() => window.open(heroEvent.link, '_blank')} className="bg-[#E2552B] hover:bg-[#c94b26] text-white font-bold py-6 px-8 text-md rounded-lg shadow-lg flex items-center gap-2 shrink-0">
                       {t('events.registerNow', 'Register Now')} <ExternalLink size={16} />
                     </Button>
                   ) : (
@@ -214,11 +194,14 @@ export default function Events() {
                       {t('events.regComingSoon', 'Registration Coming Soon')}
                     </Button>
                   )}
-                  
                   <div className="flex flex-col space-y-2">
                     <div className="flex items-center gap-3 text-sm text-gray-600">
                       <Calendar size={16} className="text-[#1B5E20]" />
-                      <span className="font-semibold text-gray-900">{new Date(heroEvent.date).toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                      <span className="font-semibold text-gray-900">
+                        {new Date(heroEvent.date).toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        {` • `}
+                        {new Date(heroEvent.date).toLocaleTimeString(currentLang === 'th' ? 'th-TH' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
                     {tDb(heroEvent, 'speakers') && (
                       <div className="flex items-center gap-3 text-sm text-gray-600">
@@ -229,18 +212,12 @@ export default function Events() {
                   </div>
                 </div>
               </div>
-
               <div className="lg:w-[45%] w-full mt-10 lg:mt-0 flex justify-center lg:justify-end">
                 <div className="relative w-full max-w-lg lg:max-w-xl">
                   <div className="absolute inset-0 bg-gradient-to-tr from-[#1B5E20]/20 to-[#76FF03]/20 rounded-[2rem] transform translate-x-4 translate-y-4 md:translate-x-6 md:translate-y-6 z-0"></div>
-                  
                   <div className="relative bg-white p-3 md:p-4 rounded-[2rem] border border-gray-100 shadow-xl z-10">
                     <div className="bg-gray-50 rounded-2xl overflow-hidden relative flex items-center justify-center min-h-[300px]">
-                      <img 
-                        src={heroEvent.imagePreview || 'https://placehold.co/800x600/f8f9fa/a1a1aa?text=Webinar+Flyer'} 
-                        alt={tDb(heroEvent, 'title')}
-                        className="w-full h-auto max-h-[450px] object-contain"
-                      />
+                      <img src={heroEvent.imagePreview || 'https://placehold.co/800x600/f8f9fa/a1a1aa?text=Webinar+Flyer'} alt={tDb(heroEvent, 'title')} className="w-full h-auto max-h-[450px] object-contain" />
                       {tDb(heroEvent, 'category') && (
                         <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-md text-[#1B5E20] border border-gray-100 px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-widest shadow-sm">
                           {tDb(heroEvent, 'category')}
@@ -267,57 +244,87 @@ export default function Events() {
         </div>
       </section>
 
-      {/* 2. TABBED WEBINARS SECTION */}
-      <section className="py-16 lg:py-24 bg-[#F8F9F7]" id="webinars-section">
-        <div className="container px-4 sm:px-8 lg:px-12">
-          
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-12 border-b border-gray-200">
-            <button
-              onClick={() => { setActiveTab('upcoming'); setShowAll(false); }}
-              className={`pb-4 px-4 font-bold text-lg transition-colors border-b-2 ${
-                activeTab === 'upcoming' 
-                  ? 'border-[#1B5E20] text-[#1B5E20]' 
-                  : 'border-transparent text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              {t('events.upcomingSessions', 'Upcoming Sessions')} <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{gridUpcoming.length}</span>
-            </button>
-            <button
-              onClick={() => { setActiveTab('past'); setShowAll(false); }}
-              className={`pb-4 px-4 font-bold text-lg transition-colors border-b-2 ${
-                activeTab === 'past' 
-                  ? 'border-[#1B5E20] text-[#1B5E20]' 
-                  : 'border-transparent text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              {t('events.pastWebinars', 'Past Webinars')} <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{pastEvents.length}</span>
-            </button>
+      {/* 2. SECTION FOR UPCOMING WEBINARS (GRID ROW) */}
+      {secondaryUpcoming.length > 0 && (
+        <section className="py-16 bg-white border-b border-gray-100">
+          <div className="container px-4 sm:px-8 lg:px-12">
+            <div className="mb-10">
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
+                {t('events.moreUpcoming', 'More Upcoming Events')}
+              </h2>
+              <p className="text-gray-500 text-sm">
+                {t('events.upDesc', 'Register for our upcoming sessions on sustainability, innovation, and ESG compliance.')}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {secondaryUpcoming.map((event) => (
+                <Card key={event.id} className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 group flex flex-col bg-white rounded-xl">
+                  <div className="aspect-[16/10] relative overflow-hidden bg-gray-100 border-b border-gray-100 flex items-center justify-center p-4">
+                    <img src={event.imagePreview || 'https://placehold.co/600x400/e2e8f0/64748b?text=Event'} alt={tDb(event, 'title')} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 drop-shadow-md" />
+                    {tDb(event, 'category') && (
+                      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded text-xs font-bold tracking-wider uppercase text-[#1B5E20] shadow-sm border border-gray-100">
+                        {tDb(event, 'category')}
+                      </div>
+                    )}
+                    <div className="absolute top-4 left-4 bg-[#E2552B] text-white px-3 py-1 rounded text-xs font-bold tracking-wider uppercase shadow-sm">
+                      {t('events.upcoming', 'Upcoming')}
+                    </div>
+                  </div>
+                  <CardContent className="p-8 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 group-hover:text-[#1B5E20] transition-colors leading-snug">
+                      {tDb(event, 'title')}
+                    </h3>
+                    <div className="space-y-2 mb-6 text-sm text-gray-600">
+                      <div className="flex items-center gap-3">
+                        <Calendar size={16} className="text-[#E2552B]"/> 
+                        <span>
+                          {new Date(event.date).toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          {` • `}
+                          {new Date(event.date).toLocaleTimeString(currentLang === 'th' ? 'th-TH' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      {tDb(event, 'speakers') && <div className="flex items-center gap-3"><User size={16} className="text-[#E2552B]"/> <span className="line-clamp-1">{tDb(event, 'speakers')}</span></div>}
+                    </div>
+                    <p className="text-sm text-gray-500 line-clamp-3 mb-8 flex-grow leading-relaxed">
+                      {tDb(event, 'description')}
+                    </p>
+                    <Button variant="outline" onClick={() => setSelectedEvent(event)} className="w-full border-2 border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white font-bold py-6 text-sm rounded-lg transition-colors">
+                      {t('events.viewDetails', 'View Details')}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
+        </section>
+      )}
 
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold text-[#1B5E20] mb-4">
-              {activeTab === 'upcoming' ? t('events.moreUpcoming', 'More Upcoming Events') : t('events.library', 'Library of Past Webinars')}
-            </h2>
-            <p className="text-gray-600 mb-8 text-lg">
-              {activeTab === 'upcoming' 
-                ? t('events.upDesc', 'Register for our upcoming sessions on sustainability, innovation, and ESG compliance.') 
-                : t('events.pastDesc', 'Watch recordings of our most popular past sessions and workshops.')}
-            </p>
-            
-            <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-200 max-w-4xl">
+      {/* 3. SECTION FOR PAST WEBINARS WITH FILTERING AND CONTROLS */}
+      <section className="py-16 lg:py-24 bg-[#F8F9F7]" id="past-webinars-section">
+        <div className="container px-4 sm:px-8 lg:px-12">
+          <div className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div>
+              <h2 className="text-3xl font-bold text-[#1B5E20] mb-3">
+                {t('events.library', 'Library of Past Webinars')}
+              </h2>
+              <p className="text-gray-600 text-sm max-w-2xl">
+                {t('events.pastDesc', 'Watch recordings of our most popular past sessions and workshops.')}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 bg-white p-3 rounded-xl shadow-sm border border-gray-200 w-full lg:max-w-2xl shrink-0">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input 
                   type="text" 
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] transition-all font-medium text-gray-700"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] text-sm text-gray-700 font-medium"
                   placeholder={t('events.searchHolder', 'Search webinars by title...')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="md:w-72 shrink-0">
+              <div className="sm:w-56 shrink-0">
                 <select 
-                  className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] cursor-pointer font-medium text-gray-700 appearance-none shadow-sm"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1B5E20] cursor-pointer font-medium text-sm text-gray-700 appearance-none shadow-sm"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
@@ -327,21 +334,14 @@ export default function Events() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {displayedEvents.map((event) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {displayedPastEvents.map((event) => (
               <Card key={event.id} className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 group flex flex-col bg-white rounded-xl">
                 <div className="aspect-[16/10] relative overflow-hidden bg-gray-100 border-b border-gray-100 flex items-center justify-center p-4">
                   <img src={event.imagePreview || 'https://placehold.co/600x400/e2e8f0/64748b?text=Event'} alt={tDb(event, 'title')} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 drop-shadow-md" />
-                  
                   {tDb(event, 'category') && (
                     <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded text-xs font-bold tracking-wider uppercase text-[#1B5E20] shadow-sm border border-gray-100">
                       {tDb(event, 'category')}
-                    </div>
-                  )}
-
-                  {activeTab === 'upcoming' && (
-                    <div className="absolute top-4 left-4 bg-[#E2552B] text-white px-3 py-1 rounded text-xs font-bold tracking-wider uppercase shadow-sm">
-                      {t('events.upcoming', 'Upcoming')}
                     </div>
                   )}
                 </div>
@@ -349,21 +349,21 @@ export default function Events() {
                   <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 group-hover:text-[#1B5E20] transition-colors leading-snug">
                     {tDb(event, 'title')}
                   </h3>
-                  
                   <div className="space-y-2 mb-6 text-sm text-gray-600">
-                    <div className="flex items-center gap-3"><Calendar size={16} className="text-[#E2552B]"/> <span>{new Date(event.date).toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
+                    <div className="flex items-center gap-3">
+                      <Calendar size={16} className="text-[#E2552B]"/> 
+                      <span>
+                        {new Date(event.date).toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        {` • `}
+                        {new Date(event.date).toLocaleTimeString(currentLang === 'th' ? 'th-TH' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
                     {tDb(event, 'speakers') && <div className="flex items-center gap-3"><User size={16} className="text-[#E2552B]"/> <span className="line-clamp-1">{tDb(event, 'speakers')}</span></div>}
                   </div>
-                  
                   <p className="text-sm text-gray-500 line-clamp-3 mb-8 flex-grow leading-relaxed">
                     {tDb(event, 'description')}
                   </p>
-                  
-                  <Button 
-                    variant="outline"
-                    onClick={() => setSelectedEvent(event)}
-                    className="w-full border-2 border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white font-bold py-6 text-sm rounded-lg transition-colors"
-                  >
+                  <Button variant="outline" onClick={() => setSelectedEvent(event)} className="w-full border-2 border-[#1B5E20] text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white font-bold py-6 text-sm rounded-lg transition-colors">
                     {t('events.viewDetails', 'View Details')}
                   </Button>
                 </CardContent>
@@ -371,32 +371,27 @@ export default function Events() {
             ))}
           </div>
 
-          {filteredEvents.length === 0 && (
+          {filteredPastEvents.length === 0 && (
             <div className="text-center py-20 bg-white border border-gray-200 rounded-xl shadow-sm">
               <Search size={48} className="mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500 font-medium text-lg">No events found matching your criteria in this tab.</p>
+              <p className="text-gray-500 font-medium text-lg">No past webinars found matching your search.</p>
               <Button variant="link" onClick={() => { setSearchQuery(''); setSelectedCategory('All Categories'); }} className="text-[#E2552B] mt-2 font-bold text-md">Clear Filters</Button>
             </div>
           )}
 
-          {filteredEvents.length > 3 && (
+          {filteredPastEvents.length > 3 && (
             <div className="text-center mt-12">
-              <Button 
-                onClick={() => setShowAll(!showAll)}
-                className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-6 font-bold text-md rounded-xl transition-all shadow-md"
-              >
-                {showAll ? t('events.collapse', 'Collapse List') : `${t('events.loadMore', 'Load More')} ${activeTab === 'upcoming' ? t('events.events', 'Events') : t('events.webinars', 'Webinars')}`}
+              <Button onClick={() => setShowAllPast(!showAllPast)} className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-6 font-bold text-md rounded-xl transition-all shadow-md">
+                {showAllPast ? t('events.collapse', 'Collapse List') : t('events.loadMore', 'Load More Past Webinars')}
               </Button>
             </div>
           )}
-
         </div>
       </section>
 
-      {/* 3. NEW DYNAMIC SECTION: IN-PERSON EVENTS (Managed from Admin) */}
+      {/* 4. INDUSTRY / IN-PERSON SECTION */}
       <section className="py-16 lg:py-24 bg-white border-t border-gray-200" id="in-person-events">
         <div className="container px-4 sm:px-8 lg:px-12">
-          
           <div className="mb-12">
             <div className="inline-flex items-center gap-2 bg-[#1B5E20]/10 text-[#1B5E20] px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-[#1B5E20]/20">
               <MapPin size={14} /> {t('events.inPerson', 'In-Person')}
@@ -408,21 +403,14 @@ export default function Events() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-            {/* Dynamic Event Mapping */}
             {inPersonEvents.map((event) => {
               const dateObj = new Date(event.date);
               const month = dateObj.toLocaleString(currentLang === 'th' ? 'th-TH' : 'en-US', { month: 'short' });
               const day = dateObj.getDate();
 
               return (
-                <div 
-                  key={event.id} 
-                  onClick={() => setSelectedInPersonEvent(event)}
-                  className="bg-[#F8F9F7] border border-gray-200 rounded-xl hover:shadow-lg transition-all flex flex-col overflow-hidden shadow-sm cursor-pointer group/card hover:border-[#1B5E20]/30"
-                >
+                <div key={event.id} onClick={() => setSelectedInPersonEvent(event)} className="bg-[#F8F9F7] border border-gray-200 rounded-xl hover:shadow-lg transition-all flex flex-col overflow-hidden shadow-sm cursor-pointer group/card hover:border-[#1B5E20]/30">
                   <EventImageSlider images={event.images} className="h-56 w-full" />
-                  
                   <div className="p-6 flex flex-col flex-grow">
                     <div className="flex justify-between items-start mb-4">
                       <div className="bg-white border border-gray-200 rounded-lg p-2 text-center min-w-[60px] shadow-sm">
@@ -442,7 +430,6 @@ export default function Events() {
                     <div className="flex items-center gap-2 text-sm text-gray-500 font-medium pt-4 border-t border-gray-200 mt-auto">
                       <MapPin size={16} className="text-[#1B5E20] shrink-0" /> <span className="truncate">{tDb(event, 'location')}</span>
                     </div>
-                    
                     <div className="mt-4 pt-4 border-t border-gray-100 text-center">
                       <span className="text-[#1B5E20] font-bold text-sm flex items-center justify-center gap-1 group-hover/card:gap-2 transition-all">
                         {t('events.viewDetails', 'View Details')} <ChevronRight size={16} />
@@ -453,7 +440,6 @@ export default function Events() {
               );
             })}
 
-            {/* Permanent CTA for Events */}
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-lg relative overflow-hidden min-h-[300px]">
                <div className="absolute top-0 right-0 p-8 opacity-10">
                  <Calendar size={100} className="text-white" />
@@ -464,33 +450,21 @@ export default function Events() {
                  {t('nav.contact', 'Contact Our Team')}
                </Button>
             </div>
-
           </div>
-
         </div>
       </section>
 
-      {/* 4. ENLARGED WEBINAR DETAILS MODAL */}
+      {/* MODAL SYSTEM */}
       {selectedEvent && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-[1.5rem] w-full max-w-6xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative min-h-[500px]">
-            
-            <button 
-              onClick={() => setSelectedEvent(null)}
-              className="absolute top-4 right-4 z-20 w-10 h-10 bg-gray-200/80 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-            >
+            <button onClick={() => setSelectedEvent(null)} className="absolute top-4 right-4 z-20 w-10 h-10 bg-gray-200/80 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center transition-colors shadow-sm">
               <X size={20} />
             </button>
-
-            <div className="flex flex-col md:flex-row h-full overflow-y-auto custom-scrollbar">
+            <div className="flex flex-col md:flex-row h-full overflow-y-auto custom-scrollbar w-full">
               <div className="md:w-1/2 bg-[#F2F5F3] flex items-center justify-center p-8 shrink-0 relative border-r border-gray-100">
-                <img 
-                  src={selectedEvent.imagePreview || 'https://placehold.co/600x800/e2e8f0/64748b?text=Event'} 
-                  alt={tDb(selectedEvent, 'title')} 
-                  className="w-full h-auto max-h-[70vh] object-contain drop-shadow-xl" 
-                />
+                <img src={selectedEvent.imagePreview || 'https://placehold.co/600x800/e2e8f0/64748b?text=Event'} alt={tDb(selectedEvent, 'title')} className="w-full h-auto max-h-[70vh] object-contain drop-shadow-xl" />
               </div>
-              
               <div className="md:w-1/2 p-8 md:p-12 lg:p-14 flex flex-col bg-white">
                 <div className="flex gap-2 mb-4">
                   <span className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded text-[11px] font-bold uppercase tracking-widest border border-gray-200">
@@ -502,11 +476,9 @@ export default function Events() {
                     </span>
                   )}
                 </div>
-                
                 <h2 className="text-3xl font-extrabold text-gray-900 mb-8 leading-tight pr-8">
                   {tDb(selectedEvent, 'title')}
                 </h2>
-                
                 <div className="space-y-6 mb-8">
                   <div className="flex items-start gap-4 text-gray-700">
                     <div className="w-10 h-10 bg-white flex items-center justify-center rounded-full border border-gray-200 shrink-0 shadow-sm">
@@ -519,7 +491,6 @@ export default function Events() {
                       </p>
                     </div>
                   </div>
-
                   {tDb(selectedEvent, 'speakers') && (
                     <div className="flex items-start gap-4 text-gray-700 pt-6 border-t border-gray-100">
                       <div className="w-10 h-10 bg-white flex items-center justify-center rounded-full border border-gray-200 shrink-0 shadow-sm">
@@ -532,14 +503,12 @@ export default function Events() {
                     </div>
                   )}
                 </div>
-
                 <div className="mb-10">
                   <h4 className="font-bold text-gray-900 mb-4 text-md">About This Session</h4>
                   <p className="text-gray-500 leading-relaxed text-sm whitespace-pre-line">
                     {tDb(selectedEvent, 'description')}
                   </p>
                 </div>
-
                 <div className="mt-auto flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100">
                   {selectedEvent.youtubeLink ? (
                     <Button onClick={() => window.open(selectedEvent.youtubeLink, '_blank')} className="flex-1 bg-[#E60000] hover:bg-[#cc0000] text-white font-bold py-6 rounded-xl flex items-center justify-center gap-2 text-md shadow-md">
@@ -560,25 +529,17 @@ export default function Events() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       )}
 
-      {/* 5. ENLARGED IN-PERSON EVENT DETAILS MODAL (NEW) */}
       {selectedInPersonEvent && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-[1.5rem] w-full max-w-6xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative min-h-[500px]">
-            
-            <button 
-              onClick={() => setSelectedInPersonEvent(null)}
-              className="absolute top-4 right-4 z-30 w-10 h-10 bg-gray-200/80 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-            >
+            <button onClick={() => setSelectedInPersonEvent(null)} className="absolute top-4 right-4 z-30 w-10 h-10 bg-gray-200/80 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center transition-colors shadow-sm">
               <X size={20} />
             </button>
-
             <div className="flex flex-col md:flex-row h-full overflow-y-auto custom-scrollbar w-full">
-              
               <div className="md:w-1/2 bg-[#F2F5F3] flex items-center justify-center shrink-0 relative border-r border-gray-100">
                 {selectedInPersonEvent.images?.length > 0 ? (
                   <EventImageSlider images={selectedInPersonEvent.images} className="h-full w-full min-h-[300px] md:min-h-[500px]" />
@@ -586,31 +547,27 @@ export default function Events() {
                   <img src="https://placehold.co/600x800/e2e8f0/64748b?text=Event" alt="Event" className="w-full h-auto max-h-[70vh] object-contain p-8" />
                 )}
               </div>
-              
               <div className="md:w-1/2 p-8 md:p-12 lg:p-14 flex flex-col bg-white">
                 <div className="flex gap-2 mb-4">
                   <span className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded text-[11px] font-bold uppercase tracking-widest border border-gray-200">
                     {tDb(selectedInPersonEvent, 'type') || 'EVENT'}
                   </span>
                 </div>
-                
                 <h2 className="text-3xl font-extrabold text-gray-900 mb-8 leading-tight pr-8">
                   {tDb(selectedInPersonEvent, 'title')}
                 </h2>
-                
                 <div className="space-y-6 mb-8">
                   <div className="flex items-start gap-4 text-gray-700">
                     <div className="w-10 h-10 bg-white flex items-center justify-center rounded-full border border-gray-200 shrink-0 shadow-sm">
                       <Calendar className="text-[#E2552B]" size={18} />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date & Time</p>
                       <p className="font-bold text-gray-800 text-sm">
-                        {new Date(selectedInPersonEvent.date).toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        {new Date(selectedInPersonEvent.date).toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at {new Date(selectedInPersonEvent.date).toLocaleTimeString(currentLang === 'th' ? 'th-TH' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
-
                   <div className="flex items-start gap-4 text-gray-700 pt-6 border-t border-gray-100">
                     <div className="w-10 h-10 bg-white flex items-center justify-center rounded-full border border-gray-200 shrink-0 shadow-sm">
                       <MapPin className="text-[#E2552B]" size={18} />
@@ -621,14 +578,12 @@ export default function Events() {
                     </div>
                   </div>
                 </div>
-
                 <div className="mb-10">
                   <h4 className="font-bold text-gray-900 mb-4 text-md">About This Event</h4>
                   <p className="text-gray-500 leading-relaxed text-sm whitespace-pre-line">
                     {tDb(selectedInPersonEvent, 'description')}
                   </p>
                 </div>
-
                 <div className="mt-auto pt-6 border-t border-gray-100">
                   <Button variant="outline" className="w-full py-6 px-8 rounded-xl font-bold text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-sm" onClick={() => setSelectedInPersonEvent(null)}>
                     Close Details
@@ -636,12 +591,10 @@ export default function Events() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       )}
 
-      <Footer />
     </div>
   );
 }
